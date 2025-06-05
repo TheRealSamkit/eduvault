@@ -13,7 +13,7 @@ if (!isset($_SESSION['admin_id'])) {
 // Get recent activities
 $activities = mysqli_query($mysqli, "SELECT al.*, u.name as user_name, au.username as admin_name 
                                    FROM activity_logs al 
-                                   LEFT JOIN users u ON al.user_id = u.id 
+                                   LEFT JOIN users u ON al.id = u.id 
                                    LEFT JOIN admin_users au ON al.admin_id = au.id 
                                    ORDER BY al.created_at DESC LIMIT 10");
 ?>

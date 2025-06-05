@@ -55,7 +55,7 @@ $stats = [
         <a href="settings.php" class="nav-link">
             <i class="fas fa-cog me-2"></i>Settings
         </a>
-        <a href="logout.php" class="nav-link">
+        <a href="../logout.php" class="nav-link">
             <i class="fas fa-sign-out-alt me-2"></i>Logout
         </a>
     </div>

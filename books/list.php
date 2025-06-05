@@ -4,7 +4,7 @@ require_once '../includes/session.php';
 require_once '../includes/header.php';
 
 // Handle search and filters
-$where_conditions = ["status = 'Available'"]; // Only show available books
+$where_conditions = ["b.status = 'Available'"]; // Only show available books
 $search = isset($_GET['search']) ? mysqli_real_escape_string($mysqli, $_GET['search']) : '';
 $board = isset($_GET['board']) ? mysqli_real_escape_string($mysqli, $_GET['board']) : '';
 $subject = isset($_GET['subject']) ? mysqli_real_escape_string($mysqli, $_GET['subject']) : '';
