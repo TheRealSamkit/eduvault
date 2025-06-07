@@ -7,7 +7,7 @@ function isLoggedIn() {
 
 function requireLogin() {
     if (!isLoggedIn()) {
-        header("Location: /eduvaultv2/login.php");
+        header("Location: /eduvault/login.php");
         exit();
     }
 }

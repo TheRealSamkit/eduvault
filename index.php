@@ -67,7 +67,7 @@ $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as coun
                 <?php endif; ?>
             </div>
             <div class="col-md-5">
-                <img src="assets/images/hero-illustration.svg" alt="Education Illustration" class="img-fluid">
+                <img src="assets/images/hero-image.png" alt="Education Illustration" class="img-fluid">
             </div>
         </div>
     </div>

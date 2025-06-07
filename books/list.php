@@ -117,56 +117,57 @@ if (isLoggedIn()) {
     </div>
 </div>
 
-
-<div class="row">
-    <?php if (mysqli_num_rows($result) > 0): ?>
-        <?php while ($book = mysqli_fetch_assoc($result)): ?>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <?php if (!empty($book['image_path'])): ?>
-                        <img src="<?php echo $book['image_path']; ?>" class="card-img-top" alt="Book Cover"
-                             style="height: 200px; object-fit: cover;">
-                    <?php else: ?>
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
-                             style="height: 200px;">
-                            <i class="fas fa-book fa-3x text-muted"></i>
+<div class="container-md">  
+    <div class="row">
+        <?php if (mysqli_num_rows($result) > 0): ?>
+            <?php while ($book = mysqli_fetch_assoc($result)): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <?php if (!empty($book['image_path'])): ?>
+                            <img src="<?php echo $book['image_path']; ?>" class="card-img-top" alt="Book Cover"
+                                 style="height: 200px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                                 style="height: 200px;">
+                                <i class="fas fa-book fa-3x text-muted"></i>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo htmlspecialchars($book['title']); ?></h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($book['subject']); ?>
+                                    <br>
+                                    <i class="fas fa-university me-1"></i><?php echo htmlspecialchars($book['board']); ?>
+                                    <br>
+                                    <i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($book['owner_location']); ?>
+                                    <?php if (isset($book['distance'])): ?>
+                                        <br>    
+                                            <i class="fas fa-route me-1"></i><?php echo round($book['distance'], 1); ?> km away
+                                    <?php endif; ?>
+                                </small>
+                            </p>
                         </div>
-                    <?php endif; ?>
-                    
-                    <div class="card-body">
-                        <h5 class="card-title"><?php echo htmlspecialchars($book['title']); ?></h5>
-                        <p class="card-text">
-                            <small class="text-muted">
-                                <i class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($book['subject']); ?>
-                                <br>
-                                <i class="fas fa-university me-1"></i><?php echo htmlspecialchars($book['board']); ?>
-                                <br>
-                                <i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($book['owner_location']); ?>
-                                <?php if (isset($book['distance'])): ?>
-                                    <br>    
-                                        <i class="fas fa-route me-1"></i><?php echo round($book['distance'], 1); ?> km away
-                                <?php endif; ?>
+                                    
+                        <div class="card-footer bg-white">
+                            <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
+                                <i class="fas fa-info-circle me-1"></i>View Details
+                            </a>
+                            <small class="float-end text-muted">
+                                Posted by: <?php echo htmlspecialchars($book['owner_name']); ?>
                             </small>
-                        </p>
-                    </div>
-                    
-                    <div class="card-footer bg-white">
-                        <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
-                            <i class="fas fa-info-circle me-1"></i>View Details
-                        </a>
-                        <small class="float-end text-muted">
-                            Posted by: <?php echo htmlspecialchars($book['owner_name']); ?>
-                        </small>
+                        </div>
                     </div>
                 </div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-books fa-3x text-muted mb-3"></i>
+                <p class="lead">No books found matching your criteria.</p>
             </div>
-        <?php endwhile; ?>
-    <?php else: ?>
-        <div class="col-12 text-center py-5">
-            <i class="fas fa-books fa-3x text-muted mb-3"></i>
-            <p class="lead">No books found matching your criteria.</p>
-        </div>
-    <?php endif; ?>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php require_once '../includes/footer.php'; ?>

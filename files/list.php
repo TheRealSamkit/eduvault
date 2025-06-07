@@ -96,6 +96,8 @@ $years = mysqli_query($mysqli, "SELECT DISTINCT year FROM digital_files WHERE ye
     </div>
 </div>
 
+<div class="container-md">
+    
 <div class="row">
     <?php if (mysqli_num_rows($result) > 0): ?>
         <?php while ($file = mysqli_fetch_assoc($result)): 
@@ -175,6 +177,8 @@ $years = mysqli_query($mysqli, "SELECT DISTINCT year FROM digital_files WHERE ye
             <p class="lead">No files found matching your criteria.</p>
         </div>
     <?php endif; ?>
+</div>
+
 </div>
 
 <?php require_once '../includes/footer.php'; ?>
