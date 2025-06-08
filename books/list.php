@@ -65,7 +65,8 @@ if (isLoggedIn()) {
 
 // Update the search form to include distance filter
 ?>
-<div class="row mb-4">
+
+<div class="row mb-4 container-fluid">
     <div class="col-md-12">
         <div class="card shadow-sm">
             <div class="card-body">

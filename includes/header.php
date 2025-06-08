@@ -109,22 +109,32 @@
             </div>
         </div>
     </nav>
-    <div class="container">
+    <div class="toast-container position-fixed top-0 end-0 p-3">
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger">
-                <?php
-                echo $_SESSION['error'];
-                unset($_SESSION['error']);
-                ?>
+            <div class="toast align-items-center text-white bg-danger border-0 show" role="alert" aria-live="assertive"
+                aria-atomic="true" id="errorToast">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <?= $_SESSION['error'];
+                        unset($_SESSION['error']); ?>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
-                <?php
-                echo $_SESSION['success'];
-                unset($_SESSION['success']);
-                ?>
+            <div class="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive"
+                aria-atomic="true" id="successToast">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <?= $_SESSION['success'];
+                        unset($_SESSION['success']); ?>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
         <?php endif; ?>
     </div>

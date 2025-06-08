@@ -2,6 +2,7 @@
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 require_once '../includes/header.php';
+require_once '../includes/functions.php';
 
 if (!isset($_GET['id'])) {
     header("Location: list.php");
@@ -31,11 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn()) {
     $rating = mysqli_real_escape_string($mysqli, $_POST['rating']);
     $comment = mysqli_real_escape_string($mysqli, $_POST['comment']);
     $user_id = $_SESSION['user_id'];
-    
+
     // Check if user has already given feedback
     $check_query = "SELECT id FROM file_feedback WHERE file_id = $file_id AND user_id = $user_id";
     $check_result = mysqli_query($mysqli, $check_query);
-    
+
     if (mysqli_num_rows($check_result) > 0) {
         // Update existing feedback
         $update_query = "UPDATE file_feedback 
@@ -48,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn()) {
                         VALUES ($file_id, $user_id, $rating, '$comment')";
         mysqli_query($mysqli, $insert_query);
     }
-    
+
     // Redirect to refresh the page
     header("Location: view.php?id=$file_id&feedback=success");
     exit();
@@ -70,7 +71,8 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h3 class="card-title">
-                            <i class="fas fa-file-<?php echo $file['file_type']; ?> me-2 text-primary"></i>
+                            <i
+                                class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
                             <?php echo htmlspecialchars($file['title']); ?>
                         </h3>
                         <div>
@@ -83,9 +85,9 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                             </span>
                         </div>
                     </div>
-                    
+
                     <p class="card-text"><?php echo nl2br(htmlspecialchars($file['description'])); ?></p>
-                    
+
                     <div class="mb-3">
                         <span class="badge bg-primary me-2">
                             <i class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($file['subject']); ?>
@@ -97,12 +99,12 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                             <i class="fas fa-calendar me-1"></i><?php echo $file['year']; ?>
                         </span>
                     </div>
-                    
+
                     <small class="text-muted d-block mb-3">
                         Uploaded by <?php echo htmlspecialchars($file['uploader_name']); ?>
                         on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
                     </small>
-                    
+
                     <?php if (isLoggedIn()): ?>
                         <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success">
                             <i class="fas fa-download me-2"></i>Download File
@@ -114,7 +116,7 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                     <?php endif; ?>
                 </div>
             </div>
-            
+
             <!-- Feedback Section -->
             <div class="card shadow-sm mt-4">
                 <div class="card-header bg-light">
@@ -127,9 +129,9 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                                 <label class="form-label">Rating</label>
                                 <select name="rating" class="form-select" required>
                                     <option value="">Select Rating</option>
-                                    <?php for($i = 5; $i >= 1; $i--): ?>
+                                    <?php for ($i = 5; $i >= 1; $i--): ?>
                                         <option value="<?php echo $i; ?>">
-                                            <?php echo str_repeat('★', $i) . str_repeat('☆', 5-$i); ?>
+                                            <?php echo str_repeat('★', $i) . str_repeat('☆', 5 - $i); ?>
                                         </option>
                                     <?php endfor; ?>
                                 </select>
@@ -143,7 +145,7 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                             </button>
                         </form>
                     <?php endif; ?>
-                    
+
                     <div class="feedback-list">
                         <?php if (mysqli_num_rows($feedback_result) > 0): ?>
                             <?php while ($feedback = mysqli_fetch_assoc($feedback_result)): ?>
@@ -156,8 +158,8 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                                             </small>
                                         </div>
                                         <div class="text-warning">
-                                            <?php echo str_repeat('★', $feedback['rating']) . 
-                                                  str_repeat('☆', 5-$feedback['rating']); ?>
+                                            <?php echo str_repeat('★', $feedback['rating']) .
+                                                str_repeat('☆', 5 - $feedback['rating']); ?>
                                         </div>
                                     </div>
                                     <p class="mb-0"><?php echo nl2br(htmlspecialchars($feedback['comment'])); ?></p>
@@ -170,7 +172,7 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-light">

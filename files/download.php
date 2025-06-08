@@ -53,5 +53,6 @@ header('Expires: 0');
 
 // Output file content
 readfile($file['file_path']);
+$_SESSION['success'] = "File downloaded successfully.";
 exit();
 ?>

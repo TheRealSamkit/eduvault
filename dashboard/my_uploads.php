@@ -2,6 +2,7 @@
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 require_once '../includes/header.php';
+require_once '../includes/functions.php';
 
 requireLogin();
 
@@ -65,7 +66,8 @@ $files_result = mysqli_query($mysqli, $files_query);
                             <?php while ($file = mysqli_fetch_assoc($files_result)): ?>
                                 <tr>
                                     <td>
-                                        <i class="fas fa-file-<?php echo $file['file_type']; ?> me-2 text-primary"></i>
+                                        <i
+                                            class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
                                         <a href="../files/view.php?id=<?php echo $file['id']; ?>" class="text-decoration-none">
                                             <?php echo htmlspecialchars($file['title']); ?>
                                         </a>
