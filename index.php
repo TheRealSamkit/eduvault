@@ -10,47 +10,47 @@ $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as coun
 ?>
 
 <style>
-.hero-section {
-    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
-    color: white;
-    padding: 80px 0;
-    margin-top: -24px;
-}
+    .hero-section {
+        background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+        color: white;
+        padding: 80px 0;
+        margin-top: -24px;
+    }
 
-.feature-card {
-    border: none;
-    transition: transform 0.3s;
-}
+    .feature-card {
+        border: none;
+        transition: transform 0.3s;
+    }
 
-.feature-card:hover {
-    transform: translateY(-5px);
-}
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
 
-.feature-icon {
-    width: 60px;
-    height: 60px;
-    background: #1e88e5;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-}
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: #1e88e5;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
 
-.stat-card {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #1e88e5;
-}
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1e88e5;
+    }
 </style>
 
 <div class="hero-section">
@@ -58,7 +58,8 @@ $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as coun
         <div class="row align-items-center">
             <div class="col-md-7">
                 <h1 class="display-4 mb-4">Welcome to EduVault</h1>
-                <p class="lead mb-4">Your one-stop platform for sharing and accessing educational resources. Connect with fellow students, share books, and access digital study materials.</p>
+                <p class="lead mb-4">Your one-stop platform for sharing and accessing educational resources. Connect
+                    with fellow students, share books, and access digital study materials.</p>
                 <?php if (!isLoggedIn()): ?>
                     <div class="d-flex gap-3">
                         <a href="register.php" class="btn btn-light btn-lg">Get Started</a>
@@ -96,7 +97,7 @@ $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as coun
     </div>
 
     <h2 class="text-center mb-5">Why Choose EduVault?</h2>
-    
+
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="card feature-card">

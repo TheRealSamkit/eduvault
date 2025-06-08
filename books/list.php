@@ -13,25 +13,28 @@ if (!empty($search)) {
     $where_conditions[] = "(title LIKE '%$search%' OR subject LIKE '%$search%' OR location LIKE '%$search%')";
 }
 if (!empty($board)) {
-    $where_conditions[] = "board = '$board'";
+    $where_conditions[] = "b.board_id = '$board'";
 }
 if (!empty($subject)) {
-    $where_conditions[] = "subject = '$subject'";
+    $where_conditions[] = "b.subject_id = '$subject'";
 }
 
 $where_clause = implode(' AND ', $where_conditions);
 
 // Get books with user information
-$query = "SELECT b.*, u.name as owner_name, u.location as owner_location 
-          FROM book_listings b 
-          JOIN users u ON b.user_id = u.id 
-          WHERE $where_clause 
-          ORDER BY b.created_at DESC";
+$query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board
+        FROM book_listings b
+        JOIN users u ON b.user_id = u.id 
+        JOIN subjects s ON b.subject_id = s.id
+        JOIN boards bo ON b.board_id = bo.id
+        WHERE $where_clause
+        ORDER BY b.created_at DESC";
+
 $result = mysqli_query($mysqli, $query);
 
 // Get unique subjects and boards for filters
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT subject FROM book_listings WHERE subject != ''");
-$boards = mysqli_query($mysqli, "SELECT DISTINCT board FROM book_listings WHERE board != ''");
+$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
+$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
 
 
 // After existing filter conditions
@@ -76,8 +79,8 @@ if (isLoggedIn()) {
                         <select name="board" class="form-select">
                             <option value="">All Boards</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
-                                <option value="<?php echo htmlspecialchars($b['board']); ?>" 
-                                        <?php echo $board == $b['board'] ? 'selected' : ''; ?>>
+                                <option value="<?php echo htmlspecialchars($b['id']); ?>" 
+                                        <?php echo $board == $b['id'] ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($b['board']); ?>
                                 </option>
                             <?php endwhile; ?>
@@ -87,8 +90,8 @@ if (isLoggedIn()) {
                         <select name="subject" class="form-select">
                             <option value="">All Subjects</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                <option value="<?php echo htmlspecialchars($s['subject']); ?>"
-                                        <?php echo $subject == $s['subject'] ? 'selected' : ''; ?>>
+                                <option value="<?php echo htmlspecialchars($s['id']); ?>"
+                                        <?php echo $subject == $s['id'] ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($s['subject']); ?>
                                 </option>
                             <?php endwhile; ?>

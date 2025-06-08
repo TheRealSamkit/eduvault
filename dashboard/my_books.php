@@ -15,10 +15,14 @@ if (isset($_POST['delete_book'])) {
 }
 
 // Fetch user's books
-$books_query = "SELECT * FROM book_listings WHERE user_id = $user_id ORDER BY created_at DESC";
+$books_query = "SELECT b.*,s.name as subject, bo.name as board
+                FROM book_listings b 
+                JOIN subjects s ON b.subject_id = s.id
+                Join boards bo ON b.board_id = bo.id
+                WHERE b.user_id = $user_id
+                ORDER BY b.created_at DESC";
 $books_result = mysqli_query($mysqli, $books_query);
 ?>
-
 <div class="container-md">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-book me-2"></i>My Books</h2>
@@ -85,5 +89,4 @@ $books_result = mysqli_query($mysqli, $books_query);
         </div>
     </div>
 </div>
-
 <?php require_once '../includes/footer.php'; ?>

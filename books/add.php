@@ -8,6 +8,10 @@ requireLogin();
 $error = '';
 $success = '';
 
+
+$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
+$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id'];
     $title = mysqli_real_escape_string($mysqli, $_POST['title']);
@@ -32,13 +36,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (empty($error)) {
-        $query = "INSERT INTO book_listings (user_id, title, subject, board, location, image_path) 
+        $query = "INSERT INTO book_listings (user_id, title, subject_id, board_id, location, image_path) 
                   VALUES ($user_id, '$title', '$subject', '$board', '$location', '$image_path')";
 
         if (mysqli_query($mysqli, $query)) {
-            $success = "Book added successfully!";
+            header("Location:add.php?success=Book added successfully");
+            exit();
         } else {
             $error = "Failed to add book: " . mysqli_error($mysqli);
+            header("Location:add.php?error=Failed to add book:" . mysqli_error($mysqli));
+            exit();
         }
     }
 }
@@ -51,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h4 class="mb-0"><i class="fas fa-book me-2"></i>Add New Book</h4>
             </div>
             <div class="card-body">
-                <?php if ($error): ?>
-                    <div class="alert alert-danger"><?php echo $error; ?></div>
+                <?php if (isset($_GET['error'])): ?>
+                    <div class="alert alert-danger"><?php echo $_GET['error']; ?></div>
                 <?php endif; ?>
-                <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo $success; ?></div>
+                <?php if (isset($_GET['success'])): ?>
+                    <div class="alert alert-success"><?php echo $_GET['success']; ?></div>
                 <?php endif; ?>
 
                 <form method="POST" enctype="multipart/form-data">
@@ -66,16 +73,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <input type="text" name="subject" class="form-control" required>
+                        <select name="subject" class="form-select" required>
+                            <option value="">Select Subject</option>
+                            <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
+                                <option value="<?php echo htmlspecialchars($s['id']); ?>">
+                                    <?php echo htmlspecialchars($s['subject']); ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Board</label>
                         <select name="board" class="form-select" required>
                             <option value="">Select Board</option>
-                            <option value="CBSE">CBSE</option>
-                            <option value="ICSE">ICSE</option>
-                            <option value="State Board">State Board</option>
+                            <?php while ($b = mysqli_fetch_assoc($boards)): ?>
+                                <option value="<?php echo htmlspecialchars($b['id']); ?>">
+                                    <?php echo htmlspecialchars($b['board']); ?>
+                                </option>
+                            <?php endwhile; ?>
                         </select>
                     </div>
 

@@ -9,9 +9,11 @@ if (!isset($_GET['id'])) {
 }
 
 $book_id = mysqli_real_escape_string($mysqli, $_GET['id']);
-$query = "SELECT b.*, u.name as owner_name, u.email as owner_email, u.phone as owner_phone, u.location as owner_location 
-          FROM book_listings b 
+$query = "SELECT b.*, u.name as owner_name, u.email as owner_email, u.phone as owner_phone, u.location as owner_location, s.name as subject, bo.name as board 
+          FROM book_listings b
           JOIN users u ON b.user_id = u.id 
+          JOIN subjects s ON b.subject_id = s.id
+          JOIN boards bo ON b.board_id = bo.id
           WHERE b.id = $book_id";
 
 $result = mysqli_query($mysqli, $query);
@@ -32,27 +34,30 @@ if (!$book) {
                         <?php if (!empty($book['image_path'])): ?>
                             <img src="<?php echo $book['image_path']; ?>" class="img-fluid rounded" alt="Book Cover">
                         <?php else: ?>
-                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                style="height: 300px;">
                                 <i class="fas fa-book fa-4x text-muted"></i>
                             </div>
                         <?php endif; ?>
                     </div>
-                    
+
                     <div class="col-md-8">
                         <h2 class="mb-3"><?php echo htmlspecialchars($book['title']); ?></h2>
-                        
+
                         <div class="mb-4">
                             <span class="badge bg-primary me-2">
-                                <i class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($book['subject']); ?>
+                                <i
+                                    class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($book['subject']); ?>
                             </span>
                             <span class="badge bg-secondary me-2">
                                 <i class="fas fa-university me-1"></i><?php echo htmlspecialchars($book['board']); ?>
                             </span>
-                            <span class="badge <?php echo $book['status'] == 'Available' ? 'bg-success' : 'bg-secondary'; ?>">
+                            <span
+                                class="badge <?php echo $book['status'] == 'Available' ? 'bg-success' : 'bg-secondary'; ?>">
                                 <i class="fas fa-check-circle me-1"></i><?php echo $book['status']; ?>
                             </span>
                         </div>
-                        
+
                         <h5 class="mb-3">Owner Details</h5>
                         <p class="mb-2">
                             <i class="fas fa-user me-2"></i>
@@ -62,7 +67,7 @@ if (!$book) {
                             <i class="fas fa-map-marker-alt me-2"></i>
                             <?php echo htmlspecialchars($book['owner_location']); ?>
                         </p>
-                        
+
                         <?php if (isLoggedIn()): ?>
                             <div class="alert alert-info">
                                 <h6 class="mb-2">Contact Information</h6>
@@ -86,7 +91,7 @@ if (!$book) {
                     </div>
                 </div>
             </div>
-            
+
             <div class="card-footer bg-white">
                 <a href="list.php" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Books

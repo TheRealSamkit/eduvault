@@ -13,6 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($user = mysqli_fetch_assoc($result)) {
         if (password_verify($password, $user['password'])) {
+            $update_ = "UPDATE users SET last_active = current_timestamp() WHERE id = $user[id];";
+            mysqli_query($mysqli, $update_);
             $_SESSION['user_id'] = $user['id'];
             header("Location: dashboard/dashboard.php");
             exit();
