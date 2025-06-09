@@ -23,14 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $error = "Invalid email or password";
 }
 ?>
-
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Login</h4>
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center bg-light px-2">
+    <div class="w-100" style="max-width: 400px;">
+        <div class="card shadow rounded-4">
+            <div class="card-header bg-primary text-white rounded-top-4">
+                <h4 class="mb-0 text-center"><i class="fas fa-sign-in-alt me-2"></i>Login</h4>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
+
                 <?php if ($error): ?>
                     <div class="alert alert-danger"><?php echo $error; ?></div>
                 <?php endif; ?>
@@ -44,10 +44,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-control" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary w-100 mb-3 rounded-pill">
                         <i class="fas fa-sign-in-alt me-2"></i>Login
                     </button>
                 </form>
+
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="index.php" class="btn btn-outline-secondary w-50 rounded-pill">
+                        <i class="fas fa-home me-2"></i>Home
+                    </a>
+                    <a href="register.php" class="btn btn-outline-info w-50 rounded-pill">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                </div>
             </div>
         </div>
     </div>
