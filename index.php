@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/db_connect.php';
-$additionalStyles = array('index.css');
-$additionalScripts = array('index.js');
+$additionalStyles[] = 'index.css';
+$additionalScripts[] = 'index.js';
 require_once 'includes/session.php';
 require_once 'includes/header.php';
 

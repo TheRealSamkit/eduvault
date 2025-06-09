@@ -127,7 +127,7 @@ if (isLoggedIn()) {
             <?php while ($book = mysqli_fetch_assoc($result)): ?>
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        <?php if (!empty($book['image_path'])): ?>
+                        <?php if (!empty($book['image_path'])):?>
                             <img src="<?php echo $book['image_path']; ?>" class="card-img-top" alt="Book Cover"
                                  style="height: 200px; object-fit: cover;">
                         <?php else: ?>

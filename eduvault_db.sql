@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jun 09, 2025 at 05:59 AM
+-- Generation Time: Jun 09, 2025 at 11:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -105,7 +105,10 @@ CREATE TABLE `book_listings` (
 --
 
 INSERT INTO `book_listings` (`id`, `user_id`, `title`, `status`, `image_path`, `location`, `created_at`, `board_id`, `subject_id`) VALUES
-(41, 1, 'My Bool', 'Available', '../images/books/6845646395593.png', 'Ahmedabad', '2025-06-08 10:22:27', 3, 5);
+(6, 3, 'Test 1', 'Available', '../uploads/images/maths_book.jpg', 'Ahmedabad', '2025-06-09 08:40:08', 1, 3),
+(7, 3, 'Test 1', 'Available', '../uploads/images/chemistry_book.jpg', 'Ahmedabad', '2025-06-09 08:42:51', 1, 3),
+(8, 3, 'Test 1', 'Available', '../uploads/images/webtech_book.jpg', 'Ahmedabad', '2025-06-09 08:44:27', 1, 3),
+(9, 3, 'Test 1', 'Available', '../uploads/images/maths_book.jpg', 'Ahmedabad', '2025-06-09 08:47:00', 1, 4);
 
 -- --------------------------------------------------------
 
@@ -131,20 +134,11 @@ CREATE TABLE `digital_files` (
 --
 
 INSERT INTO `digital_files` (`id`, `user_id`, `title`, `description`, `file_path`, `subject`, `course`, `year`, `file_type`, `upload_date`) VALUES
-(2, 1, 'OOP Concepts', 'Object Oriented Programming overview', '../uploads/files/oop.docx', 'Computer Science', 'BCA', '2022', 'DOCX', '2025-06-01 12:44:43'),
-(3, 1, 'Modern Physics', 'Quantum & relativity topics', 'files/physics.pdf', 'Physics', 'B.Sc', '2021', 'PDF', '2025-06-01 12:44:43'),
-(4, 1, 'Organic Chemistry', 'Reactions and mechanisms', 'files/organic.pdf', 'Chemistry', 'B.Sc', '2023', 'PDF', '2025-06-01 12:44:43'),
-(5, 1, 'World History', 'Notes on major world events', 'files/history.pptx', 'History', 'BA', '2020', 'PPTX', '2025-06-01 12:44:43'),
-(6, 1, 'Data Structures', 'Stacks, Queues, Trees', 'files/dsa.pdf', 'Computer Science', 'B.Tech', '2023', 'PDF', '2025-06-01 12:44:43'),
-(7, 1, 'Database Systems', 'SQL basics and normalization', 'files/dbms.docx', 'Computer Science', 'BCA', '2022', 'DOCX', '2025-06-01 12:44:43'),
-(8, 1, 'Microeconomics', 'Demand and supply theory', 'files/economics.pdf', 'Economics', 'BBA', '2021', 'PDF', '2025-06-01 12:44:43'),
-(9, 1, 'Statistics 101', 'Intro to probability and stats', 'files/statistics.pdf', 'Mathematics', 'B.Sc', '2023', 'PDF', '2025-06-01 12:44:43'),
-(10, 1, 'Operating Systems', 'Processes, threads, scheduling', 'files/os.pptx', 'Computer Science', 'B.Tech', '2022', 'PPTX', '2025-06-01 12:44:43'),
-(11, 1, 'Human Psychology', 'Behavior and cognition', 'files/psychology.pdf', 'Psychology', 'BA', '2020', 'PDF', '2025-06-01 12:44:43'),
-(12, 1, 'Indian Constitution', 'Fundamental rights and duties', 'files/law.pdf', 'Political Science', 'BA', '2021', 'PDF', '2025-06-01 12:44:43'),
-(13, 1, 'Compiler Design', 'Parsing, tokens, grammars', 'files/compiler.pdf', 'Computer Science', 'M.Tech', '2023', 'PDF', '2025-06-01 12:44:43'),
-(14, 1, 'Research Methodology', 'Scientific research techniques', 'files/research.pdf', 'Science', 'M.Sc', '2022', 'PDF', '2025-06-01 12:44:43'),
-(15, 1, 'Philosophical Thoughts', 'Western and Eastern philosophy', 'files/philosophy.docx', 'Philosophy', 'BA', '2020', 'DOCX', '2025-06-01 12:44:43');
+(1, 1, 'Class 10 Maths Notes', 'Comprehensive notes for CBSE Class 10 Mathematics.', 'uploads/files/maths_notes.pdf', 'Mathematics', 'Class 10', '2025', 'pdf', '2025-06-09 08:17:54'),
+(2, 2, 'Physics Practical', 'Physics practical file for Class 12.', 'uploads/files/physics_practical.pdf', 'Physics', 'Class 12', '2024', 'pdf', '2025-06-09 08:17:54'),
+(3, 3, 'Web Technologies Guide', 'Guide to modern web technologies.', 'uploads/files/web_tech.pdf', 'Web Technologies', 'BCA', '2023', 'pdf', '2025-06-09 08:17:54'),
+(4, 3, 'Test Material', 'Just A test for uploading study materail', '../uploads/files/6846a087ca4e5.docx', 'Web Tech', 'Diploma', '2012', 'docx', '2025-06-09 08:51:19'),
+(5, 3, 'Test Material', 'Just A test for uploading study materail', '../uploads/files/6846a12ec69d7.docx', 'Web Tech', 'Diploma', '2012', 'docx', '2025-06-09 08:54:06');
 
 -- --------------------------------------------------------
 
@@ -164,32 +158,10 @@ CREATE TABLE `downloads` (
 --
 
 INSERT INTO `downloads` (`id`, `file_id`, `user_id`, `downloaded_at`) VALUES
-(2, 2, 1, '2025-06-01 12:44:50'),
-(3, 3, 1, '2025-06-01 12:44:50'),
-(4, 4, 1, '2025-06-01 12:44:50'),
-(5, 5, 1, '2025-06-01 12:44:50'),
-(6, 6, 1, '2025-06-01 12:44:50'),
-(7, 7, 1, '2025-06-01 12:44:50'),
-(8, 8, 1, '2025-06-01 12:44:50'),
-(9, 9, 1, '2025-06-01 12:44:50'),
-(10, 10, 1, '2025-06-01 12:44:50'),
-(11, 11, 1, '2025-06-01 12:44:50'),
-(12, 12, 1, '2025-06-01 12:44:50'),
-(13, 13, 1, '2025-06-01 12:44:50'),
-(14, 14, 1, '2025-06-01 12:44:50'),
-(15, 15, 1, '2025-06-01 12:44:50'),
-(18, 2, 1, '2025-06-02 05:00:06'),
-(20, 2, 1, '2025-06-08 11:23:41'),
-(21, 2, 1, '2025-06-08 11:33:24'),
-(22, 2, 1, '2025-06-08 11:36:54'),
-(23, 2, 1, '2025-06-08 11:37:08'),
-(24, 2, 1, '2025-06-08 11:38:16'),
-(25, 2, 1, '2025-06-08 11:39:41'),
-(26, 2, 1, '2025-06-08 11:40:01'),
-(27, 2, 1, '2025-06-08 11:40:52'),
-(28, 2, 1, '2025-06-08 11:41:05'),
-(29, 2, 1, '2025-06-08 11:41:20'),
-(30, 2, 1, '2025-06-08 12:26:14');
+(1, 1, 2, '2025-06-09 08:17:54'),
+(2, 2, 3, '2025-06-09 08:17:54'),
+(3, 3, 1, '2025-06-09 08:17:54'),
+(4, 2, 3, '2025-06-09 08:34:04');
 
 -- --------------------------------------------------------
 
@@ -211,20 +183,9 @@ CREATE TABLE `file_feedback` (
 --
 
 INSERT INTO `file_feedback` (`id`, `file_id`, `user_id`, `rating`, `comment`, `created_at`) VALUES
-(2, 2, 1, 4, 'Good explanations', '2025-06-01 12:44:54'),
-(3, 3, 1, 5, 'Excellent content', '2025-06-01 12:44:54'),
-(4, 4, 1, 3, 'Needs some corrections', '2025-06-01 12:44:54'),
-(5, 5, 1, 4, 'Useful for revisions', '2025-06-01 12:44:54'),
-(6, 6, 1, 5, 'Perfectly structured', '2025-06-01 12:44:54'),
-(7, 7, 1, 2, 'Could use better formatting', '2025-06-01 12:44:54'),
-(8, 8, 1, 5, 'Really informative', '2025-06-01 12:44:54'),
-(9, 9, 1, 3, 'Decent but outdated', '2025-06-01 12:44:54'),
-(10, 10, 1, 4, 'Well summarized', '2025-06-01 12:44:54'),
-(11, 11, 1, 4, 'Nice for beginners', '2025-06-01 12:44:54'),
-(12, 12, 1, 5, 'Concise and clear', '2025-06-01 12:44:54'),
-(13, 13, 1, 4, 'Great detail', '2025-06-01 12:44:54'),
-(14, 14, 1, 5, 'Highly recommended', '2025-06-01 12:44:54'),
-(15, 15, 1, 3, 'Average quality', '2025-06-01 12:44:54');
+(1, 1, 2, 5, 'Extremely helpful notes!', '2025-06-09 08:17:54'),
+(2, 2, 3, 4, 'Good practical guide.', '2025-06-09 08:17:54'),
+(3, 3, 1, 5, 'Very detailed and well explained.', '2025-06-09 08:17:54');
 
 -- --------------------------------------------------------
 
@@ -326,21 +287,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `location`, `phone`, `status`, `created_at`, `last_active`, `latitude`, `longitude`) VALUES
-(1, 'Samkit Jain', 'samkitjain2809@gmail.com', '$2y$10$3s1LHsivZ/y3archrvIUv.po80WFqwfH7zZ8bWG5TADhkHNRc5K0y', 'Ahmedabad', '8200700139', 'active', '2025-05-31 15:39:16', '2025-06-09 03:52:43', 22.71956870, 75.85772580),
-(3, 'Ravi Verma', 'ravi.verma@example.com', '$2y$10$c2CQjSIQXG4v6.oqXYxWluAfYzY/wpA5.zkZOrHIlfedOwLGWkK.G', 'Lucknow', '9876543211', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(4, 'Meena Shah', 'meena.shah@example.com', '$2y$10$Xqe1hLcZ42oK02SvDpo0M.JDbB0/OUtQrgp6pgEdtJd11e4lkPl9K', 'Jaipur', '9876543212', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(5, 'Rahul Kapoor', 'rahul.kapoor@example.com', '$2y$10$5K6CfmOfdSOg7u3ZEEeOF.2o2xUzNLiFfMPikXzwUVJVOM3kd3kru', 'Delhi', '9876543213', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(6, 'Tina Dsouza', 'tina.dsouza@example.com', '$2y$10$oSOM/XqHzzZIAwUdYmoXfuk0gtI7X1uT0tZ68s/b1IE8T4EkEDPDm', 'Mumbai', '9876543214', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(7, 'Karan Mehta', 'karan.mehta@example.com', '$2y$10$Gg8cdbHcWYljlqRTXauM6eik7dbbjGcTDc6lbMcChJoZR7Gc3WOSC', 'Pune', '9876543215', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(8, 'Deepa Reddy', 'deepa.reddy@example.com', '$2y$10$5ARWwHzQYI2xDJfMYfjO7e7b49RwHBKN9DICO4hN9p08FG2ismxa.', 'Hyderabad', '9876543216', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(10, 'Sneha Nair', 'sneha.nair@example.com', '$2y$10$5znB6Qrkj8Czr2qGCKgINeX976.NiiL3.t9GPaqMS3LO1VkS/u74K', 'Chennai', '9876543218', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(11, 'Amit Kulkarni', 'amit.kulkarni@example.com', '$2y$10$uw8jdI.GEf5iIIkcYl0zNe9UFcNCbwNtZwLdcLBFvsUXwTxasI85i', 'Nagpur', '9876543219', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(12, 'Neha Gupta', 'neha@gmail.com', '$2y$10$yOlaZ1iqBCfGYbVthxwcSOrrMmjSRFag6kpBuXfa0QuJ.ObOVLA16', 'Bhopal', '9876543220', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(13, 'Pooja Bhatt', 'pooja.bhatt@example.com', '$2y$10$sqwGyl7ZwEje5uF3XZzxCO9NxqShkbgSHN3g2B6/8bDk02Ih5BzZ2', 'Patna', '9876543221', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(14, 'Vikram Singh', 'vikram.singh@example.com', '$2y$10$0OiG4lf1UOnHeu9hMDMnIemRE4.2cF4N2f7DwpQUTt4zS01UU7gTK', 'Varanasi', '9876543222', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(15, 'Harshita Rana', 'harshita.rana@example.com', 'hashed_password_14', 'Chandigarh', '9876543223', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(16, 'Arjun Das', 'arjun.das@example.com', 'hashed_password_15', 'Kolkata', '9876543224', 'active', '2025-06-01 12:44:59', '2025-06-09 03:52:43', NULL, NULL),
-(17, 'Jay ', 'Jay@gmail.com', '$2y$10$UpehAoopPoB1LcJnjVBz7e5gIdo31vemIxgfvHwO.rUkdWHQEDki2', 'Vadodara', '9876456252', 'active', '2025-06-02 05:25:59', '2025-06-09 03:52:43', 23.02250500, 72.57136210);
+(1, 'John Doe', 'john@example.com', '$2y$10$PqhaNLhysiG22ErmQD73i.3c4AfDXAUWi0pH11YIYGeMh2UUCfGlW', 'Delhi', '9876543210', 'active', '2025-06-09 08:17:53', '2025-06-09 08:17:53', 28.61390000, 77.20900000),
+(2, 'Jane Smith', 'jane@example.com', '$2y$10$MX/jQNLabvw1LEqzDQZMb.CcsGiQpI0izxJbxHbHdwpwHoT0omzrO', 'Mumbai', '9123456789', 'active', '2025-06-09 08:17:53', '2025-06-09 08:17:53', 19.07600000, 72.87770000),
+(3, 'Rahul Kumar', 'rahul@example.com', '$2y$10$fYvtqI7v3c2.Tob1T/43LuNqAHYt4fXOynVSG5a9lXGD/uUC44a3K', 'Bangalore', '9988776655', 'active', '2025-06-09 08:17:53', '2025-06-09 08:33:01', 22.71956870, 75.85772580);
 
 --
 -- Indexes for dumped tables
@@ -438,7 +387,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `admin_users`
@@ -456,19 +405,19 @@ ALTER TABLE `boards`
 -- AUTO_INCREMENT for table `book_listings`
 --
 ALTER TABLE `book_listings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `digital_files`
 --
 ALTER TABLE `digital_files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `downloads`
 --
 ALTER TABLE `downloads`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `file_feedback`
@@ -498,7 +447,7 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables

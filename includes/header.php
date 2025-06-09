@@ -1,6 +1,6 @@
 <?php
 require_once 'session.php';
-$additionalScripts = ['loader.js'];
+$additionalScripts[] = 'loader.js';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -75,7 +75,7 @@ $additionalScripts = ['loader.js'];
 
 <body>
     <!-- Page Loader -->
-    <!-- <div class="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white"
+    <div class="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white"
         style="z-index: 9999;" id="pageLoader">
         <div class="text-center">
             <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
@@ -83,7 +83,7 @@ $additionalScripts = ['loader.js'];
             </div>
             <h4 class="text-primary">Loading EduVault...</h4>
         </div>
-    </div> -->
+    </div>
     <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')): ?>
 
         <nav class="navbar navbar-expand-lg navbar-light mb-4">

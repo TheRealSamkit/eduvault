@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 
 requireLogin();
 
@@ -26,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
 
         if (in_array($ext, $allowed)) {
-            $image_path = '../images/books/' . uniqid() . '.' . $ext;
+            $image_path = '../uploads/images/' . uniqid() . '.' . $ext;
             if (!move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
                 $error = "Failed to upload image";
             }
@@ -40,15 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   VALUES ($user_id, '$title', '$subject', '$board', '$location', '$image_path')";
 
         if (mysqli_query($mysqli, $query)) {
-            header("Location:add.php?success=Book added successfully");
+            $_SESSION['success'] = "Book added successfully!";
+            header("Location:add.php");
             exit();
         } else {
-            $error = "Failed to add book: " . mysqli_error($mysqli);
-            header("Location:add.php?error=Failed to add book:" . mysqli_error($mysqli));
+            $_SESSION['error'] = "Failed to add book: " . mysqli_error($mysqli);
+            header("Location:add.php");
             exit();
         }
     }
 }
+
+require_once '../includes/header.php';
 ?>
 
 <div class="row justify-content-center">
@@ -58,13 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h4 class="mb-0"><i class="fas fa-book me-2"></i>Add New Book</h4>
             </div>
             <div class="card-body">
-                <?php if (isset($_GET['error'])): ?>
-                    <div class="alert alert-danger"><?php echo $_GET['error']; ?></div>
-                <?php endif; ?>
-                <?php if (isset($_GET['success'])): ?>
-                    <div class="alert alert-success"><?php echo $_GET['success']; ?></div>
-                <?php endif; ?>
-
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label">Book Title</label>

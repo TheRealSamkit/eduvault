@@ -1,13 +1,8 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 
 requireLogin();
-
-$error = '';
-$success = '';
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id'];
     $title = mysqli_real_escape_string($mysqli, $_POST['title']);
@@ -28,24 +23,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                          VALUES ($user_id, '$title', '$description', '$subject', '$course', $year, '$file_path', '$ext')";
 
                 if (mysqli_query($mysqli, $query)) {
-                    $success = "File uploaded successfully!";
+                    $_SESSION['success'] = "File uploaded successfully!";
+                    header("Location:" . $_SERVER["PHP_SELF"]);
+                    exit();
                 } else {
-                    $error = "Upload failed: " . mysqli_error($mysqli);
+                    $_SESSION['error'] = "Upload failed: " . mysqli_error($mysqli);
                     if (file_exists($file_path)) {
                         unlink($file_path);
                     }
                 }
             } else {
-                $error = "Failed to move uploaded file";
+                $$_SESSION['error'] = "Failed to move uploaded file";
+                header("Location:" . $_SERVER["PHP_SELF"]);
+                exit();
             }
         } else {
-            $error = "Invalid file format. Allowed: PDF, DOC, DOCX, PPT, PPTX";
+            $$_SESSION['error'] = "Invalid file format. Allowed: PDF, DOC, DOCX, PPT, PPTX";
+            header("Location:" . $_SERVER["PHP_SELF"]);
+            exit();
         }
     } else {
-        $error = "Please select a file to upload";
+        $$_SESSION['error'] = "Please select a file to upload";
+        header("Location:" . $_SERVER["PHP_SELF"]);
+        exit();
     }
 }
+
+require_once '../includes/header.php';
 ?>
+
 
 <div class="row justify-content-center">
     <div class="col-md-8">
@@ -54,13 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Study Material</h4>
             </div>
             <div class="card-body">
-                <?php if ($error): ?>
-                    <div class="alert alert-danger"><?php echo $error; ?></div>
-                <?php endif; ?>
-                <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo $success; ?></div>
-                <?php endif; ?>
-
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label">Title</label>

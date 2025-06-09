@@ -148,7 +148,7 @@
             </div>
 
             <!-- Back to Top Button -->
-            <button class="btn btn-primary btn-sm position-fixed bottom-0 end-0 m-3 rounded-circle"
+            <button class="btn btn-primary btn-scroll btn-sm position-fixed bottom-0 end-0 m-3 rounded-circle"
                 onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="width: 50px; height: 50px; z-index: 1000;">
                 <i class="fas fa-arrow-up"></i>
             </button>
@@ -169,7 +169,7 @@
         }
 
         /* Back to top button hover */
-        .btn-primary:hover {
+        .btn-scroll:hover {
             transform: scale(1.1);
             transition: transform 0.3s ease;
         }
