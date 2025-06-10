@@ -33,7 +33,8 @@ $where_clause = implode(' AND ', $where_conditions);
 
 // Get files with user information and download count
 // Update the query to include average rating
-$query = "SELECT f.*, u.name as uploader_name, 
+$query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id,
+          (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id) as report_count,
           (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
           (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
           FROM digital_files f 
@@ -133,6 +134,9 @@ $years = mysqli_query($mysqli, "SELECT DISTINCT year FROM digital_files WHERE ye
                                     <span class="badge bg-info me-2">
                                         <i class="fas fa-download me-1"></i><?php echo $file['download_count']; ?>
                                     </span>
+                                    <span class="badge bg-danger me-2">
+                                        <i class="fas fa-times-circle me-1"></i><?php echo $file['report_count']; ?>
+                                    </span>
                                     <span class="badge bg-warning">
                                         <i class="fas fa-star me-1"></i>
                                         <?php echo number_format($file['avg_rating'] ?: 0, 1); ?>
@@ -155,8 +159,15 @@ $years = mysqli_query($mysqli, "SELECT DISTINCT year FROM digital_files WHERE ye
                             </div>
 
                             <small class="text-muted">
+                                <?php if (isLoggedIn()): ?>
+                                Uploaded by <a href="../pages/view.php?id=<?php echo $file['uploader_id']; ?>">
+                                <?php echo htmlspecialchars($file['uploader_name']); ?>
+                                </a>
+                                on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
+                            <?php else: ?>
                                 Uploaded by <?php echo htmlspecialchars($file['uploader_name']); ?>
                                 on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
+                            <?php endif; ?>
                             </small>
                         </div>
 

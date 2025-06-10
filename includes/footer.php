@@ -1,9 +1,7 @@
-<!-- Dark Footer -->
 <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')): ?>
     <footer class="bg-dark text-light py-5 mt-auto">
         <div class="container">
             <div class="row g-4">
-                <!-- About Section -->
                 <div class="col-lg-4 col-md-6">
                     <h5 class="text-primary mb-3">
                         <i class="fas fa-book-reader me-2"></i>EduVault
@@ -55,7 +53,6 @@
                     </ul>
                 </div>
 
-                <!-- Resources -->
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-primary mb-3">Resources</h6>
                     <ul class="list-unstyled">
@@ -82,7 +79,6 @@
                     </ul>
                 </div>
 
-                <!-- Support -->
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-primary mb-3">Support</h6>
                     <ul class="list-unstyled">
@@ -110,7 +106,6 @@
                     </ul>
                 </div>
 
-                <!-- Connect -->
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-primary mb-3">Connect</h6>
                     <div class="text-muted">

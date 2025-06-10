@@ -7,124 +7,158 @@ requireLogin();
 
 $user_id = $_SESSION['user_id'];
 
-// Get user's books count
-$books_query = "SELECT COUNT(*) as book_count FROM book_listings WHERE user_id = $user_id";
-$books_result = mysqli_query($mysqli, $books_query);
-$books_count = mysqli_fetch_assoc($books_result)['book_count'];
-
-// Get user's files count
-$files_query = "SELECT COUNT(*) as file_count FROM digital_files WHERE user_id = $user_id";
-$files_result = mysqli_query($mysqli, $files_query);
-$files_count = mysqli_fetch_assoc($files_result)['file_count'];
-
-// Get user's total downloads
-$downloads_query = "SELECT COUNT(*) as download_count FROM downloads WHERE file_id IN 
-                   (SELECT id FROM digital_files WHERE user_id = $user_id)";
-$downloads_result = mysqli_query($mysqli, $downloads_query);
-$downloads_count = mysqli_fetch_assoc($downloads_result)['download_count'];
-
-// Get user info
-$user_query = "SELECT name, email, location FROM users WHERE id = $user_id";
+// User info + avatar
+$user_query = "SELECT name, email, location, avatar_path, created_at FROM users WHERE id = $user_id";
 $user_result = mysqli_query($mysqli, $user_query);
 $user = mysqli_fetch_assoc($user_result);
+$avatar = !empty($user['avatar_path']) ? "../uploads/avatars/" . $user['avatar_path'] : '../uploads/avatars/default.png';
+
+// Metrics
+$books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE user_id = $user_id"))['count'];
+$files_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM digital_files WHERE user_id = $user_id"))['count'];
+$downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads WHERE file_id IN (SELECT id FROM digital_files WHERE user_id = $user_id)"))['count'];
+$avg_feedback = round(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT AVG(rating) as avg FROM file_feedback WHERE file_id IN (SELECT id FROM digital_files WHERE user_id = $user_id)"))['avg'] ?? 0, 1);
+
+// Recent uploads
+$activity_query = "
+    SELECT 'book' as type, id, title, created_at as date FROM book_listings WHERE user_id = $user_id
+    UNION
+    SELECT 'file' as type, id, title, upload_date as date FROM digital_files WHERE user_id = $user_id
+    ORDER BY date DESC LIMIT 5";
+$activity_result = mysqli_query($mysqli, $activity_query);
+
+// Recent reports by user
+$reports_query = "
+    SELECT r.id, r.reason, r.created_at, r.content_type, r.content_id
+    FROM reported_content r
+    WHERE r.reporter_id = $user_id
+    ORDER BY r.created_at DESC LIMIT 5";
+$reports_result = mysqli_query($mysqli, $reports_query);
 ?>
 
-<div class="container-md">
-
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-user me-2"></i>Profile</h5>
-                    <p class="mb-1"><strong>Name:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
-                    <p class="mb-1"><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-                    <p class="mb-1"><strong>Location:</strong> <?php echo htmlspecialchars($user['location']); ?></p>
-                    <button onclick="updateLocation()" class="btn btn-sm btn-primary mt-2">
-                        <i class="fas fa-map-marker-alt me-2"></i>Update Location
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card bg-primary text-white shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-book me-2"></i>My Books</h5>
-                            <h2 class="mb-0"><?php echo $books_count; ?></h2>
-                            <a href="my_books.php" class="text-white">Manage Books →</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card bg-success text-white shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-file-alt me-2"></i>My Files</h5>
-                            <h2 class="mb-0"><?php echo $files_count; ?></h2>
-                            <a href="my_uploads.php" class="text-white">Manage Files →</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card bg-info text-white shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-download me-2"></i>Downloads</h5>
-                            <h2 class="mb-0"><?php echo $downloads_count; ?></h2>
-                            <span class="small">Total downloads of your files</span>
-                        </div>
-                    </div>
-                </div>
+<div class="container-md my-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex align-items-center gap-3">
+            <img src="<?php echo htmlspecialchars($avatar); ?>" class="rounded-circle img-thumbnail bg-dark" width="90"
+                alt="User Avatar">
+            <div>
+                <h3 class="mb-0"><?php echo htmlspecialchars($user['name']); ?></h3>
+                <small class="text-muted"><?php echo htmlspecialchars($user['email']); ?></small><br>
+                <small class="text-muted">Joined:
+                    <?php echo date("F j, Y", strtotime($user['created_at'])); ?></small><br>
+                <span
+                    class="badge bg-secondary mb-1 p-2"><?php echo htmlspecialchars($user['location'] ?: 'Location Unknown'); ?></span>
+                <button onclick="updateLocation()" class="btn btn-sm btn-outline-primary ms-2"><i
+                        class="fas fa-map-marker-alt"></i> Update Location</button>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-3 mb-4">
         <div class="col-md-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-plus-circle me-2"></i>Quick Actions</h5>
+                    <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
                     <div class="d-grid gap-2">
-                        <a href="../books/add.php" class="btn btn-outline-primary">
-                            <i class="fas fa-book me-2"></i>Add New Book
-                        </a>
-                        <a href="../files/upload.php" class="btn btn-outline-success">
-                            <i class="fas fa-upload me-2"></i>Upload Study Material
-                        </a>
+                        <a href="../books/add.php" class="btn btn-outline-primary"><i class="fas fa-book me-2"></i>Add
+                            New Book</a>
+                        <a href="../files/upload.php" class="btn btn-outline-success"><i
+                                class="fas fa-upload me-2"></i>Upload File</a>
+                        <a href="my_books.php" class="btn btn-outline-secondary"><i
+                                class="fas fa-folder-open me-2"></i>Manage My Books</a>
+                        <a href="my_uploads.php" class="btn btn-outline-secondary"><i
+                                class="fas fa-folder-open me-2"></i>Manage My Files</a>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="col-md-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Recent Activity</h5>
-                    <div class="list-group list-group-flush">
-                        <?php
-                        $activity_query = "SELECT 'book' as type, title, created_at FROM book_listings 
-                                     WHERE user_id = $user_id
-                                     UNION
-                                     SELECT 'file' as type, title, upload_date FROM digital_files 
-                                     WHERE user_id = $user_id
-                                     ORDER BY created_at DESC LIMIT 5";
-                        $activity_result = mysqli_query($mysqli, $activity_query);
-
-                        while ($activity = mysqli_fetch_assoc($activity_result)) {
-                            $icon = $activity['type'] == 'book' ? 'book' : 'file-alt';
-                            echo '<div class="list-group-item">';
-                            echo '<i class="fas fa-' . $icon . ' me-2"></i>';
-                            echo htmlspecialchars($activity['title']);
-                            echo '</div>';
-                        }
-                        ?>
+                    <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+                    <div class="list-group list-group-flush small">
+                        <?php if (mysqli_num_rows($activity_result) > 0): ?>
+                            <?php while ($activity = mysqli_fetch_assoc($activity_result)): ?>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i
+                                            class="fas fa-<?php echo $activity['type'] == 'book' ? 'book' : 'file-alt'; ?> me-2"></i>
+                                        <?php echo htmlspecialchars($activity['title']); ?>
+                                    </div>
+                                    <small
+                                        class="text-muted"><?php echo date("M j, Y", strtotime($activity['date'])); ?></small>
+                                </div>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <div class="list-group-item text-muted">No recent activity.</div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm text-center p-2">
+                <div class="card-body">
+                    <i class="fas fa-book fa-2x mb-2"></i>
+                    <h2><?php echo $books_count; ?></h2>
+                    <p class="mb-0">Books</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm text-center p-2">
+                <div class="card-body">
+                    <i class="fas fa-file-alt fa-2x mb-2"></i>
+                    <h2><?php echo $files_count; ?></h2>
+                    <p class="mb-0">Files</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm text-center p-2">
+                <div class="card-body">
+                    <i class="fas fa-download fa-2x mb-2"></i>
+                    <h2><?php echo $downloads_count; ?></h2>
+                    <p class="mb-0">Downloads</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm text-center p-2">
+                <div class="card-body">
+                    <i class="fas fa-star fa-2x mb-2"></i>
+                    <h2><?php echo $avg_feedback > 0 ? $avg_feedback : 'N/A'; ?></h2>
+                    <p class="mb-0">Avg Feedback</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Recent Reports -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5><i class="fas fa-flag me-2"></i>Recent Reports by You</h5>
+            <?php if (mysqli_num_rows($reports_result) > 0): ?>
+                <ul class="list-group list-group-flush small">
+                    <?php while ($report = mysqli_fetch_assoc($reports_result)): ?>
+                        <li class="list-group-item">
+                            <span class="badge bg-secondary"><?php echo htmlspecialchars($report['content_type']); ?>
+                                #<?php echo $report['content_id']; ?></span>
+                            <?php echo htmlspecialchars($report['reason']); ?>
+                            <small
+                                class="text-muted d-block"><?php echo date("M j, Y, H:i", strtotime($report['created_at'])); ?></small>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            <?php else: ?>
+                <div class="text-muted">No reports submitted yet.</div>
+            <?php endif; ?>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -134,22 +168,23 @@ $user = mysqli_fetch_assoc($user_result);
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
 
-                // Send to server using AJAX
                 fetch('update_location.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `latitude=${latitude}&longitude=${longitude}`
                 })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Location updated successfully!');
                             location.reload();
+                        } else {
+                            alert('Failed to update location.');
                         }
-                    });
+                    })
+                    .catch(() => alert('Failed to update location.'));
             });
+        } else {
+            alert("Geolocation is not supported by your browser.");
         }
     }
 </script>

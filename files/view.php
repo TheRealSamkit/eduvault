@@ -82,8 +82,6 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
     header("Location: view.php?id=$file_id#report");
     exit();
 }
-
-// Get file feedback
 ?>
 
 <div class="container">
