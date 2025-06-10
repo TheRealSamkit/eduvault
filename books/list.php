@@ -22,7 +22,8 @@ if (!empty($subject)) {
 $where_clause = implode(' AND ', $where_conditions);
 
 // Get books with user information
-$query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board
+$query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
+                 b.image_path, b.created_at, b.user_id
         FROM book_listings b
         JOIN users u ON b.user_id = u.id 
         JOIN subjects s ON b.subject_id = s.id
@@ -159,7 +160,12 @@ if (isLoggedIn()) {
                                 <i class="fas fa-info-circle me-1"></i>View Details
                             </a>
                             <small class="float-end text-muted">
+                            <?php if (isLoggedIn()): ?>
+                                Posted by: <a href="../pages/view.php?id=<?php echo htmlspecialchars($book['owner_id']) ?>">
+                                <?php echo htmlspecialchars($book['owner_name']); ?></a>
+                            <?php else: ?>
                                 Posted by: <?php echo htmlspecialchars($book['owner_name']); ?>
+                            <?php endif; ?>
                             </small>
                         </div>
                     </div>

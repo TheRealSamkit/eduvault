@@ -7,9 +7,6 @@ if (!isset($_SESSION['admin_id'])) {
     header("Location: login.php");
     exit();
 }
-
-// Get statistics
-
 // Get recent activities
 $activities = mysqli_query($mysqli, "SELECT al.*, u.name as user_name, au.username as admin_name 
                                    FROM activity_logs al 

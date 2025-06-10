@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
 }
 
 $book_id = mysqli_real_escape_string($mysqli, $_GET['id']);
-$query = "SELECT b.*, u.name as owner_name, u.email as owner_email, u.phone as owner_phone, u.location as owner_location, s.name as subject, bo.name as board 
+$query = "SELECT b.*, u.name as owner_name, u.email as owner_email, u.phone as owner_phone, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id 
           FROM book_listings b
           JOIN users u ON b.user_id = u.id 
           JOIN subjects s ON b.subject_id = s.id
@@ -62,7 +62,12 @@ require_once '../includes/header.php';
                         <h5 class="mb-3">Owner Details</h5>
                         <p class="mb-2">
                             <i class="fas fa-user me-2"></i>
-                            <?php echo htmlspecialchars($book['owner_name']); ?>
+                            <?php if (isLoggedIn()): ?>
+                                <a href="../pages/view.php?id=<?php echo htmlspecialchars($book['owner_id']) ?>">
+                                    <?php echo htmlspecialchars($book['owner_name']); ?></a>
+                            <?php else: ?>
+                                <?php echo htmlspecialchars($book['owner_name']); ?>
+                            <?php endif; ?>
                         </p>
                         <p class="mb-2">
                             <i class="fas fa-map-marker-alt me-2"></i>

@@ -12,7 +12,7 @@ if (!isset($_GET['id'])) {
 $file_id = mysqli_real_escape_string($mysqli, $_GET['id']);
 
 // Get file details with uploader info and download count
-$query = "SELECT f.*, u.name as uploader_name, 
+$query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id, 
           (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
           (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND content_type = 'file') as report_count,
           (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
@@ -23,7 +23,7 @@ $result = mysqli_query($mysqli, $query);
 $file = mysqli_fetch_assoc($result);
 
 
-$feedback_query = "SELECT f.*, u.name as user_name 
+$feedback_query = "SELECT f.*, u.name as user_name
                   FROM file_feedback f 
                   JOIN users u ON f.user_id = u.id 
                   WHERE f.file_id = $file_id 
@@ -121,8 +121,15 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
                     </div>
 
                     <small class="text-muted d-block mb-3">
-                        Uploaded by <?php echo htmlspecialchars($file['uploader_name']); ?>
-                        on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
+                        <?php if (isLoggedIn()): ?>
+                            Uploaded by <a href="../pages/view.php?id=<?php echo $file['uploader_id']; ?>">
+                                <?php echo htmlspecialchars($file['uploader_name']); ?>
+                            </a>
+                            on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
+                        <?php else: ?>
+                            Uploaded by <?php echo htmlspecialchars($file['uploader_name']); ?>
+                            on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
+                        <?php endif; ?>
                     </small>
 
                     <?php if (isLoggedIn()): ?>
