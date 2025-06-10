@@ -1,24 +1,26 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 
 requireLogin();
 
 $error = '';
 $success = '';
+$max_image_size = 2 * 1024 * 1024; // 2MB
 $book = null;
 
+$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject, id FROM subjects WHERE name != ''") or die(mysqli_error($mysqli));
+$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board, id FROM boards WHERE name != '' ORDER BY id") or die(mysqli_error($mysqli));
 
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
-$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
-
+// Validate & fetch book for editing
 if (isset($_GET['id'])) {
-    $book_id = mysqli_real_escape_string($mysqli, $_GET['id']);
+    $book_id = (int)$_GET['id'];
     $user_id = $_SESSION['user_id'];
 
-    $query = "SELECT * FROM book_listings WHERE id = $book_id AND user_id = $user_id";
-    $result = mysqli_query($mysqli, $query);
+    $stmt = mysqli_prepare($mysqli, "SELECT * FROM book_listings WHERE id = ? AND user_id = ?");
+    mysqli_stmt_bind_param($stmt, "ii", $book_id, $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     $book = mysqli_fetch_assoc($result);
 
     if (!$book) {
@@ -28,50 +30,81 @@ if (isset($_GET['id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = mysqli_real_escape_string($mysqli, $_POST['title']);
-    $subject = mysqli_real_escape_string($mysqli, $_POST['subject']);
-    $board = mysqli_real_escape_string($mysqli, $_POST['board']);
-    $location = mysqli_real_escape_string($mysqli, $_POST['location']);
+    $title = mysqli_real_escape_string($mysqli, trim($_POST['title']));
+    $subject = (int)$_POST['subject'];
+    $board = (int)$_POST['board'];
+    $location = mysqli_real_escape_string($mysqli, trim($_POST['location']));
     $status = mysqli_real_escape_string($mysqli, $_POST['status']);
 
     $image_path = $book['image_path'];
+
+    // Image handling
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        $allowed = ['jpg', 'jpeg', 'png'];
+        $allowed_ext = ['jpg', 'jpeg', 'png'];
+        $allowed_mime_types = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png'
+        ];
         $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
 
-        if (in_array($ext, $allowed)) {
-            if (!empty($image_path) && file_exists($image_path)) {
-                unlink($image_path);
-            }
-            $image_path = '../images/books/' . uniqid() . '.' . $ext;
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
-                $error = "Failed to upload image";
+        if (in_array($ext, $allowed_ext)) {
+            if ($_FILES['image']['size'] > $max_image_size) {
+                $error = "Image size exceeds 2MB limit.";
+            } else {
+                // Validate MIME type
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $detected_mime = finfo_file($finfo, $_FILES['image']['tmp_name']);
+                finfo_close($finfo);
+
+                if ($detected_mime !== $allowed_mime_types[$ext]) {
+                    $error = "Invalid image MIME type.";
+                } else {
+                    // Remove old image if exists
+                    $old_image_local = '../uploads/images/' . basename($book['image_path']);
+                    if (!empty($book['image_path']) && file_exists($old_image_local)) {
+                        unlink($old_image_local);
+                    }
+
+                    $new_image_name = uniqid() . '.' . $ext;
+                    $upload_path = '../uploads/images/' . $new_image_name;
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
+                        $image_path = BASE_URL . 'uploads/images/' . $new_image_name;
+                    } else {
+                        $error = "Failed to upload image.";
+                    }
+                }
             }
         } else {
-            $error = "Invalid image format. Allowed: JPG, JPEG, PNG";
+            $error = "Invalid image format. Allowed: JPG, JPEG, PNG.";
         }
     }
 
+    // If no errors, proceed with DB update
     if (empty($error)) {
-        $image_path = BASE_URL . 'uploads/images/' . basename($image_path);
-        $query = "UPDATE book_listings SET 
-                  title = '$title',
-                  subject_id = '$subject',
-                  board_id = '$board',
-                  location = '$location',
-                  status = '$status',
-                  image_path = '$image_path'
-                  WHERE id = $book_id AND user_id = $user_id";
+        $query = "UPDATE book_listings 
+                  SET title = ?, subject_id = ?, board_id = ?, location = ?, status = ?, image_path = ? 
+                  WHERE id = ? AND user_id = ?";
+        $stmt = mysqli_prepare($mysqli, $query);
+        mysqli_stmt_bind_param($stmt, "siisssii", $title, $subject, $board, $location, $status, $image_path, $book_id, $_SESSION['user_id']);
 
-        if (mysqli_query($mysqli, $query)) {
-            header("location:edit.php?id=$book_id&success=Book updated successfully!");
+        if (mysqli_stmt_execute($stmt)) {
+            $_SESSION['success'] = "Book updated successfully!";
+            header("Location: edit.php?id=$book_id");
             exit();
         } else {
-            header("location:edit.php?success=Failed to update book:" . mysqli_error($mysqli));
-            exit();
+            $error = "Failed to update book: " . mysqli_error($mysqli);
         }
+    }
+
+    if (!empty($error)) {
+        $_SESSION['error'] = $error;
+        header("Location: edit.php?id=$book_id");
+        exit();
     }
 }
+
+require_once '../includes/header.php';
 ?>
 
 <div class="row justify-content-center">
@@ -81,13 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Book</h4>
             </div>
             <div class="card-body">
-                <?php if (isset($_GET['error'])): ?>
-                    <div class="alert alert-danger"><?php echo $_GET['error']; ?></div>
-                <?php endif; ?>
-                <?php if (isset($_GET['success'])): ?>
-                    <div class="alert alert-success"><?php echo $_GET['success']; ?></div>
-                <?php endif; ?>
-
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label">Book Title</label>

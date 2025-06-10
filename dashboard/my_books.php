@@ -23,7 +23,7 @@ $books_query = "SELECT b.*,s.name as subject, bo.name as board
                 ORDER BY b.created_at DESC";
 $books_result = mysqli_query($mysqli, $books_query);
 ?>
-<div class="container-md">
+<div class="container-md mb-5 pb-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-book me-2"></i>My Books</h2>
         <a href="../books/add.php" class="btn btn-primary">

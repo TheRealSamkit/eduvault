@@ -9,8 +9,14 @@ function getFileIcon($file_type)
             return "word";
         case "pptx":
             return "powerpoint";
+        case "txt":
+            return "alt";
+        case "jpg":
+        case "jpeg":
+        case "png":
+            return "image";
         default:
-            return "lines";
+            return "invoice";
     }
 }
 

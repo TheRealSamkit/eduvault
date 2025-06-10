@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 
 if (!isset($_GET['id'])) {
     header("Location: list.php");
@@ -23,6 +22,8 @@ if (!$book) {
     header("Location: list.php");
     exit();
 }
+
+require_once '../includes/header.php';
 ?>
 
 <div class="row justify-content-center container-fluid my-5">

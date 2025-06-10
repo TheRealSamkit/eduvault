@@ -38,7 +38,7 @@ $files_query = "SELECT f.*,
 $files_result = mysqli_query($mysqli, $files_query);
 ?>
 
-<div class="container-md">
+<div class="container-md mb-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-file-alt me-2"></i>My Uploads</h2>
         <a href="../files/upload.php" class="btn btn-success">

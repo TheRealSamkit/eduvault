@@ -3,48 +3,78 @@ require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 
 requireLogin();
+
+$max_file_size = 10 * 1024 * 1024; // 10MB
+$allowed_ext = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'jpg', 'jpeg', 'png'];
+$allowed_mime_types = [
+    'pdf' => 'application/pdf',
+    'doc' => 'application/msword',
+    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'ppt' => 'application/vnd.ms-powerpoint',
+    'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'txt' => 'text/plain',
+    'jpg' => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'png' => 'image/png'
+];
+
+$error = '';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id'];
     $title = mysqli_real_escape_string($mysqli, $_POST['title']);
     $description = mysqli_real_escape_string($mysqli, $_POST['description']);
     $subject = mysqli_real_escape_string($mysqli, $_POST['subject']);
     $course = mysqli_real_escape_string($mysqli, $_POST['course']);
-    $year = mysqli_real_escape_string($mysqli, $_POST['year']);
+    $year = (int) $_POST['year']; // sanitize as integer for security
 
     // Handle file upload
     if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $allowed = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
         $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
 
-        if (in_array($ext, $allowed)) {
-            $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
-            if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
-                $query = "INSERT INTO digital_files (user_id, title, description, subject, course, year, file_path, file_type) 
-                         VALUES ($user_id, '$title', '$description', '$subject', '$course', $year, '$file_path', '$ext')";
-
-                if (mysqli_query($mysqli, $query)) {
-                    $_SESSION['success'] = "File uploaded successfully!";
-                    header("Location:" . $_SERVER["PHP_SELF"]);
-                    exit();
-                } else {
-                    $_SESSION['error'] = "Upload failed: " . mysqli_error($mysqli);
-                    if (file_exists($file_path)) {
-                        unlink($file_path);
-                    }
-                }
-            } else {
-                $$_SESSION['error'] = "Failed to move uploaded file";
-                header("Location:" . $_SERVER["PHP_SELF"]);
-                exit();
-            }
+        if (!in_array($ext, $allowed_ext)) {
+            $error = "Invalid file format. Allowed: " . strtoupper(implode(', ', $allowed_ext));
+        } elseif ($_FILES['file']['size'] > $max_file_size) {
+            $error = "File size exceeds 10MB limit";
         } else {
-            $$_SESSION['error'] = "Invalid file format. Allowed: PDF, DOC, DOCX, PPT, PPTX";
-            header("Location:" . $_SERVER["PHP_SELF"]);
-            exit();
+            // MIME type check
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $detected_mime = finfo_file($finfo, $_FILES['file']['tmp_name']);
+            finfo_close($finfo);
+
+            if ($detected_mime !== $allowed_mime_types[$ext]) {
+                $error = "File MIME type does not match the file extension.";
+            } else {
+                $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
+
+                if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
+                    $query = "INSERT INTO digital_files (user_id, title, description, subject, course, year, file_path, file_type) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+                    $stmt = mysqli_prepare($mysqli, $query);
+                    mysqli_stmt_bind_param($stmt, "issssiss", $user_id, $title, $description, $subject, $course, $year, $file_path, $ext);
+
+                    if (mysqli_stmt_execute($stmt)) {
+                        $_SESSION['success'] = "File uploaded successfully!";
+                        header("Location:" . $_SERVER['PHP_SELF']);
+                        exit();
+                    } else {
+                        $error = "Upload failed: " . mysqli_error($mysqli);
+                        if (file_exists($file_path))
+                            unlink($file_path);
+                    }
+                } else {
+                    $error = "Failed to move uploaded file.";
+                }
+            }
         }
     } else {
-        $$_SESSION['error'] = "Please select a file to upload";
-        header("Location:" . $_SERVER["PHP_SELF"]);
+        $error = "Please select a file to upload.";
+    }
+
+    if (!empty($error)) {
+        $_SESSION['error'] = $error;
+        header("Location:" . $_SERVER['PHP_SELF']);
         exit();
     }
 }
@@ -53,7 +83,7 @@ require_once '../includes/header.php';
 ?>
 
 
-<div class="row justify-content-center">
+<div class="container-fluid row justify-content-center gx-1 mb-3">
     <div class="col-md-8">
         <div class="card shadow">
             <div class="card-header bg-success text-white">
@@ -100,8 +130,10 @@ require_once '../includes/header.php';
                     <div class="mb-3">
                         <label class="form-label">File</label>
                         <input type="file" name="file" class="form-control" required
-                            accept=".pdf,.doc,.docx,.ppt,.pptx">
-                        <div class="form-text">Max size: 10MB. Allowed formats: PDF, DOC, DOCX, PPT, PPTX</div>
+                            accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt">
+                        <div class="form-text">Max size: 10MB. Allowed formats:
+                            <?php echo strtoupper(implode(", ", $allowed_ext)) ?>
+                        </div>
                     </div>
 
                     <div class="d-grid gap-2">

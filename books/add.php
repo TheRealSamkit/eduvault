@@ -7,55 +7,76 @@ requireLogin();
 $error = '';
 $success = '';
 
+$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject, id FROM subjects WHERE name != ''") or die(mysqli_error($mysqli));
+$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board, id FROM boards WHERE name != '' ORDER BY id") or die(mysqli_error($mysqli));
 
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
-$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
+$max_image_size = 2 * 1024 * 1024; // 2MB
+$allowed_ext = ['jpg', 'jpeg', 'png'];
+$allowed_mime_types = [
+    'jpg' => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'png' => 'image/png'
+];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id'];
-    $title = mysqli_real_escape_string($mysqli, $_POST['title']);
-    $subject = mysqli_real_escape_string($mysqli, $_POST['subject']);
-    $board = mysqli_real_escape_string($mysqli, $_POST['board']);
-    $location = mysqli_real_escape_string($mysqli, $_POST['location']);
+    $title = mysqli_real_escape_string($mysqli, trim($_POST['title']));
+    $subject = (int) $_POST['subject'];
+    $board = (int) $_POST['board'];
+    $location = mysqli_real_escape_string($mysqli, trim($_POST['location']));
 
-    // Handle image upload
     $image_path = '';
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        $allowed = ['jpg', 'jpeg', 'png'];
-        $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-
-        if (in_array($ext, $allowed)) {
-            $image_path = '../uploads/images/' . uniqid() . '.' . $ext;
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
-                $error = "Failed to upload image";
-            }
+        if ($_FILES['image']['size'] > $max_image_size) {
+            $error = "Image size exceeds 2MB limit.";
         } else {
-            $error = "Invalid image format. Allowed: JPG, JPEG, PNG";
+            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+
+            if (in_array($ext, $allowed_ext)) {
+                // Check MIME type for security
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $detected_mime = finfo_file($finfo, $_FILES['image']['tmp_name']);
+                finfo_close($finfo);
+
+                if ($detected_mime !== $allowed_mime_types[$ext]) {
+                    $error = "Invalid image MIME type.";
+                } else {
+                    $image_name = uniqid() . '.' . $ext;
+                    $upload_dir = '../uploads/images/';
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $image_name)) {
+                        $image_path = BASE_URL . 'uploads/images/' . $image_name;
+                    } else {
+                        $error = "Failed to upload image.";
+                    }
+                }
+            } else {
+                $error = "Invalid image format. Allowed: JPG, JPEG, PNG.";
+            }
         }
     }
 
     if (empty($error)) {
-        $image_path = BASE_URL . 'uploads/images/' . basename($image_path);
-
-        $query = "INSERT INTO book_listings (user_id, title, subject_id, board_id, location, image_path) 
-                  VALUES ($user_id, '$title', '$subject', '$board', '$location', '$image_path')";
-
-        if (mysqli_query($mysqli, $query)) {
+        $query = "INSERT INTO book_listings (user_id, title, subject_id, board_id, location, image_path) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = mysqli_prepare($mysqli, $query);
+        mysqli_stmt_bind_param($stmt, 'isisss', $user_id, $title, $subject, $board, $location, $image_path);
+        if (mysqli_stmt_execute($stmt)) {
             $_SESSION['success'] = "Book added successfully!";
-            header("Location:add.php");
-            exit();
         } else {
             $_SESSION['error'] = "Failed to add book: " . mysqli_error($mysqli);
-            header("Location:add.php");
-            exit();
         }
+        header("Location: add.php");
+        exit();
+    } else {
+        $_SESSION['error'] = $error;
+        header("Location: add.php");
+        exit();
     }
 }
 
 require_once '../includes/header.php';
 ?>
 
-<div class="row justify-content-center">
+<div class="container-fluid row justify-content-center gx-1">
     <div class="col-md-8">
         <div class="card shadow">
             <div class="card-header bg-primary text-white">
@@ -100,7 +121,7 @@ require_once '../includes/header.php';
                     <div class="mb-3">
                         <label class="form-label">Book Image</label>
                         <input type="file" name="image" class="form-control" accept="image/*">
-                        <div class="form-text">Optional. Max size: 2MB</div>
+                        <div class="form-text">Max size: 2MB</div>
                     </div>
 
                     <div class="d-grid gap-2">
