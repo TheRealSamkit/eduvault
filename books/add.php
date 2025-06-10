@@ -35,6 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (empty($error)) {
+        $image_path = BASE_URL . 'uploads/images/' . basename($image_path);
+
         $query = "INSERT INTO book_listings (user_id, title, subject_id, board_id, location, image_path) 
                   VALUES ($user_id, '$title', '$subject', '$board', '$location', '$image_path')";
 

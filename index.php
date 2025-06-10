@@ -4,6 +4,7 @@ $additionalStyles[] = 'index.css';
 $additionalScripts[] = 'index.js';
 require_once 'includes/session.php';
 require_once 'includes/header.php';
+require_once 'includes/functions.php';
 
 // Get some statistics
 $downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads"))['count'];
@@ -192,13 +193,12 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
             <?php while ($book = mysqli_fetch_assoc($recent_books)): ?>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card resource-card">
-                        <div class="card-img-top">
-                            <i class="fas fa-book"></i>
-                        </div>
+                        <img class="card-img-top" src="<?php echo htmlspecialchars($book['image_path']) ?>" alt="book cover"
+                            style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h6 class="card-title"><?php echo htmlspecialchars($book['title']); ?>
                                 <span
-                                    class="category-badge bg-success text-white mb-2"><?php echo htmlspecialchars($book['status'] ?? 'General'); ?></span>
+                                    class="category-badge bg-success text-white m-2"><?php echo htmlspecialchars($book['status'] ?? 'General'); ?></span>
                             </h6>
                             <p class="text-muted small">by <?php echo htmlspecialchars($book['author']); ?></p>
                             <p class="text-muted small"><i class="fas fa-map-marker-alt"></i>
@@ -220,12 +220,9 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
             <?php while ($file = mysqli_fetch_assoc($recent_files)): ?>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card resource-card">
-                        <div class="card-img-top">
-                            <i class="fas fa-file-pdf"></i>
-                        </div>
                         <div class="card-body">
-
-                            <h6 class="card-title mt-2"><?php echo htmlspecialchars($file['title']); ?><span
+                            <h6 class="card-title mt-2"><i
+                                    class="fas fa-file-<?php echo getFileIcon($file['file_type']) ?> text-primary mx-1"></i><?php echo htmlspecialchars($file['title']); ?><span
                                     class="category-badge bg-primary text-white m-3"><?php echo htmlspecialchars($file['subject'] ?? 'Study Material'); ?></span>
                             </h6>
                             <p class="text-muted small"><?php echo htmlspecialchars($file['description']); ?></p>
@@ -233,7 +230,7 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
                                 <small class="text-muted"><?php echo htmlspecialchars($file['file_type']) ?>
                                 </small>
                                 <?php if (isLoggedIn()): ?>
-                                    <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm">
+                                    <a href="files/download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm">
                                         <i class="fas fa-download me-1"></i>Download
                                     </a>
                                 <?php else: ?>

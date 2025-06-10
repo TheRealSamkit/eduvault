@@ -1,6 +1,7 @@
 <?php
 require_once 'session.php';
 $additionalScripts[] = 'loader.js';
+$additionalStyles[] = 'header.css';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,60 +11,12 @@ $additionalScripts[] = 'loader.js';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduVault - Educational Resource Sharing</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= BASE_URL ?>assets/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= BASE_URL ?>assets/favicon/favicon-16x16.png">
+    <link rel="manifest" href="<?= BASE_URL ?>assets/favicon/site.webmanifest">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #1e88e5;
-            --primary-dark: #1565c0;
-            --secondary-color: #757575;
-            --success-color: #43a047;
-            --warning-color: #fdd835;
-            --danger-color: #e53935;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            border-color: var(--primary-dark);
-        }
-
-        .text-primary {
-            color: var(--primary-color) !important;
-        }
-
-        .bg-primary {
-            background-color: var(--primary-color) !important;
-        }
-
-        .navbar {
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-brand {
-            color: var(--primary-color) !important;
-            font-weight: bold;
-        }
-
-        .nav-link {
-            color: var(--secondary-color) !important;
-        }
-
-        .nav-link:hover {
-            color: var(--primary-color) !important;
-        }
-
-        .nav-link.active {
-            color: var(--primary-color) !important;
-            font-weight: bold;
-        }
-    </style>
     <?php
     if (isset($additionalStyles)) {
         foreach ($additionalStyles as $style) {

@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (empty($error)) {
+        $image_path = BASE_URL . 'uploads/images/' . basename($image_path);
         $query = "UPDATE book_listings SET 
                   title = '$title',
                   subject_id = '$subject',
