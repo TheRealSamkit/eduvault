@@ -14,12 +14,21 @@ $file_id = mysqli_real_escape_string($mysqli, $_GET['id']);
 // Get file details with uploader info and download count
 $query = "SELECT f.*, u.name as uploader_name, 
           (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
+          (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND content_type = 'file') as report_count,
           (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
           FROM digital_files f 
           JOIN users u ON f.user_id = u.id 
           WHERE f.id = $file_id";
 $result = mysqli_query($mysqli, $query);
 $file = mysqli_fetch_assoc($result);
+
+
+$feedback_query = "SELECT f.*, u.name as user_name 
+                  FROM file_feedback f 
+                  JOIN users u ON f.user_id = u.id 
+                  WHERE f.file_id = $file_id 
+                  ORDER BY f.created_at DESC";
+$feedback_result = mysqli_query($mysqli, $feedback_query);
 
 if (!$file) {
     $_SESSION['error'] = "File not found.";
@@ -28,7 +37,7 @@ if (!$file) {
 }
 
 // Handle feedback submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn()) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && $_POST['submit_feedback']) {
     $rating = mysqli_real_escape_string($mysqli, $_POST['rating']);
     $comment = mysqli_real_escape_string($mysqli, $_POST['comment']);
     $user_id = $_SESSION['user_id'];
@@ -55,13 +64,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn()) {
     exit();
 }
 
+if (isset($_POST['submit_report']) && isLoggedIn()) {
+    $report_reason = mysqli_real_escape_string($mysqli, trim($_POST['report_reason']));
+    $reporter_id = $_SESSION['user_id'];
+
+    if (!empty($report_reason)) {
+        $insert_report = "INSERT INTO reported_content (reporter_id, content_type, content_id, reason) 
+                          VALUES ($reporter_id, 'file', $file_id, '$report_reason')";
+        if (mysqli_query($mysqli, $insert_report)) {
+            $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
+        } else {
+            $_SESSION['error'] = "Failed to submit report. Please try again later.";
+        }
+    } else {
+        $_SESSION['error'] = "Please provide a reason for your report.";
+    }
+    header("Location: view.php?id=$file_id#report");
+    exit();
+}
+
 // Get file feedback
-$feedback_query = "SELECT f.*, u.name as user_name 
-                  FROM file_feedback f 
-                  JOIN users u ON f.user_id = u.id 
-                  WHERE f.file_id = $file_id 
-                  ORDER BY f.created_at DESC";
-$feedback_result = mysqli_query($mysqli, $feedback_query);
 ?>
 
 <div class="container">
@@ -140,7 +162,7 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                                 <label class="form-label">Comment</label>
                                 <textarea name="comment" class="form-control" rows="3" required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" name="submit_feedback">
                                 <i class="fas fa-paper-plane me-2"></i>Submit Feedback
                             </button>
                         </form>
@@ -192,15 +214,42 @@ $feedback_result = mysqli_query($mysqli, $feedback_query);
                             <i class="fas fa-star me-2 text-warning"></i>
                             Rating: <?php echo number_format($file['avg_rating'], 1); ?>/5.0
                         </li>
-                        <li>
+                        <li class="mb-2">
                             <i class="fas fa-calendar-alt me-2 text-info"></i>
                             Uploaded: <?php echo date('F d, Y', strtotime($file['upload_date'])); ?>
+                        </li>
+                        </li>
+                        <li>
+                            <i class="fas fa-times-circle me-2 text-danger"></i>
+                            Reports: <?php echo $file['report_count']; ?>
                         </li>
                     </ul>
                 </div>
             </div>
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-times-circle me-2"></i>Report File</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (isLoggedIn()): ?>
+                        <form method="POST" action="view.php?id=<?php echo $file_id; ?>#report" id="reportForm">
+                            <div class="mb-3">
+                                <label for="reason" class="form-label">Reason for reporting</label>
+                                <textarea name="report_reason" id="reason" class="form-control" rows="3"
+                                    required></textarea>
+                            </div>
+                            <button type="submit" name="submit_report" class="btn btn-danger">
+                                <i class="fas fa-flag me-2"></i>Submit Report
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <p class="text-muted">Please <a href="../login.php">login</a> to report this file.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 </div>
 
 <?php require_once '../includes/footer.php'; ?>

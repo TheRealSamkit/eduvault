@@ -31,14 +31,15 @@ if (isset($_POST['delete_file'])) {
 
 // Get user's files with download count
 $files_query = "SELECT f.*, 
-                (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count
+                (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
+                (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id) as report_count
                 FROM digital_files f 
                 WHERE f.user_id = $user_id 
                 ORDER BY f.upload_date DESC";
 $files_result = mysqli_query($mysqli, $files_query);
 ?>
 
-<div class="container-md mb-4">
+<div class="container-md mb-5 pb-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-file-alt me-2"></i>My Uploads</h2>
         <a href="../files/upload.php" class="btn btn-success">
@@ -57,6 +58,7 @@ $files_result = mysqli_query($mysqli, $files_query);
                                 <th>Subject</th>
                                 <th>Course</th>
                                 <th>Year</th>
+                                <th>Reports</th>
                                 <th>Downloads</th>
                                 <th>Upload Date</th>
                                 <th>Actions</th>
@@ -75,6 +77,11 @@ $files_result = mysqli_query($mysqli, $files_query);
                                     <td><?php echo htmlspecialchars($file['subject']); ?></td>
                                     <td><?php echo htmlspecialchars($file['course']); ?></td>
                                     <td><?php echo $file['year']; ?></td>
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i><?php echo $file['report_count']; ?>
+                                        </span>
+                                    </td>
                                     <td>
                                         <span class="badge bg-info">
                                             <i class="fas fa-download me-1"></i><?php echo $file['download_count']; ?>

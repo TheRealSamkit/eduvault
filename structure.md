@@ -27,7 +27,7 @@ eduvault/
 │   ├── footer.php
 │   └── header.php
 │   └── session.php
-│   └── sidebar.php
+│   └── admin_sidebar.php
 ├── uploads/
 ├── README.md
 ├── structure.md

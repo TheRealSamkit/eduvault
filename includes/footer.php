@@ -92,7 +92,8 @@
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="#" class="text-muted text-decoration-none hover-primary">
+                            <a href="<?= BASE_URL ?>index.php#how_it_works" class=" text-muted text-decoration-none
+                                hover-primary">
                                 How to Use
                             </a>
                         </li>

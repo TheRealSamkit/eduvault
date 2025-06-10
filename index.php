@@ -135,7 +135,7 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
 </div>
 
 <!-- How It Works Section -->
-<div class="container py-5">
+<div class="container py-5" id="how_it_works">
     <div class="row mb-5">
         <div class="col-12 text-center">
             <h2 class="display-5 mb-3">How It Works</h2>
