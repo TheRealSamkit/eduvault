@@ -38,3 +38,17 @@
     color: var(--primary-color) !important;
     font-weight: bold;
 }
+
+.hover-primary:hover {
+    color: var(--primary-color) !important;
+    transition: color 0.3s ease;
+}
+.fab:hover,
+.fas:hover {
+    transform: translateY(-2px);
+    transition: transform 0.3s ease;
+}
+.btn-scroll:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}

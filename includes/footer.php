@@ -125,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- Bottom Section -->
             <hr class="border-secondary my-4">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -143,33 +142,12 @@
                 </div>
             </div>
 
-            <!-- Back to Top Button -->
             <button class="btn btn-primary btn-scroll btn-sm position-fixed bottom-0 end-0 m-3 rounded-circle"
                 onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="width: 50px; height: 50px; z-index: 1000;">
                 <i class="fas fa-arrow-up"></i>
             </button>
         </div>
     </footer>
-    <style>
-        /* Custom hover effects */
-        .hover-primary:hover {
-            color: var(--primary-color) !important;
-            transition: color 0.3s ease;
-        }
-
-        /* Social icons hover effect */
-        .fab:hover,
-        .fas:hover {
-            transform: translateY(-2px);
-            transition: transform 0.3s ease;
-        }
-
-        /* Back to top button hover */
-        .btn-scroll:hover {
-            transform: scale(1.1);
-            transition: transform 0.3s ease;
-        }
-    </style>
 
     <?php
 endif;
@@ -180,34 +158,6 @@ if (isset($additionalScripts)) {
 }
 ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-        toastElList.map(function (toastEl) {
-            var toast = new bootstrap.Toast(toastEl);
-            toast.show();
-        });
-
-        // Stat counter animation
-        const stats = document.querySelectorAll(".stat-number");
-        stats.forEach(stat => {
-            const target = +stat.textContent;
-            stat.textContent = "0";
-            let count = 0;
-            const increment = Math.ceil(target / (100 * 1000)); // Adjust speed here
-            const update = () => {
-                count += increment;
-                if (count >= target) {
-                    stat.textContent = target;
-                } else {
-                    stat.textContent = count;
-                    requestAnimationFrame(update);
-                }
-            };
-            update();
-        });
-    })
-</script>
 </body>
 
 </html>

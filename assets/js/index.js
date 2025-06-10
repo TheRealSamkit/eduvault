@@ -129,17 +129,17 @@ function animateCounters() {
 
 // Smooth Scroll Function
 function initializeSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
+    const scrollBtn = document.querySelector('.btn-scroll');
+    if (!scrollBtn) return;
+    scrollBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     });
 }
 
@@ -210,6 +210,7 @@ function initializeSearch() {
     });
 }
 
+
 // Main initializer after DOM is loaded
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize dark theme based on saved or system preference
@@ -231,4 +232,21 @@ document.addEventListener('DOMContentLoaded', function () {
     //         ThemeManager.toggleTheme();
     //     });
     // }
+const stats = document.querySelectorAll(".stat-number");
+   stats.forEach(stat => {
+       const target = +stat.textContent;
+       stat.textContent = "0";
+       let count = 0;
+       const increment = Math.ceil(target / (100 * 1000)); // Adjust speed here
+       const update = () => {
+           count += increment;
+           if (count >= target) {
+               stat.textContent = target;
+           } else {
+               stat.textContent = count;
+               requestAnimationFrame(update);
+           }
+       };
+       update();
+   });
 });

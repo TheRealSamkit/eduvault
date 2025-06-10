@@ -16,9 +16,6 @@ $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as coun
 $recent_books = mysqli_query($mysqli, "SELECT b.*,u.name as author FROM book_listings b join users u on b.user_id=u.id WHERE b.status = 'Available' ORDER BY created_at DESC LIMIT 6");
 $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY upload_date DESC LIMIT 6");
 ?>
-
-
-<!-- Hero Section -->
 <div class="hero-section">
     <div class="container hero-content">
         <div class="row align-items-center">
@@ -46,7 +43,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
     </div>
 </div>
 
-<!-- Statistics Section -->
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-lg-3 col-md-6 mb-4">
@@ -79,8 +75,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
         </div>
     </div>
 </div>
-
-<!-- Features Section -->
 <div class="bg-light py-5">
     <div class="container">
         <div class="row mb-5">
@@ -134,7 +128,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
     </div>
 </div>
 
-<!-- How It Works Section -->
 <div class="container py-5" id="how_it_works">
     <div class="row mb-5">
         <div class="col-12 text-center">
@@ -175,7 +168,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
     </div>
 </div>
 
-<!-- Featured Resources Section -->
 <div class="bg-light py-5">
     <div class="container">
         <div class="row mb-5">
@@ -185,7 +177,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
             </div>
         </div>
 
-        <!-- Recent Books -->
         <div class="row mb-5">
             <div class="col-12">
                 <h4 class="mb-4"><i class="fas fa-book text-primary me-2"></i>Latest Books</h4>
@@ -212,7 +203,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
             <?php endwhile; ?>
         </div>
 
-        <!-- Recent Files -->
         <div class="row">
             <div class="col-12">
                 <h4 class="mb-4"><i class="fas fa-file-alt text-success me-2"></i>Latest Study Materials</h4>
@@ -247,7 +237,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
     </div>
 </div>
 
-<!-- Testimonials Section -->
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-12 text-center">
@@ -293,7 +282,6 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
     </div>
 </div>
 
-<!-- CTA Section -->
 <div class="cta-section">
     <div class="container">
         <div class="row justify-content-center">
