@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/db_connect.php';
+require_once '../includes/functions.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
@@ -13,17 +14,19 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
     $action = $_POST['action'];
 
     if ($action === 'remove') {
-        // Get file path before deletion
         $file_query = mysqli_query($mysqli, "SELECT file_path FROM digital_files WHERE id = $file_id");
         $file_data = mysqli_fetch_assoc($file_query);
 
         if ($file_data && file_exists($file_data['file_path'])) {
-            unlink($file_data['file_path']); // Delete physical file
+            unlink($file_data['file_path']);
         }
-
         mysqli_query($mysqli, "DELETE FROM digital_files WHERE id = $file_id");
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     } elseif ($action === 'verify') {
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 1 WHERE id = $file_id");
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
 
     // Log the action
@@ -32,12 +35,14 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
     mysqli_query($mysqli, "INSERT INTO activity_logs (admin_id, action, ip_address) 
                           VALUES ($admin_id, 'File $action ID: $file_id', '$ip')");
 }
-
-// Get files list with user information
-$files = mysqli_query($mysqli, "SELECT f.*, u.name as owner_name, u.email as owner_email 
-                               FROM digital_files f 
-                               JOIN users u ON f.user_id = u.id 
-                               ORDER BY f.upload_date DESC");
+$query = "
+    SELECT f.*, u.name AS owner_name, u.email AS owner_email, COUNT(d.file_id) AS download_count
+    FROM digital_files f
+    JOIN users u ON f.user_id = u.id
+    LEFT JOIN downloads d ON f.id = d.file_id
+    GROUP BY f.id
+    ORDER BY f.upload_date DESC";
+$files = mysqli_query($mysqli, $query);
 ?>
 
 <!DOCTYPE html>
@@ -94,7 +99,8 @@ $files = mysqli_query($mysqli, "SELECT f.*, u.name as owner_name, u.email as own
                                             <td><?php echo $file['id']; ?></td>
                                             <td><?php echo htmlspecialchars($file['title']); ?></td>
                                             <td>
-                                                <i class="fas <?php echo getFileIcon($file['file_type']); ?> me-1"></i>
+                                                <i
+                                                    class="fas fa-file-<?php echo getFileIcon($file['file_type']); ?> me-1"></i>
                                                 <?php echo strtoupper($file['file_type']); ?>
                                             </td>
                                             <td><?php echo htmlspecialchars($file['subject']); ?></td>
@@ -104,15 +110,15 @@ $files = mysqli_query($mysqli, "SELECT f.*, u.name as owner_name, u.email as own
                                                     <?php echo htmlspecialchars($file['owner_name']); ?>
                                                 </span>
                                             </td>
-                                            <td><?php echo formatFileSize($file['file_size']); ?></td>
+                                            <td><?php echo htmlspecialchars(($file['file_size'])); ?></td>
                                             <td><?php echo $file['download_count']; ?></td>
                                             <td>
                                                 <span
-                                                    class="badge bg-<?php echo $file['verified'] ? 'success' : 'warning'; ?>">
-                                                    <?php echo $file['verified'] ? 'Verified' : 'Unverified'; ?>
+                                                    class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?>">
+                                                    <?php echo $file['verified'] ? 'Verified' : 'Banned'; ?>
                                                 </span>
                                             </td>
-                                            <td><?php echo date('M d, Y', strtotime($file['uploaded_at'])); ?></td>
+                                            <td><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></td>
                                             <td>
                                                 <div class="btn-group">
                                                     <a href="<?php echo $file['file_path']; ?>"
@@ -184,38 +190,10 @@ $files = mysqli_query($mysqli, "SELECT f.*, u.name as owner_name, u.email as own
         }
 
         function exportFiles(format) {
-            window.location.href = `export_files.php?format=${format}`;
+            window.location.href = `exports/export.php?format=${format}&type=files`;
         }
     </script>
 
-    <?php
-    function getFileIcon($fileType)
-    {
-        $icons = [
-            'pdf' => 'fa-file-pdf',
-            'doc' => 'fa-file-word',
-            'docx' => 'fa-file-word',
-            'ppt' => 'fa-file-powerpoint',
-            'pptx' => 'fa-file-powerpoint',
-            'xls' => 'fa-file-excel',
-            'xlsx' => 'fa-file-excel',
-            'txt' => 'fa-file-alt',
-            'zip' => 'fa-file-archive',
-            'rar' => 'fa-file-archive'
-        ];
-        return $icons[$fileType] ?? 'fa-file';
-    }
-
-    function formatFileSize($bytes)
-    {
-        $units = ['B', 'KB', 'MB', 'GB'];
-        $bytes = max($bytes, 0);
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        $bytes /= pow(1024, $pow);
-        return round($bytes, 1) . ' ' . $units[$pow];
-    }
-    ?>
 </body>
 
 </html>

@@ -45,14 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($detected_mime !== $allowed_mime_types[$ext]) {
                 $error = "File MIME type does not match the file extension.";
             } else {
+                $file_size = round($_FILES['file']['size'] / 1000000, 1);
                 $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
 
                 if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
-                    $query = "INSERT INTO digital_files (user_id, title, description, subject, course, year, file_path, file_type) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $query = "INSERT INTO digital_files (user_id, title, description, subject, course, year, file_path, file_type,file_size) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                     $stmt = mysqli_prepare($mysqli, $query);
-                    mysqli_stmt_bind_param($stmt, "issssiss", $user_id, $title, $description, $subject, $course, $year, $file_path, $ext);
+                    mysqli_stmt_bind_param($stmt, "issssisss", $user_id, $title, $description, $subject, $course, $year, $file_path, $ext, $file_size);
 
                     if (mysqli_stmt_execute($stmt)) {
                         $_SESSION['success'] = "File uploaded successfully!";

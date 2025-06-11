@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 require_once '../includes/functions.php';
 
 // Handle search and filters
@@ -13,185 +12,216 @@ $file_type = isset($_GET['fileType']) ? mysqli_real_escape_string($mysqli, $_GET
 
 $where_conditions = ["1=1"];
 
-if (!empty($search)) {
+if (!empty($search))
     $where_conditions[] = "(title LIKE '%$search%' OR description LIKE '%$search%' OR subject LIKE '%$search%')";
-}
-if (!empty($course)) {
+if (!empty($course))
     $where_conditions[] = "course = '$course'";
-}
-if (!empty($subject)) {
+if (!empty($subject))
     $where_conditions[] = "subject = '$subject'";
-}
-if (!empty($year)) {
+if (!empty($year))
     $where_conditions[] = "year = '$year'";
-}
-if (!empty($file_type)) {
+if (!empty($file_type))
     $where_conditions[] = "file_type = '$file_type'";
-}
 
 $where_clause = implode(' AND ', $where_conditions);
 
-// Get files with user information and download count
-// Update the query to include average rating
 $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id,
-          (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id) as report_count,
-          (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
-          (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
-          FROM digital_files f 
-          JOIN users u ON f.user_id = u.id 
-          WHERE $where_clause 
-          ORDER BY f.upload_date DESC";
+    (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND status = 'resolved') as report_count,
+    (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
+    (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
+    FROM digital_files f
+    JOIN users u ON f.user_id = u.id
+    WHERE $where_clause
+    ORDER BY f.upload_date DESC";
 $result = mysqli_query($mysqli, $query);
 
-// Get unique filters
 $file_types = mysqli_query($mysqli, "SELECT DISTINCT file_type FROM digital_files WHERE file_type != ''");
 $courses = mysqli_query($mysqli, "SELECT DISTINCT course FROM digital_files WHERE course != ''");
 $subjects = mysqli_query($mysqli, "SELECT DISTINCT subject FROM digital_files WHERE subject != ''");
 $years = mysqli_query($mysqli, "SELECT DISTINCT year FROM digital_files WHERE year != 0 ORDER BY year DESC");
+
+// Handle report submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report']) && isLoggedIn()) {
+    $file_id = (int) $_POST['file_id'];
+    $reason = mysqli_real_escape_string($mysqli, $_POST['report_reason']);
+    $user_id = $_SESSION['user_id'];
+
+    if (!empty($reason) && $file_id > 0) {
+        mysqli_query($mysqli, "INSERT INTO reported_content (reporter_id, content_type ,content_id, reason, created_at) 
+            VALUES ($user_id, 'file',$file_id, '$reason', NOW())");
+        $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
+        header("Location: " . $_SERVER['PHP_SELF'] . '?' . http_build_query($_GET));
+        exit();
+    }
+}
+
+require_once '../includes/header.php';
 ?>
+
 <div class="container-fluid">
-    
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-3">
-                        <input type="text" name="search" class="form-control" 
-                               placeholder="Search files..." value="<?php echo htmlspecialchars($search); ?>">
-                    </div>
-                    <div class="col-md-2">
-                        <select name="course" class="form-select">
-                            <option value="">All Courses</option>
-                            <?php while ($c = mysqli_fetch_assoc($courses)): ?>
-                                <option value="<?php echo htmlspecialchars($c['course']); ?>"
-                                        <?php echo $course == $c['course'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($c['course']); ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="fileType" class="form-select">
-                            <option value="">All Files Types</option>
-                            <?php while ($f = mysqli_fetch_assoc($file_types)): ?>
-                                <option value="<?php echo htmlspecialchars($f['file_type']); ?>"
-                                        <?php echo $file_type == $f['file_type'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($f['file_type']); ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="subject" class="form-select">
-                            <option value="">All Subjects</option>
-                            <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                <option value="<?php echo htmlspecialchars($s['subject']); ?>"
-                                        <?php echo $subject == $s['subject'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($s['subject']); ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="year" class="form-select">
-                            <option value="">All Years</option>
-                            <?php while ($y = mysqli_fetch_assoc($years)): ?>
-                                <option value="<?php echo $y['year']; ?>"
-                                        <?php echo $year == $y['year'] ? 'selected' : ''; ?>>
-                                    <?php echo $y['year']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-1">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3"><input type="text" name="search" class="form-control"
+                                placeholder="Search files..." value="<?php echo htmlspecialchars($search); ?>"></div>
+                        <div class="col-md-2">
+                            <select name="course" class="form-select">
+                                <option value="">All Courses</option>
+                                <?php while ($c = mysqli_fetch_assoc($courses)): ?>
+                                    <option value="<?php echo htmlspecialchars($c['course']); ?>" <?php echo $course == $c['course'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($c['course']); ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="fileType" class="form-select">
+                                <option value="">All File Types</option>
+                                <?php while ($f = mysqli_fetch_assoc($file_types)): ?>
+                                    <option value="<?php echo htmlspecialchars($f['file_type']); ?>" <?php echo $file_type == $f['file_type'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($f['file_type']); ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="subject" class="form-select">
+                                <option value="">All Subjects</option>
+                                <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
+                                    <option value="<?php echo htmlspecialchars($s['subject']); ?>" <?php echo $subject == $s['subject'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($s['subject']); ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="year" class="form-select">
+                                <option value="">All Years</option>
+                                <?php while ($y = mysqli_fetch_assoc($years)): ?>
+                                    <option value="<?php echo $y['year']; ?>" <?php echo $year == $y['year'] ? 'selected' : ''; ?>>
+                                        <?php echo $y['year']; ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-1"><button type="submit" class="btn btn-primary w-100"><i
+                                    class="fas fa-search"></i></button></div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <div class="container-md">
     <div class="row">
         <?php if (mysqli_num_rows($result) > 0): ?>
-            <?php while ($file = mysqli_fetch_assoc($result)):?>
+            <?php while ($file = mysqli_fetch_assoc($result)): ?>
                 <div class="col-md-6 mb-4">
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <h5 class="card-title mb-3">
                                     <a href="view.php?id=<?php echo $file['id']; ?>" class="text-decoration-none">
-                                        <i class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
+                                        <i
+                                            class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
                                         <?php echo htmlspecialchars($file['title']); ?>
                                     </a>
                                 </h5>
                                 <div>
-                                    <span class="badge bg-info me-2">
-                                        <i class="fas fa-download me-1"></i><?php echo $file['download_count']; ?>
-                                    </span>
-                                    <span class="badge bg-danger me-2">
-                                        <i class="fas fa-times-circle me-1"></i><?php echo $file['report_count']; ?>
-                                    </span>
-                                    <span class="badge bg-warning">
-                                        <i class="fas fa-star me-1"></i>
-                                        <?php echo number_format($file['avg_rating'] ?: 0, 1); ?>
-                                    </span>
+                                    <span class="badge bg-info me-2"><i
+                                            class="fas fa-download me-1"></i><?php echo $file['download_count']; ?></span>
+                                    <span class="badge bg-danger me-2"><i
+                                            class="fas fa-times-circle me-1"></i><?php echo $file['report_count']; ?></span>
+                                    <span class="badge bg-warning"><i
+                                            class="fas fa-star me-1"></i><?php echo number_format($file['avg_rating'] ?: 0, 1); ?></span>
                                 </div>
                             </div>
-
                             <p class="card-text"><?php echo nl2br(htmlspecialchars($file['description'])); ?></p>
-
                             <div class="mb-3">
-                                <span class="badge bg-primary me-2">
-                                    <i class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($file['subject']); ?>
-                                </span>
-                                <span class="badge bg-secondary me-2">
-                                    <i class="fas fa-book me-1"></i><?php echo htmlspecialchars($file['course']); ?>
-                                </span>
-                                <span class="badge bg-success">
-                                    <i class="fas fa-calendar me-1"></i><?php echo $file['year']; ?>
-                                </span>
+                                <span class="badge bg-primary me-2"><i
+                                        class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($file['subject']); ?></span>
+                                <span class="badge bg-secondary me-2"><i
+                                        class="fas fa-book me-1"></i><?php echo htmlspecialchars($file['course']); ?></span>
+                                <span class="badge bg-success"><i
+                                        class="fas fa-calendar me-1"></i><?php echo $file['year']; ?></span>
                             </div>
-
                             <small class="text-muted">
+                                Uploaded by
                                 <?php if (isLoggedIn()): ?>
-                                Uploaded by <a href="../pages/view.php?id=<?php echo $file['uploader_id']; ?>">
-                                <?php echo htmlspecialchars($file['uploader_name']); ?>
-                                </a>
+                                    <a
+                                        href="../pages/view.php?id=<?php echo $file['uploader_id']; ?>"><?php echo htmlspecialchars($file['uploader_name']); ?></a>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($file['uploader_name']); ?>
+                                <?php endif; ?>
                                 on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
-                            <?php else: ?>
-                                Uploaded by <?php echo htmlspecialchars($file['uploader_name']); ?>
-                                on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
-                            <?php endif; ?>
                             </small>
                         </div>
 
-                        <div class="card-footer bg-white">
+                        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <?php if (isLoggedIn()): ?>
-                                <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm">
-                                    <i class="fas fa-download me-1"></i>Download
-                                </a>
+                                <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm"><i
+                                        class="fas fa-download me-1"></i>Download</a>
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#reportModal"
+                                    data-file-id="<?php echo $file['id']; ?>"
+                                    data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
+                                    <i class="fas fa-flag me-1"></i>Report
+                                </button>
                             <?php else: ?>
-                                <a href="../login.php" class="btn btn-warning btn-sm">
-                                    <i class="fas fa-lock me-1"></i>Login to Download
-                                </a>
+                                <a href="../login.php" class="btn btn-warning btn-sm w-100"><i class="fas fa-lock me-1"></i>Login to
+                                    Download</a>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
             <?php endwhile; ?>
         <?php else: ?>
-            <div class="col-12 text-center py-5">
-                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <div class="col-12 text-center py-5"><i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
                 <p class="lead">No files found matching your criteria.</p>
             </div>
         <?php endif; ?>
     </div>
 </div>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Report File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="file_id" id="modalFileId">
+                    <div class="mb-3">
+                        <label for="report_reason" class="form-label">Reason for reporting:</label>
+                        <textarea class="form-control" id="report_reason" name="report_reason" rows="3"
+                            required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="submit_report" class="btn btn-danger">Submit Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var reportModal = document.getElementById('reportModal');
+        reportModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var fileId = button.getAttribute('data-file-id');
+            var fileTitle = button.getAttribute('data-file-title');
+            reportModal.querySelector('#modalFileId').value = fileId;
+            reportModal.querySelector('#reportModalLabel').textContent = 'Report "' + fileTitle + '"';
+        });
+    });
+</script>
 
 <?php require_once '../includes/footer.php'; ?>

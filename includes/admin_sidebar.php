@@ -21,6 +21,8 @@
     }
 </style>
 <?php
+
+$current_page = basename($_SERVER['PHP_SELF']);
 $stats = [
     'users' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM users"))['count'],
     'books' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings"))['count'],
@@ -34,25 +36,25 @@ $stats = [
         <h5>Admin Panel</h5>
     </div>
     <div class="nav flex-column">
-        <a href="dashboard.php" class="nav-link active">
+        <a href="dashboard.php" class="nav-link <?php echo ($current_page == 'dashboard.php') ? 'active' : ''; ?>">
             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
         </a>
-        <a href="users.php" class="nav-link">
+        <a href="users.php" class="nav-link <?php echo ($current_page == 'users.php') ? 'active' : ''; ?>">
             <i class="fas fa-users me-2"></i>Users
         </a>
-        <a href="books.php" class="nav-link">
+        <a href="books.php" class="nav-link <?php echo ($current_page == 'books.php') ? 'active' : ''; ?>">
             <i class="fas fa-book me-2"></i>Books
         </a>
-        <a href="files.php" class="nav-link">
+        <a href="files.php" class="nav-link <?php echo ($current_page == 'files.php') ? 'active' : ''; ?>">
             <i class="fas fa-file-alt me-2"></i>Files
         </a>
-        <a href="reports.php" class="nav-link">
+        <a href="reports.php" class="nav-link <?php echo ($current_page == 'reports.php') ? 'active' : ''; ?>">
             <i class="fas fa-flag me-2"></i>Reports
             <?php if ($stats['reports'] > 0): ?>
                 <span class="badge bg-danger float-end"><?php echo $stats['reports']; ?></span>
             <?php endif; ?>
         </a>
-        <a href="settings.php" class="nav-link">
+        <a href="settings.php" class="nav-link <?php echo ($current_page == 'settings.php') ? 'active' : ''; ?>">
             <i class="fas fa-cog me-2"></i>Settings
         </a>
         <a href="../logout.php" class="nav-link">

@@ -26,9 +26,11 @@ if (isset($_POST['action']) && isset($_POST['book_id'])) {
 }
 
 // Get books list with user information
-$books = mysqli_query($mysqli, "SELECT b.*, u.name as owner_name, u.email as owner_email 
+$books = mysqli_query($mysqli, "SELECT b.*, u.name as owner_name, u.email as owner_email , bo.name as board,s.name as subject
                                FROM book_listings b 
-                               JOIN users u ON b.user_id = u.id 
+                               JOIN users u ON b.user_id = u.id
+                               JOIN boards bo on b.board_id=bo.id
+                               JOIN subjects s on b.subject_id = s.id
                                ORDER BY b.created_at DESC");
 ?>
 
@@ -189,7 +191,7 @@ $books = mysqli_query($mysqli, "SELECT b.*, u.name as owner_name, u.email as own
         }
 
         function exportBooks(format) {
-            window.location.href = `export_books.php?format=${format}`;
+            window.location.href = `export.php?format=${format}&type=books`;
         }
     </script>
 </body>

@@ -7,57 +7,41 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-mysqli_set_charset($mysqli, 'utf8mb4');
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['user_id'])) {
     $user_id = (int) $_POST['user_id'];
-    $action = $_POST['action'];
+    $action = mysqli_real_escape_string($mysqli, $_POST['action']);
     $admin_id = (int) $_SESSION['admin_id'];
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $ip = mysqli_real_escape_string($mysqli, $_SERVER['REMOTE_ADDR'] ?? '');
 
-    try {
-        mysqli_begin_transaction($mysqli);
+    mysqli_begin_transaction($mysqli);
 
-        $logSql = "INSERT INTO activity_logs (admin_id, id, action, ip_address)
-                    VALUES (?, ?, ?, ?)";
-        $logStmt = mysqli_prepare($mysqli, $logSql);
-        mysqli_stmt_bind_param($logStmt, 'iiss', $admin_id, $user_id, $action, $ip);
-        mysqli_stmt_execute($logStmt);
+    $logSql = "INSERT INTO activity_logs (admin_id, id, action, ip_address)
+               VALUES ($admin_id, $user_id, '$action', '$ip')";
+    mysqli_query($mysqli, $logSql) or die(mysqli_error($mysqli));
 
-        if ($action === 'block') {
-            $stmt = mysqli_prepare($mysqli, 'UPDATE users SET status = \"blocked\" WHERE id = ?');
-            mysqli_stmt_bind_param($stmt, 'i', $user_id);
-            mysqli_stmt_execute($stmt);
-        } elseif ($action === 'unblock') {
-            $stmt = mysqli_prepare($mysqli, 'UPDATE users SET status = \"active\"  WHERE id = ?');
-            mysqli_stmt_bind_param($stmt, 'i', $user_id);
-            mysqli_stmt_execute($stmt);
-        } elseif ($action === 'delete') {
-            $stmt = mysqli_prepare($mysqli, 'DELETE FROM users WHERE id = ?');
-            mysqli_stmt_bind_param($stmt, 'i', $user_id);
-            mysqli_stmt_execute($stmt);
-        }
-
-        mysqli_commit($mysqli);
-        header('Location: users.php?success=1'); // PRG pattern – prevent resubmission
-        exit();
-    } catch (mysqli_sql_exception $e) {
-        mysqli_rollback($mysqli);
-        error_log('MySQL Error: ' . $e->getMessage());
-        header('Location: users.php?error=' . urlencode($e->getMessage()));
-        exit();
+    if ($action === 'block') {
+        $sql = "UPDATE users SET status = 'blocked' WHERE id = $user_id";
+        mysqli_query($mysqli, $sql) or die(mysqli_error($mysqli));
+    } elseif ($action === 'unblock') {
+        $sql = "UPDATE users SET status = 'active' WHERE id = $user_id";
+        mysqli_query($mysqli, $sql) or die(mysqli_error($mysqli));
+    } elseif ($action === 'delete') {
+        $sql = "DELETE FROM users WHERE id = $user_id";
+        mysqli_query($mysqli, $sql) or die(mysqli_error($mysqli));
     }
+
+    mysqli_commit($mysqli);
+    header('Location: users.php?success=1');
+    exit();
 }
 
-$users = mysqli_query(
-    $mysqli,
-    "SELECT u.*, 
-            (SELECT COUNT(*) FROM book_listings  WHERE user_id = u.id) AS books_count,
-            (SELECT COUNT(*) FROM digital_files   WHERE user_id = u.id) AS files_count
-       FROM users u
-   ORDER BY u.created_at DESC"
-);
+$usersQuery = "
+    SELECT u.*, 
+           (SELECT COUNT(*) FROM book_listings  WHERE user_id = u.id) AS books_count,
+           (SELECT COUNT(*) FROM digital_files   WHERE user_id = u.id) AS files_count
+      FROM users u
+  ORDER BY u.created_at DESC";
+$users = mysqli_query($mysqli, $usersQuery) or die(mysqli_error($mysqli));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,12 +50,18 @@ $users = mysqli_query(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management – Admin Panel</title>
-
-    <!-- Bootstrap & DataTables CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        .view-btn i {
+            color: rgba(15, 47, 226, 0.8);
+        }
+
+        .view-btn:hover i {
+            color: #000;
+        }
+    </style>
 </head>
 
 <body>
@@ -79,13 +69,9 @@ $users = mysqli_query(
         <div class="row">
             <?php include '../includes/admin_sidebar.php'; ?>
 
-            <!-- Main content -->
             <div class="col-md-10 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2><i class="fas fa-users me-2"></i>User Management</h2>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
-                        <i class="fas fa-download me-2"></i>Export Users
-                    </button>
                 </div>
 
                 <div class="card">
@@ -123,23 +109,26 @@ $users = mysqli_query(
                                             <td><?= date('M d, Y', strtotime($user['created_at'])); ?></td>
                                             <td>
                                                 <div class="btn-group">
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        onclick="viewUser(<?= $user['id']; ?>)"><i
-                                                            class="fas fa-eye"></i></button>
-
+                                                    <a href="../pages/view.php?id=<?= $user['id'] ?>"
+                                                        class="btn btn-sm btn-outline-primary text-primary view-btn">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
                                                     <?php if ($user['status'] === 'active'): ?>
                                                         <button class="btn btn-sm btn-outline-warning"
-                                                            onclick="submitUserAction(<?= $user['id']; ?>, 'block')"><i
-                                                                class="fas fa-ban"></i></button>
+                                                            onclick="submitUserAction(<?= $user['id']; ?>, 'block')">
+                                                            <i class="fas fa-ban"></i>
+                                                        </button>
                                                     <?php else: ?>
                                                         <button class="btn btn-sm btn-outline-success"
-                                                            onclick="submitUserAction(<?= $user['id']; ?>, 'unblock')"><i
-                                                                class="fas fa-check"></i></button>
+                                                            onclick="submitUserAction(<?= $user['id']; ?>, 'unblock')">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
                                                     <?php endif; ?>
 
                                                     <button class="btn btn-sm btn-outline-danger"
-                                                        onclick="submitUserAction(<?= $user['id']; ?>, 'delete')"><i
-                                                            class="fas fa-trash"></i></button>
+                                                        onclick="submitUserAction(<?= $user['id']; ?>, 'delete')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -149,6 +138,14 @@ $users = mysqli_query(
                         </div>
                     </div>
                 </div>
+
+                <!-- Success/Error alerts -->
+                <?php if (isset($_GET['success'])): ?>
+                    <div class="alert alert-success mt-3">Action completed successfully.</div>
+                <?php elseif (isset($_GET['error'])): ?>
+                    <div class="alert alert-danger mt-3"><?= htmlspecialchars($_GET['error']); ?></div>
+                <?php endif; ?>
+
             </div>
         </div>
     </div>
@@ -161,18 +158,11 @@ $users = mysqli_query(
                     <h5 class="modal-title">User Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="userModalBody"><!-- populated by AJAX --></div>
+                <div class="modal-body" id="userModalBody"></div>
             </div>
         </div>
     </div>
-    <!-- 
-        <?php if (isset($_GET['success'])): ?>
-            <div class="alert alert-success text-center m-2">Action completed successfully.</div>
-        <?php elseif (isset($_GET['error'])): ?>
-            <div class="alert alert-danger text-center m-2">There was a problem completing the action.</div>
-        <?php endif; ?> -->
 
-    <!-- JS assets -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -180,18 +170,8 @@ $users = mysqli_query(
 
     <script>
         $(function () {
-            $('#usersTable').DataTable({
-                order: [[7, 'desc']],  // sort by Joined (8th column index starts at 0)
-                pageLength: 10
-            });
+            $('#usersTable').DataTable({ order: [[7, 'desc']], pageLength: 10 });
         });
-
-        function viewUser(id) {
-            $.get('ajax/get_user.php', { id }, data => {
-                $('#userModalBody').html(data);
-                $('#userModal').modal('show');
-            });
-        }
 
         function submitUserAction(id, action) {
             if (action === 'delete' && !confirm('Delete this user? This action cannot be undone.')) return;
