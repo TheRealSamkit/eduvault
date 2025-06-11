@@ -110,7 +110,7 @@ $files = mysqli_query($mysqli, $query);
                                                     <?php echo htmlspecialchars($file['owner_name']); ?>
                                                 </span>
                                             </td>
-                                            <td><?php echo htmlspecialchars(($file['file_size'])); ?></td>
+                                            <td><?php echo htmlspecialchars(formatFileSizeMB($file['file_size'])); ?></td>
                                             <td><?php echo $file['download_count']; ?></td>
                                             <td>
                                                 <span

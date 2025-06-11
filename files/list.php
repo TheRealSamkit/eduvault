@@ -40,22 +40,8 @@ $courses = mysqli_query($mysqli, "SELECT DISTINCT course FROM digital_files WHER
 $subjects = mysqli_query($mysqli, "SELECT DISTINCT subject FROM digital_files WHERE subject != ''");
 $years = mysqli_query($mysqli, "SELECT DISTINCT year FROM digital_files WHERE year != 0 ORDER BY year DESC");
 
-// Handle report submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report']) && isLoggedIn()) {
-    $file_id = (int) $_POST['file_id'];
-    $reason = mysqli_real_escape_string($mysqli, $_POST['report_reason']);
-    $user_id = $_SESSION['user_id'];
-
-    if (!empty($reason) && $file_id > 0) {
-        mysqli_query($mysqli, "INSERT INTO reported_content (reporter_id, content_type ,content_id, reason, created_at) 
-            VALUES ($user_id, 'file',$file_id, '$reason', NOW())");
-        $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
-        header("Location: " . $_SERVER['PHP_SELF'] . '?' . http_build_query($_GET));
-        exit();
-    }
-}
-
 require_once '../includes/header.php';
+require_once '../modals/reportmodal.php';
 ?>
 
 <div class="container-fluid">
@@ -130,7 +116,7 @@ require_once '../includes/header.php';
                                         <?php echo htmlspecialchars($file['title']); ?>
                                     </a>
                                 </h5>
-                                <div>
+                                <div class="text-end">
                                     <span class="badge bg-info me-2"><i
                                             class="fas fa-download me-1"></i><?php echo $file['download_count']; ?></span>
                                     <span class="badge bg-danger me-2"><i
@@ -139,8 +125,10 @@ require_once '../includes/header.php';
                                             class="fas fa-star me-1"></i><?php echo number_format($file['avg_rating'] ?: 0, 1); ?></span>
                                 </div>
                             </div>
+
                             <p class="card-text"><?php echo nl2br(htmlspecialchars($file['description'])); ?></p>
-                            <div class="mb-3">
+
+                            <div class="mb-2">
                                 <span class="badge bg-primary me-2"><i
                                         class="fas fa-graduation-cap me-1"></i><?php echo htmlspecialchars($file['subject']); ?></span>
                                 <span class="badge bg-secondary me-2"><i
@@ -148,6 +136,14 @@ require_once '../includes/header.php';
                                 <span class="badge bg-success"><i
                                         class="fas fa-calendar me-1"></i><?php echo $file['year']; ?></span>
                             </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-file me-1"></i>
+                                    <?php echo formatFileSizeMB($file['file_size']); ?>
+                                </small>
+                            </div>
+
                             <small class="text-muted">
                                 Uploaded by
                                 <?php if (isLoggedIn()): ?>
@@ -160,13 +156,14 @@ require_once '../includes/header.php';
                             </small>
                         </div>
 
+
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <?php if (isLoggedIn()): ?>
                                 <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm"><i
                                         class="fas fa-download me-1"></i>Download</a>
-                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#reportModal"
-                                    data-file-id="<?php echo $file['id']; ?>"
-                                    data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                    data-content-type="file" data-report-id="<?php echo $file['id']; ?>"
+                                    data-report-title="<?php echo htmlspecialchars($file['title']); ?>">
                                     <i class="fas fa-flag me-1"></i>Report
                                 </button>
                             <?php else: ?>
@@ -184,44 +181,4 @@ require_once '../includes/header.php';
         <?php endif; ?>
     </div>
 </div>
-
-<!-- Report Modal -->
-<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="POST" action="">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reportModalLabel">Report File</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="file_id" id="modalFileId">
-                    <div class="mb-3">
-                        <label for="report_reason" class="form-label">Reason for reporting:</label>
-                        <textarea class="form-control" id="report_reason" name="report_reason" rows="3"
-                            required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="submit_report" class="btn btn-danger">Submit Report</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var reportModal = document.getElementById('reportModal');
-        reportModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var fileId = button.getAttribute('data-file-id');
-            var fileTitle = button.getAttribute('data-file-title');
-            reportModal.querySelector('#modalFileId').value = fileId;
-            reportModal.querySelector('#reportModalLabel').textContent = 'Report "' + fileTitle + '"';
-        });
-    });
-</script>
-
 <?php require_once '../includes/footer.php'; ?>

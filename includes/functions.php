@@ -19,5 +19,14 @@ function getFileIcon($file_type)
             return "invoice";
     }
 }
+function formatFileSizeMB($bytes)
+{
+    if ($bytes > 0) {
+        return number_format($bytes / 1024 * 1024, 1) . ' MB';
+    } else {
+        return '0 MB';
+    }
+}
+
 
 ?>

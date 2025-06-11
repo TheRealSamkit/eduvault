@@ -1,8 +1,8 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 
+require_once '../modals/reportmodal.php';
 if (!isLoggedIn()) {
     header("Location: ../login.php");
     exit();
@@ -63,6 +63,7 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
     exit();
 }
 
+require_once '../includes/header.php';
 ?>
 <div class="container-md p-0 card mb-3">
     <?php if (mysqli_num_rows($result) > 0): ?>
@@ -75,7 +76,9 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
             <div>
                 <h2 class="mb-0"><?php echo htmlspecialchars($user['name']); ?>'s Profile</h2>
                 <?php if (isLoggedIn() && $get_user_id != $_SESSION['user_id']): ?>
-                    <button class="btn btn-danger btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button class="btn btn-danger btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                        data-content-type="user" data-report-id="<?php echo $user['id']; ?>"
+                        data-report-title="<?php echo htmlspecialchars($user['name']); ?>">
                         <i class="fas fa-flag me-1"></i> Report User
                     </button>
                 <?php endif; ?>
@@ -170,6 +173,4 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
 </div>
 
 <?php
-
-require_once '../modals/reportmodal.php';
 require_once '../includes/footer.php'; ?>

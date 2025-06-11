@@ -144,7 +144,6 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
                 </div>
             </div>
 
-            <!-- Feedback Section -->
             <div class="card shadow-sm mt-4">
                 <div class="card-header bg-light">
                     <h4 class="mb-0"><i class="fas fa-comments me-2"></i>Feedback</h4>

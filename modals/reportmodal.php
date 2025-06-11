@@ -1,14 +1,35 @@
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report']) && isLoggedIn()) {
+    $reported_id = (int) $_POST['reported_id'];
+    $reported_content = mysqli_real_escape_string($mysqli, $_POST['reported_content']);
+    $reason = mysqli_real_escape_string($mysqli, $_POST['report_reason']);
+    $user_id = $_SESSION['user_id'];
+
+    if (!empty($reason) && $reported_id > 0) {
+        $stmt = $mysqli->prepare("INSERT INTO reported_content (reporter_id, content_type, content_id, reason, created_at) VALUES (?, ?, ?, ?, NOW())");
+        $stmt->bind_param("isis", $user_id, $reported_content, $reported_id, $reason);
+        $stmt->execute();
+        $stmt->close();
+        $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
+}
+
+?>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="view.php?id=<?php echo $get_user_id; ?>#report">
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Report <?php echo htmlspecialchars($user['name']) ?>
+                    <h5 class="modal-title" id="reportModalLabel">Report
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
+                        <input type="hidden" name="reported_id" id="modalReportedId">
+                        <input type="hidden" name="reported_content" id="modalReportedContent">
                         <label for="report_reason" class="form-label">Reason for reporting:</label>
                         <textarea class="form-control" id="report_reason" name="report_reason" rows="3"
                             required></textarea>
@@ -22,3 +43,4 @@
         </form>
     </div>
 </div>
+<?php $additionalScripts[] = 'modal.js' ?>

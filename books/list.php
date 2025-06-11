@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 
 // Handle search and filters
 $where_conditions = ["b.status = 'Available'"]; // Only show available books
@@ -47,7 +46,7 @@ if (isLoggedIn()) {
     $user_query = "SELECT location, latitude, longitude FROM users WHERE id = " . $_SESSION['user_id'];
     $user_result = mysqli_query($mysqli, $user_query);
     $user_data = mysqli_fetch_assoc($user_result);
-
+    
     if ($user_data['latitude'] && $user_data['longitude']) {
         $query = "SELECT b.*, u.name as owner_name, u.location as owner_location,
                   u.latitude as owner_lat, u.longitude as owner_long,
@@ -63,8 +62,9 @@ if (isLoggedIn()) {
                   ORDER BY distance, b.created_at DESC";
     }
 }
+require_once '../includes/header.php';
+require_once '../modals/reportmodal.php';
 
-// Update the search form to include distance filter
 ?>
 
 <div class="row mb-4 container-fluid">
@@ -72,7 +72,6 @@ if (isLoggedIn()) {
         <div class="card shadow-sm">
             <div class="card-body">
                 <form method="GET" class="row g-3">
-                    <!-- Existing search fields -->
                     <div class="col-md-4">
                         <input type="text" name="search" class="form-control" 
                                placeholder="Search books..." value="<?php echo htmlspecialchars($search); ?>">
@@ -99,7 +98,6 @@ if (isLoggedIn()) {
                             <?php endwhile; ?>
                         </select>
                     </div>
-                    <!-- Add distance filter -->
                     <?php if (isLoggedIn() && $user_data['latitude'] && $user_data['longitude']): ?>
                     <div class="col-md-2">
                         <select name="distance" class="form-select">
@@ -156,9 +154,22 @@ if (isLoggedIn()) {
                         </div>
                                     
                         <div class="card-footer bg-white">
+                            <?php if (isLoggedIn()): ?>
+                                
                             <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
                                 <i class="fas fa-info-circle me-1"></i>View Details
                             </a>
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                    data-content-type="book" data-report-id="<?php echo $book['id']; ?>"
+                                    data-report-title="<?php echo htmlspecialchars($book['title']); ?>">
+                                    <i class="fas fa-flag me-1"></i>Report
+                                </button>
+                            <?php else: ?>
+                                
+                            <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
+                                <i class="fas fa-info-circle me-1"></i>View Details
+                            </a>
+                            <?php endif; ?>
                             <small class="float-end text-muted">
                             <?php if (isLoggedIn()): ?>
                                 Posted by: <a href="../pages/view.php?id=<?php echo htmlspecialchars($book['owner_id']) ?>">
