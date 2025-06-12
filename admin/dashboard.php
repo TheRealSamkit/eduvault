@@ -95,7 +95,7 @@ $activities = mysqli_query($mysqli, "SELECT al.*, u.name as user_name, au.userna
 
                 <!-- Recent Activities -->
                 <div class="card">
-                    <div class="card-header bg-white">
+                    <div class="card-header ">
                         <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Activities</h5>
                     </div>
                     <div class="card-body">

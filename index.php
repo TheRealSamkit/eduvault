@@ -75,7 +75,7 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
         </div>
     </div>
 </div>
-<div class="bg-light py-5">
+<div class="bg-dark-body py-5">
     <div class="container">
         <div class="row mb-5">
             <div class="col-12 text-center">
@@ -168,7 +168,7 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
     </div>
 </div>
 
-<div class="bg-light py-5">
+<div class="bg-dark-body py-5">
     <div class="container">
         <div class="row mb-5">
             <div class="col-12 text-center">

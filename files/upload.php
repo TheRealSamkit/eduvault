@@ -94,22 +94,22 @@ require_once '../includes/header.php';
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label">Title</label>
-                        <input type="text" name="title" class="form-control" required>
+                        <input type="text" name="title" class="form-control bg-dark-body" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                        <textarea name="description" class="form-control bg-dark-body" rows="3" required></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <input type="text" name="subject" class="form-control" required>
+                        <input type="text" name="subject" class="form-control bg-dark-body" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Course</label>
-                        <select name="course" class="form-select" required>
+                        <select name="course" class="form-select bg-dark-body" required>
                             <option value="">Select Course</option>
                             <option value="B.Tech">B.Tech</option>
                             <option value="Diploma">Diploma</option>
@@ -120,17 +120,17 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Year</label>
-                        <select name="year" class="form-select" required>
+                        <select name="year" class="form-select bg-dark-body" required>
                             <option value="">Select Year</option>
                             <?php for ($i = date('Y'); $i >= 2000; $i--): ?>
-                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                    <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
                             <?php endfor; ?>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">File</label>
-                        <input type="file" name="file" class="form-control" required
+                        <input type="file" name="file" class="form-control bg-dark-body" required
                             accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt">
                         <div class="form-text">Max size: 10MB. Allowed formats:
                             <?php echo strtoupper(implode(", ", $allowed_ext)) ?>

@@ -53,7 +53,7 @@ require_once '../includes/header.php';
                             <?php if (!empty($book['image_path'])): ?>
                                 <img src="<?php echo $book['image_path']; ?>" class="img-fluid rounded" alt="Book Cover">
                             <?php else: ?>
-                                <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                <div class="rounded d-flex align-items-center justify-content-center"
                                     style="height: 300px;">
                                     <i class="fas fa-book fa-4x text-muted"></i>
                                 </div>
@@ -117,7 +117,7 @@ require_once '../includes/header.php';
                     </div>
                 </div>
 
-                <div class="card-footer bg-white">
+                <div class="card-footer ">
                     <a href="list.php" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Back to Books
                     </a>
@@ -127,7 +127,7 @@ require_once '../includes/header.php';
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm mt-1">
-                <div class="card-header bg-light">
+                <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-times-circle me-2"></i>Report File</h5>
                 </div>
                 <div class="card-body">
@@ -135,7 +135,7 @@ require_once '../includes/header.php';
                         <form method="POST" action="view.php?id=<?php echo $book_id; ?>" id="reportForm">
                             <div class="mb-3">
                                 <label for="reason" class="form-label">Reason for reporting</label>
-                                <textarea name="report_reason" id="reason" class="form-control" rows="3"
+                                <textarea name="report_reason" id="reason" class="form-control bg-dark-body" rows="3"
                                     required></textarea>
                             </div>
                             <button type="submit" name="submit_report" class="btn btn-danger">

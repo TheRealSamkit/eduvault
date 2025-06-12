@@ -1,10 +1,8 @@
 <?php
 require_once 'session.php';
-$additionalScripts[] = 'loader.js';
-$additionalStyles[] = 'header.css';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="auto">
 
 <head>
     <meta charset="UTF-8">
@@ -15,6 +13,7 @@ $additionalStyles[] = 'header.css';
     <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>assets/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= BASE_URL ?>assets/favicon/favicon-16x16.png">
     <link rel="manifest" href="<?= BASE_URL ?>assets/favicon/site.webmanifest">
+    <link rel='stylesheet' href='<?= BASE_URL ?>assets/css/theme.css'>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <?php
@@ -26,8 +25,8 @@ $additionalStyles[] = 'header.css';
     ?>
 </head>
 
-<body>
-    <div class="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white"
+<body class="bg-dark-body text-body">
+    <div class="bg-dark-body d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 "
         style="z-index: 9999;" id="pageLoader">
         <div class="text-center">
             <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
@@ -38,13 +37,13 @@ $additionalStyles[] = 'header.css';
     </div>
     <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')): ?>
 
-        <nav class="navbar navbar-expand-lg navbar-light mb-4">
+        <nav class="navbar navbar-expand-lg mb-4 bg-dark-body">
             <div class="container">
                 <a class="navbar-brand" href="/eduvault/index.php">
                     <i class="fas fa-book-reader me-2"></i>EduVault
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
+                    <i class="fas fa-bars color fs-2"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
@@ -81,6 +80,26 @@ $additionalStyles[] = 'header.css';
                                 </a>
                             </li>
                         <?php endif; ?>
+                        <li class="nav-item dropdown">
+                            <button class="btn nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-adjust"></i> Theme
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><button type="button" class="dropdown-item d-flex align-items-center"
+                                        data-theme-value="light">
+                                        <i class="fas fa-sun me-2"></i> Light
+                                    </button></li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center"
+                                        data-theme-value="dark">
+                                        <i class="fas fa-moon me-2"></i> Dark
+                                    </button></li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center"
+                                        data-theme-value="auto">
+                                        <i class="fas fa-desktop me-2"></i> System
+                                    </button></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>

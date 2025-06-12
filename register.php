@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 ?>
-<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center bg-light px-2">
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center px-2">
     <div class="w-100" style="max-width: 500px;">
         <div class="card shadow rounded-4">
             <div class="card-header bg-primary text-white rounded-top-4">
@@ -51,23 +51,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <form method="POST" action="">
                     <div class="mb-3">
                         <label class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" required>
+                        <input type="text" name="name" class="form-control bg-dark-body" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" required>
+                        <input type="email" name="email" class="form-control bg-dark-body" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" required>
+                        <input type="password" name="password" class="form-control bg-dark-body" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Location</label>
-                        <input type="text" name="location" class="form-control" required>
+                        <input type="text" name="location" class="form-control bg-dark-body" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Phone</label>
-                        <input type="tel" name="phone" class="form-control" required>
+                        <input type="tel" name="phone" class="form-control bg-dark-body" required>
                     </div>
                     <input type="hidden" name="latitude" id="latitude">
                     <input type="hidden" name="longitude" id="longitude">

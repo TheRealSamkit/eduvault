@@ -76,7 +76,7 @@ $reports_result = mysqli_query($mysqli, $reports_query);
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
-                    <div class="list-group list-group-flush small">
+                    <div class="list-group list-group-flush small rounded">
                         <?php if (mysqli_num_rows($activity_result) > 0): ?>
                             <?php while ($activity = mysqli_fetch_assoc($activity_result)): ?>
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -126,7 +126,7 @@ $reports_result = mysqli_query($mysqli, $reports_query);
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-dark shadow-sm text-center p-2">
+            <div class="card bg-warning text-white shadow-sm text-center p-2">
                 <div class="card-body">
                     <i class="fas fa-star fa-2x mb-2"></i>
                     <h2><?php echo $avg_feedback > 0 ? $avg_feedback : 'N/A'; ?></h2>
@@ -142,7 +142,7 @@ $reports_result = mysqli_query($mysqli, $reports_query);
         <div class="card-body">
             <h5><i class="fas fa-flag me-2"></i>Recent Reports by You</h5>
             <?php if (mysqli_num_rows($reports_result) > 0): ?>
-                <ul class="list-group list-group-flush small">
+                <ul class="list-group list-group-flush small rounded">
                     <?php while ($report = mysqli_fetch_assoc($reports_result)): ?>
                         <li class="list-group-item">
                             <span class="badge bg-secondary"><?php echo htmlspecialchars($report['content_type']); ?>

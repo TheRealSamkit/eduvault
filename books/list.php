@@ -67,17 +67,17 @@ require_once '../modals/reportmodal.php';
 
 ?>
 
-<div class="row mb-4 container-fluid">
+<div class="row mb-4 container-fluid gx-2">
     <div class="col-md-12">
         <div class="card shadow-sm">
             <div class="card-body">
-                <form method="GET" class="row g-3">
+                <form method="GET" class="row g-3" >
                     <div class="col-md-4">
-                        <input type="text" name="search" class="form-control" 
+                        <input type="text" name="search" class="form-control bg-dark-body" 
                                placeholder="Search books..." value="<?php echo htmlspecialchars($search); ?>">
                     </div>
                     <div class="col-md-2">
-                        <select name="board" class="form-select">
+                        <select name="board" class="form-select bg-dark-body">
                             <option value="">All Boards</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
                                 <option value="<?php echo htmlspecialchars($b['id']); ?>" 
@@ -88,7 +88,7 @@ require_once '../modals/reportmodal.php';
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select name="subject" class="form-select">
+                        <select name="subject" class="form-select bg-dark-body">
                             <option value="">All Subjects</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
                                 <option value="<?php echo htmlspecialchars($s['id']); ?>"
@@ -100,7 +100,7 @@ require_once '../modals/reportmodal.php';
                     </div>
                     <?php if (isLoggedIn() && $user_data['latitude'] && $user_data['longitude']): ?>
                     <div class="col-md-2">
-                        <select name="distance" class="form-select">
+                        <select name="distance" class="form-select bg-dark-body">
                             <option value="5" <?php echo $distance == 5 ? 'selected' : ''; ?>>Within 5 km</option>
                             <option value="10" <?php echo $distance == 10 ? 'selected' : ''; ?>>Within 10 km</option>
                             <option value="20" <?php echo $distance == 20 ? 'selected' : ''; ?>>Within 20 km</option>
@@ -153,13 +153,13 @@ require_once '../modals/reportmodal.php';
                             </p>
                         </div>
                                     
-                        <div class="card-footer bg-white">
+                        <div class="card-footer gy-2">
                             <?php if (isLoggedIn()): ?>
                                 
                             <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
                                 <i class="fas fa-info-circle me-1"></i>View Details
                             </a>
-                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"
                                     data-content-type="book" data-report-id="<?php echo $book['id']; ?>"
                                     data-report-title="<?php echo htmlspecialchars($book['title']); ?>">
                                     <i class="fas fa-flag me-1"></i>Report

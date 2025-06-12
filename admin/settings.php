@@ -58,10 +58,10 @@ while ($row = mysqli_fetch_assoc($settings)) {
                 </div>
 
                 <?php if (isset($success)): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        Settings updated successfully!
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            Settings updated successfully!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
                 <?php endif; ?>
 
                 <div class="card">
@@ -73,7 +73,7 @@ while ($row = mysqli_fetch_assoc($settings)) {
                                     <h4 class="mb-3">Site Settings</h4>
                                     <div class="mb-3">
                                         <label class="form-label">Site Name</label>
-                                        <input type="text" class="form-control" name="settings[site_name]"
+                                        <input type="text" class="form-control bg-dark-body" name="settings[site_name]"
                                             value="<?php echo htmlspecialchars($settings_data['site_name']['setting_value']); ?>">
                                         <div class="form-text">
                                             <?php echo $settings_data['site_name']['description']; ?>
@@ -81,7 +81,7 @@ while ($row = mysqli_fetch_assoc($settings)) {
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Site Description</label>
-                                        <textarea class="form-control" name="settings[site_description]"
+                                        <textarea class="form-control bg-dark-body" name="settings[site_description]"
                                             rows="3"><?php echo htmlspecialchars($settings_data['site_description']['setting_value']); ?></textarea>
                                         <div class="form-text">
                                             <?php echo $settings_data['site_description']['description']; ?>
@@ -94,7 +94,7 @@ while ($row = mysqli_fetch_assoc($settings)) {
                                     <h4 class="mb-3">File Settings</h4>
                                     <div class="mb-3">
                                         <label class="form-label">Maximum File Size (bytes)</label>
-                                        <input type="number" class="form-control" name="settings[max_file_size]"
+                                        <input type="number" class="form-control bg-dark-body" name="settings[max_file_size]"
                                             value="<?php echo htmlspecialchars($settings_data['max_file_size']['setting_value']); ?>">
                                         <div class="form-text">Current:
                                             <?php echo formatBytes($settings_data['max_file_size']['setting_value']); ?>
@@ -102,7 +102,7 @@ while ($row = mysqli_fetch_assoc($settings)) {
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Allowed File Types</label>
-                                        <input type="text" class="form-control" name="settings[allowed_file_types]"
+                                        <input type="text" class="form-control bg-dark-body" name="settings[allowed_file_types]"
                                             value="<?php echo htmlspecialchars($settings_data['allowed_file_types']['setting_value']); ?>">
                                         <div class="form-text">Comma-separated list of file extensions (e.g.,
                                             pdf,doc,docx)</div>
@@ -114,7 +114,7 @@ while ($row = mysqli_fetch_assoc($settings)) {
                                     <h4 class="mb-3">Display Settings</h4>
                                     <div class="mb-3">
                                         <label class="form-label">Items Per Page</label>
-                                        <select class="form-select" name="settings[items_per_page]">
+                                        <select class="form-select bg-dark-body" name="settings[items_per_page]">
                                             <?php
                                             $current = (int) $settings_data['items_per_page']['setting_value'];
                                             foreach ([10, 12, 15, 20, 25, 30] as $value) {
@@ -132,7 +132,7 @@ while ($row = mysqli_fetch_assoc($settings)) {
                                     <div class="mb-3">
                                         <label class="form-label">Change Admin Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="newPassword"
+                                            <input type="password" class="form-control bg-dark-body" id="newPassword"
                                                 placeholder="Enter new password">
                                             <button class="btn btn-outline-secondary" type="button"
                                                 onclick="changeAdminPassword()">

@@ -134,7 +134,7 @@ require_once '../includes/header.php';
             </div>
 
             <div class="card shadow-sm mt-4">
-                <div class="card-header bg-light"><strong>Recent Contributions</strong></div>
+                <div class="card-header"><strong>Recent Contributions</strong></div>
                 <div class="card-body">
                     <h6>Books:</h6>
                     <ul>

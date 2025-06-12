@@ -35,7 +35,7 @@ $books_result = mysqli_query($mysqli, $books_query);
         <div class="card-body">
             <?php if (mysqli_num_rows($books_result) > 0): ?>
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>Title</th>

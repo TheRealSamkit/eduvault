@@ -50,10 +50,10 @@ require_once '../modals/reportmodal.php';
             <div class="card shadow-sm">
                 <div class="card-body">
                     <form method="GET" class="row g-3">
-                        <div class="col-md-3"><input type="text" name="search" class="form-control"
+                        <div class="col-md-3"><input type="text" name="search" class="form-control bg-dark-body"
                                 placeholder="Search files..." value="<?php echo htmlspecialchars($search); ?>"></div>
                         <div class="col-md-2">
-                            <select name="course" class="form-select">
+                            <select name="course" class="form-select bg-dark-body">
                                 <option value="">All Courses</option>
                                 <?php while ($c = mysqli_fetch_assoc($courses)): ?>
                                     <option value="<?php echo htmlspecialchars($c['course']); ?>" <?php echo $course == $c['course'] ? 'selected' : ''; ?>>
@@ -63,7 +63,7 @@ require_once '../modals/reportmodal.php';
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="fileType" class="form-select">
+                            <select name="fileType" class="form-select bg-dark-body">
                                 <option value="">All File Types</option>
                                 <?php while ($f = mysqli_fetch_assoc($file_types)): ?>
                                     <option value="<?php echo htmlspecialchars($f['file_type']); ?>" <?php echo $file_type == $f['file_type'] ? 'selected' : ''; ?>>
@@ -73,7 +73,7 @@ require_once '../modals/reportmodal.php';
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="subject" class="form-select">
+                            <select name="subject" class="form-select bg-dark-body">
                                 <option value="">All Subjects</option>
                                 <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
                                     <option value="<?php echo htmlspecialchars($s['subject']); ?>" <?php echo $subject == $s['subject'] ? 'selected' : ''; ?>>
@@ -83,7 +83,7 @@ require_once '../modals/reportmodal.php';
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="year" class="form-select">
+                            <select name="year" class="form-select bg-dark-body">
                                 <option value="">All Years</option>
                                 <?php while ($y = mysqli_fetch_assoc($years)): ?>
                                     <option value="<?php echo $y['year']; ?>" <?php echo $year == $y['year'] ? 'selected' : ''; ?>>
@@ -157,11 +157,11 @@ require_once '../modals/reportmodal.php';
                         </div>
 
 
-                        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                        <div class="card-footer  d-flex justify-content-between align-items-center">
                             <?php if (isLoggedIn()): ?>
                                 <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm"><i
                                         class="fas fa-download me-1"></i>Download</a>
-                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"
                                     data-content-type="file" data-report-id="<?php echo $file['id']; ?>"
                                     data-report-title="<?php echo htmlspecialchars($file['title']); ?>">
                                     <i class="fas fa-flag me-1"></i>Report

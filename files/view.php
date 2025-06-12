@@ -122,24 +122,24 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
 
                     <small class="text-muted d-block mb-3">
                         <?php if (isLoggedIn()): ?>
-                            Uploaded by <a href="../pages/view.php?id=<?php echo $file['uploader_id']; ?>">
-                                <?php echo htmlspecialchars($file['uploader_name']); ?>
-                            </a>
-                            on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
+                                Uploaded by <a href="../pages/view.php?id=<?php echo $file['uploader_id']; ?>">
+                                    <?php echo htmlspecialchars($file['uploader_name']); ?>
+                                </a>
+                                on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
                         <?php else: ?>
-                            Uploaded by <?php echo htmlspecialchars($file['uploader_name']); ?>
-                            on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
+                                Uploaded by <?php echo htmlspecialchars($file['uploader_name']); ?>
+                                on <?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
                         <?php endif; ?>
                     </small>
 
                     <?php if (isLoggedIn()): ?>
-                        <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success">
-                            <i class="fas fa-download me-2"></i>Download File
-                        </a>
+                            <a href="download.php?id=<?php echo $file['id']; ?>" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Download File
+                            </a>
                     <?php else: ?>
-                        <a href="../login.php" class="btn btn-warning">
-                            <i class="fas fa-lock me-2"></i>Login to Download
-                        </a>
+                            <a href="../login.php" class="btn btn-warning">
+                                <i class="fas fa-lock me-2"></i>Login to Download
+                            </a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -150,49 +150,49 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
                 </div>
                 <div class="card-body">
                     <?php if (isLoggedIn()): ?>
-                        <form method="POST" class="mb-4">
-                            <div class="mb-3">
-                                <label class="form-label">Rating</label>
-                                <select name="rating" class="form-select" required>
-                                    <option value="">Select Rating</option>
-                                    <?php for ($i = 5; $i >= 1; $i--): ?>
-                                        <option value="<?php echo $i; ?>">
-                                            <?php echo str_repeat('★', $i) . str_repeat('☆', 5 - $i); ?>
-                                        </option>
-                                    <?php endfor; ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Comment</label>
-                                <textarea name="comment" class="form-control" rows="3" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary" name="submit_feedback">
-                                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
-                            </button>
-                        </form>
+                            <form method="POST" class="mb-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Rating</label>
+                                    <select name="rating" class="form-select bg-dark-body" required>
+                                        <option value="">Select Rating</option>
+                                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                                                <option value="<?php echo $i; ?>">
+                                                    <?php echo str_repeat('★', $i) . str_repeat('☆', 5 - $i); ?>
+                                                </option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comment</label>
+                                    <textarea name="comment" class="form-control bg-dark-body" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" name="submit_feedback">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                                </button>
+                            </form>
                     <?php endif; ?>
 
                     <div class="feedback-list">
                         <?php if (mysqli_num_rows($feedback_result) > 0): ?>
-                            <?php while ($feedback = mysqli_fetch_assoc($feedback_result)): ?>
-                                <div class="border-bottom mb-3 pb-3">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <strong><?php echo htmlspecialchars($feedback['user_name']); ?></strong>
-                                            <small class="text-muted ms-2">
-                                                <?php echo date('M d, Y', strtotime($feedback['created_at'])); ?>
-                                            </small>
+                                <?php while ($feedback = mysqli_fetch_assoc($feedback_result)): ?>
+                                        <div class="border-bottom mb-3 pb-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <strong><?php echo htmlspecialchars($feedback['user_name']); ?></strong>
+                                                    <small class="text-muted ms-2">
+                                                        <?php echo date('M d, Y', strtotime($feedback['created_at'])); ?>
+                                                    </small>
+                                                </div>
+                                                <div class="text-warning">
+                                                    <?php echo str_repeat('★', $feedback['rating']) .
+                                                        str_repeat('☆', 5 - $feedback['rating']); ?>
+                                                </div>
+                                            </div>
+                                            <p class="mb-0"><?php echo nl2br(htmlspecialchars($feedback['comment'])); ?></p>
                                         </div>
-                                        <div class="text-warning">
-                                            <?php echo str_repeat('★', $feedback['rating']) .
-                                                str_repeat('☆', 5 - $feedback['rating']); ?>
-                                        </div>
-                                    </div>
-                                    <p class="mb-0"><?php echo nl2br(htmlspecialchars($feedback['comment'])); ?></p>
-                                </div>
-                            <?php endwhile; ?>
+                                <?php endwhile; ?>
                         <?php else: ?>
-                            <p class="text-muted text-center">No feedback yet. Be the first to leave a review!</p>
+                                <p class="text-muted text-center">No feedback yet. Be the first to leave a review!</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -236,18 +236,18 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
                 </div>
                 <div class="card-body">
                     <?php if (isLoggedIn()): ?>
-                        <form method="POST" action="view.php?id=<?php echo $file_id; ?>#report" id="reportForm">
-                            <div class="mb-3">
-                                <label for="reason" class="form-label">Reason for reporting</label>
-                                <textarea name="report_reason" id="reason" class="form-control" rows="3"
-                                    required></textarea>
-                            </div>
-                            <button type="submit" name="submit_report" class="btn btn-danger">
-                                <i class="fas fa-flag me-2"></i>Submit Report
-                            </button>
-                        </form>
+                            <form method="POST" action="view.php?id=<?php echo $file_id; ?>#report" id="reportForm">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason for reporting</label>
+                                    <textarea name="report_reason" id="reason" class="form-control bg-dark-body" rows="3"
+                                        required></textarea>
+                                </div>
+                                <button type="submit" name="submit_report" class="btn btn-danger">
+                                    <i class="fas fa-flag me-2"></i>Submit Report
+                                </button>
+                            </form>
                     <?php else: ?>
-                        <p class="text-muted">Please <a href="../login.php">login</a> to report this file.</p>
+                            <p class="text-muted">Please <a href="../login.php">login</a> to report this file.</p>
                     <?php endif; ?>
                 </div>
             </div>

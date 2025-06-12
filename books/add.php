@@ -86,41 +86,41 @@ require_once '../includes/header.php';
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label">Book Title</label>
-                        <input type="text" name="title" class="form-control" required>
+                        <input type="text" name="title" class="form-control bg-dark-body" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <select name="subject" class="form-select" required>
+                        <select name="subject" class="form-select bg-dark-body" required>
                             <option value="">Select Subject</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                <option value="<?php echo htmlspecialchars($s['id']); ?>">
-                                    <?php echo htmlspecialchars($s['subject']); ?>
-                                </option>
+                                    <option value="<?php echo htmlspecialchars($s['id']); ?>">
+                                        <?php echo htmlspecialchars($s['subject']); ?>
+                                    </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Board</label>
-                        <select name="board" class="form-select" required>
+                        <select name="board" class="form-select bg-dark-body" required>
                             <option value="">Select Board</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
-                                <option value="<?php echo htmlspecialchars($b['id']); ?>">
-                                    <?php echo htmlspecialchars($b['board']); ?>
-                                </option>
+                                    <option value="<?php echo htmlspecialchars($b['id']); ?>">
+                                        <?php echo htmlspecialchars($b['board']); ?>
+                                    </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Location</label>
-                        <input type="text" name="location" class="form-control" required>
+                        <input type="text" name="location" class="form-control bg-dark-body" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Book Image</label>
-                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <input type="file" name="image" class="form-control bg-dark-body" accept="image/*">
                         <div class="form-text">Max size: 2MB</div>
                     </div>
 

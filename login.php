@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $error = "Invalid email or password";
 }
 ?>
-<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center bg-light px-2">
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center px-2">
     <div class="w-100" style="max-width: 400px;">
         <div class="card shadow rounded-4">
             <div class="card-header bg-primary text-white rounded-top-4">
@@ -38,11 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <form method="POST" action="">
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" required>
+                        <input type="email" name="email" class="form-control bg-dark-body" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" required>
+                        <input type="password" name="password" class="form-control bg-dark-body" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 mb-3 rounded-pill">
                         <i class="fas fa-sign-in-alt me-2"></i>Login

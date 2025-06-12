@@ -14,7 +14,7 @@ $boards = mysqli_query($mysqli, "SELECT DISTINCT name as board, id FROM boards W
 
 // Validate & fetch book for editing
 if (isset($_GET['id'])) {
-    $book_id = (int)$_GET['id'];
+    $book_id = (int) $_GET['id'];
     $user_id = $_SESSION['user_id'];
 
     $stmt = mysqli_prepare($mysqli, "SELECT * FROM book_listings WHERE id = ? AND user_id = ?");
@@ -31,8 +31,8 @@ if (isset($_GET['id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = mysqli_real_escape_string($mysqli, trim($_POST['title']));
-    $subject = (int)$_POST['subject'];
-    $board = (int)$_POST['board'];
+    $subject = (int) $_POST['subject'];
+    $board = (int) $_POST['board'];
     $location = mysqli_real_escape_string($mysqli, trim($_POST['location']));
     $status = mysqli_real_escape_string($mysqli, $_POST['status']);
 
@@ -117,39 +117,39 @@ require_once '../includes/header.php';
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label">Book Title</label>
-                        <input type="text" name="title" class="form-control"
+                        <input type="text" name="title" class="form-control bg-dark-body"
                             value="<?php echo htmlspecialchars($book['title']); ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <select name="subject" class="form-select" required>
+                        <select name="subject" class="form-select bg-dark-body" required>
                             <option value="">Select Subject</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                <option value="<?php echo htmlspecialchars($s['id']); ?>" 
-                                    <?php echo $book['subject_id'] == $s['id'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($s['subject']); ?>
-                                </option>
+                                    <option value="<?php echo htmlspecialchars($s['id']); ?>" 
+                                        <?php echo $book['subject_id'] == $s['id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($s['subject']); ?>
+                                    </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Board</label>
-                        <select name="board" class="form-select" required>
+                        <select name="board" class="form-select bg-dark-body" required>
                             <option value="">Select Board</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
-                                <option value="<?php echo htmlspecialchars($b['id']); ?>" 
-                                    <?php echo $book['board_id'] == $b['id'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($b['board']); ?>
-                                </option>
+                                    <option value="<?php echo htmlspecialchars($b['id']); ?>" 
+                                        <?php echo $book['board_id'] == $b['id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($b['board']); ?>
+                                    </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
+                        <select name="status" class="form-select bg-dark-body" required>
                             <option value="Available" <?php echo $book['status'] == 'Available' ? 'selected' : ''; ?>>
                                 Available</option>
                             <option value="Donated" <?php echo $book['status'] == 'Donated' ? 'selected' : ''; ?>>Donated
@@ -159,19 +159,19 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Location</label>
-                        <input type="text" name="location" class="form-control"
+                        <input type="text" name="location" class="form-control bg-dark-body"
                             value="<?php echo htmlspecialchars($book['location']); ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Book Image</label>
                         <?php if (!empty($book['image_path'])): ?>
-                            <div class="mb-2">
-                                <img src="<?php echo $book['image_path']; ?>" class="img-thumbnail"
-                                    style="max-width: 200px;">
-                            </div>
+                                <div class="mb-2">
+                                    <img src="<?php echo $book['image_path']; ?>" class="img-thumbnail"
+                                        style="max-width: 200px;">
+                                </div>
                         <?php endif; ?>
-                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <input type="file" name="image" class="form-control bg-dark-body" accept="image/*">
                         <div class="form-text">Leave empty to keep current image</div>
                     </div>
 

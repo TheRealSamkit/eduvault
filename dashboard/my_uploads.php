@@ -51,13 +51,14 @@ $files_result = mysqli_query($mysqli, $files_query);
         <div class="card-body">
             <?php if (mysqli_num_rows($files_result) > 0): ?>
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>Title</th>
                                 <th>Subject</th>
                                 <th>Course</th>
                                 <th>Year</th>
+                                <th>File Size</th>
                                 <th>Reports</th>
                                 <th>Downloads</th>
                                 <th>Upload Date</th>
@@ -77,6 +78,7 @@ $files_result = mysqli_query($mysqli, $files_query);
                                     <td><?php echo htmlspecialchars($file['subject']); ?></td>
                                     <td><?php echo htmlspecialchars($file['course']); ?></td>
                                     <td><?php echo $file['year']; ?></td>
+                                    <td><?php echo formatFileSizeMB($file['file_size']); ?></td>
                                     <td>
                                         <span class="badge bg-danger">
                                             <i class="fas fa-times-circle me-1"></i><?php echo $file['report_count']; ?>
