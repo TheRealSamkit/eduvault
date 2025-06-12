@@ -1,23 +1,23 @@
 <style>
     .sidebar {
-        min-height: 100vh;
+        min-height: 100vh !important;
         background: #1e88e5;
         color: white;
     }
 
     .sidebar .nav-link {
-        color: rgba(255, 255, 255, .8);
+        color: rgba(255, 255, 255, .8) !important;
         padding: 1rem;
     }
 
     .sidebar .nav-link:hover {
-        color: white;
-        background: rgba(255, 255, 255, .1);
+        color: white !important;
+        background: rgba(255, 255, 255, .1) !important;
     }
 
     .sidebar .nav-link.active {
-        color: white;
-        background: rgba(255, 255, 255, .2);
+        color: white !important;
+        background: rgba(255, 255, 255, .2) !important;
     }
 </style>
 <?php
@@ -30,7 +30,6 @@ $stats = [
     'reports' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM reported_content WHERE status = 'pending'"))['count']
 ];
 ?>
-<link rel="stylesheet" href="../assets/css/theme.css">
 <div class="col-md-2 px-0 sidebar">
     <div class="p-3 text-center">
         <i class="fas fa-user-shield fa-3x mb-2"></i>

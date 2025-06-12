@@ -43,157 +43,137 @@ $query = "
     GROUP BY f.id
     ORDER BY f.upload_date DESC";
 $files = mysqli_query($mysqli, $query);
+$title = "File Management - Admin Panel";
+require_once '../includes/admin_header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/admin_sidebar.php'; ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Management - Admin Panel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-</head>
-
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <?php include '../includes/admin_sidebar.php'; ?>
-
-            <div class="col-md-10 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="fas fa-file-alt me-2"></i>File Management</h2>
-                    <div>
-                        <button class="btn btn-success me-2" onclick="exportFiles('csv')">
-                            <i class="fas fa-file-csv me-2"></i>Export CSV
-                        </button>
-                        <button class="btn btn-primary" onclick="exportFiles('pdf')">
-                            <i class="fas fa-file-pdf me-2"></i>Export PDF
-                        </button>
-                    </div>
+        <div class="col-md-10 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-file-alt me-2"></i>File Management</h2>
+                <div>
+                    <button class="btn btn-success me-2" onclick="exportFiles('csv')">
+                        <i class="fas fa-file-csv me-2"></i>Export CSV
+                    </button>
+                    <button class="btn btn-primary" onclick="exportFiles('pdf')">
+                        <i class="fas fa-file-pdf me-2"></i>Export PDF
+                    </button>
                 </div>
+            </div>
 
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table" id="filesTable">
-                                <thead>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="filesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Subject</th>
+                                    <th>Owner</th>
+                                    <th>Size</th>
+                                    <th>Downloads</th>
+                                    <th>Verified</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($file = mysqli_fetch_assoc($files)): ?>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Title</th>
-                                        <th>Type</th>
-                                        <th>Subject</th>
-                                        <th>Owner</th>
-                                        <th>Size</th>
-                                        <th>Downloads</th>
-                                        <th>Verified</th>
-                                        <th>Uploaded</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while ($file = mysqli_fetch_assoc($files)): ?>
-                                        <tr>
-                                            <td><?php echo $file['id']; ?></td>
-                                            <td><?php echo htmlspecialchars($file['title']); ?></td>
-                                            <td>
-                                                <i
-                                                    class="fas fa-file-<?php echo getFileIcon($file['file_type']); ?> me-1"></i>
-                                                <?php echo strtoupper($file['file_type']); ?>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($file['subject']); ?></td>
-                                            <td>
-                                                <span data-bs-toggle="tooltip"
-                                                    title="<?php echo htmlspecialchars($file['owner_email']); ?>">
-                                                    <?php echo htmlspecialchars($file['owner_name']); ?>
-                                                </span>
-                                            </td>
-                                            <td><?php echo htmlspecialchars(formatFileSizeMB($file['file_size'])); ?></td>
-                                            <td><?php echo $file['download_count']; ?></td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?>">
-                                                    <?php echo $file['verified'] ? 'Verified' : 'Banned'; ?>
-                                                </span>
-                                            </td>
-                                            <td><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="<?php echo $file['file_path']; ?>"
-                                                        class="btn btn-sm btn-outline-primary" target="_blank">
-                                                        <i class="fas fa-download"></i>
-                                                    </a>
-                                                    <?php if (!$file['verified']): ?>
-                                                        <button type="button" class="btn btn-sm btn-outline-success"
-                                                            onclick="verifyFile(<?php echo $file['id']; ?>)">
-                                                            <i class="fas fa-check"></i>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        onclick="removeFile(<?php echo $file['id']; ?>)">
-                                                        <i class="fas fa-trash"></i>
+                                        <td><?php echo $file['id']; ?></td>
+                                        <td><?php echo htmlspecialchars($file['title']); ?></td>
+                                        <td>
+                                            <i class="fas fa-file-<?php echo getFileIcon($file['file_type']); ?> me-1"></i>
+                                            <?php echo strtoupper($file['file_type']); ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($file['subject']); ?></td>
+                                        <td>
+                                            <span data-bs-toggle="tooltip"
+                                                title="<?php echo htmlspecialchars($file['owner_email']); ?>">
+                                                <?php echo htmlspecialchars($file['owner_name']); ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo htmlspecialchars(formatFileSizeMB($file['file_size'])); ?></td>
+                                        <td><?php echo $file['download_count']; ?></td>
+                                        <td>
+                                            <span class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?>">
+                                                <?php echo $file['verified'] ? 'Verified' : 'Banned'; ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="<?php echo $file['file_path']; ?>"
+                                                    class="btn btn-sm btn-outline-primary" target="_blank">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                                <?php if (!$file['verified']): ?>
+                                                    <button type="button" class="btn btn-sm btn-outline-success"
+                                                        onclick="verifyFile(<?php echo $file['id']; ?>)">
+                                                        <i class="fas fa-check"></i>
                                                     </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                                <?php endif; ?>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="removeFile(<?php echo $file['id']; ?>)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#filesTable').DataTable({
-                order: [[8, 'desc']],
-                pageLength: 10
-            });
-
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
+<?php require_once '../includes/admin_footer.php' ?>
+<script>
+    $(document).ready(function () {
+        $('#filesTable').DataTable({
+            order: [[8, 'desc']],
+            pageLength: 10
         });
 
-        function verifyFile(fileId) {
-            if (confirm('Are you sure you want to verify this file?')) {
-                submitFileAction(fileId, 'verify');
-            }
-        }
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
 
-        function removeFile(fileId) {
-            if (confirm('Are you sure you want to remove this file? This action cannot be undone.')) {
-                submitFileAction(fileId, 'remove');
-            }
+    function verifyFile(fileId) {
+        if (confirm('Are you sure you want to verify this file?')) {
+            submitFileAction(fileId, 'verify');
         }
+    }
 
-        function submitFileAction(fileId, action) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.innerHTML = `
+    function removeFile(fileId) {
+        if (confirm('Are you sure you want to remove this file? This action cannot be undone.')) {
+            submitFileAction(fileId, 'remove');
+        }
+    }
+
+    function submitFileAction(fileId, action) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `
                 <input type="hidden" name="file_id" value="${fileId}">
                 <input type="hidden" name="action" value="${action}">
             `;
-            document.body.append(form);
-            form.submit();
-        }
+        document.body.append(form);
+        form.submit();
+    }
 
-        function exportFiles(format) {
-            window.location.href = `exports/export.php?format=${format}&type=files`;
-        }
-    </script>
-
-</body>
-
-</html>
+    function exportFiles(format) {
+        window.location.href = `exports/export.php?format=${format}&type=files`;
+    }
+</script>

@@ -37,127 +37,110 @@ $reports = mysqli_query($mysqli, "
     LEFT JOIN users u ON rc.reporter_id = u.id
     ORDER BY rc.created_at DESC
 ");
+$tittle = "Reported Content - Admin Panel";
+require_once '../includes/admin_header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/admin_sidebar.php'; ?>
+        <div class="col-md-10 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-flag me-2"></i>Reported Content</h2>
+            </div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reported Content - Admin Panel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-</head>
-
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <?php include '../includes/admin_sidebar.php'; ?>
-            <div class="col-md-10 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="fas fa-flag me-2"></i>Reported Content</h2>
-                </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table" id="reportsTable">
-                                <thead>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="reportsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Content ID</th>
+                                    <th>Reporter</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($report = mysqli_fetch_assoc($reports)): ?>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Type</th>
-                                        <th>Content ID</th>
-                                        <th>Reporter</th>
-                                        <th>Reason</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while ($report = mysqli_fetch_assoc($reports)): ?>
-                                        <tr>
-                                            <td><?php echo $report['id']; ?></td>
-                                            <td class="text-uppercase"><?php echo $report['content_type']; ?></td>
-                                            <td><?php echo $report['content_id']; ?></td>
-                                            <td>
-                                                <?php if ($report['reporter_name']): ?>
-                                                    <span data-bs-toggle="tooltip"
-                                                        title="<?php echo htmlspecialchars($report['reporter_email']); ?>">
-                                                        <?php echo htmlspecialchars($report['reporter_name']); ?>
-                                                    </span>
-                                                <?php else: ?>
-                                                    <em>Guest</em>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?php echo nl2br(htmlspecialchars($report['reason'])); ?></td>
-                                            <td>
-                                                <span class="badge bg-<?php
-                                                echo $report['status'] === 'pending' ? 'warning' :
-                                                    ($report['status'] === 'resolved' ? 'success' : 'secondary');
-                                                ?>">
-                                                    <?php echo ucfirst($report['status']); ?>
+                                        <td><?php echo $report['id']; ?></td>
+                                        <td class="text-uppercase"><?php echo $report['content_type']; ?></td>
+                                        <td><?php echo $report['content_id']; ?></td>
+                                        <td>
+                                            <?php if ($report['reporter_name']): ?>
+                                                <span data-bs-toggle="tooltip"
+                                                    title="<?php echo htmlspecialchars($report['reporter_email']); ?>">
+                                                    <?php echo htmlspecialchars($report['reporter_name']); ?>
                                                 </span>
-                                            </td>
-                                            <td><?php echo date('M d, Y H:i', strtotime($report['created_at'])); ?></td>
-                                            <td>
-                                                <?php if ($report['status'] === 'pending'): ?>
-                                                    <button class="btn btn-sm btn-success me-1"
-                                                        onclick="handleReport(<?php echo $report['id']; ?>, 'resolved')">
-                                                        <i class="fas fa-check"></i> Resolve
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger"
-                                                        onclick="handleReport(<?php echo $report['id']; ?>, 'dismissed')">
-                                                        <i class="fas fa-times"></i> Dismiss
-                                                    </button>
-                                                <?php else: ?>
-                                                    <em>No actions</em>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                            <?php else: ?>
+                                                <em>Guest</em>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo nl2br(htmlspecialchars($report['reason'])); ?></td>
+                                        <td>
+                                            <span class="badge bg-<?php
+                                            echo $report['status'] === 'pending' ? 'warning' :
+                                                ($report['status'] === 'resolved' ? 'success' : 'secondary');
+                                            ?>">
+                                                <?php echo ucfirst($report['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo date('M d, Y H:i', strtotime($report['created_at'])); ?></td>
+                                        <td>
+                                            <?php if ($report['status'] === 'pending'): ?>
+                                                <button class="btn btn-sm btn-success me-1"
+                                                    onclick="handleReport(<?php echo $report['id']; ?>, 'resolved')">
+                                                    <i class="fas fa-check"></i> Resolve
+                                                </button>
+                                                <button class="btn btn-sm btn-danger"
+                                                    onclick="handleReport(<?php echo $report['id']; ?>, 'dismissed')">
+                                                    <i class="fas fa-times"></i> Dismiss
+                                                </button>
+                                            <?php else: ?>
+                                                <em>No actions</em>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
             </div>
+
         </div>
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#reportsTable').DataTable({
-                order: [[6, 'desc']],
-                pageLength: 10
-            });
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
+<?php require_once '../includes/admin_footer.php' ?>
+<script>
+    $(document).ready(function () {
+        $('#reportsTable').DataTable({
+            order: [[6, 'desc']],
+            pageLength: 10
         });
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
 
-        function handleReport(reportId, action) {
-            const notes = prompt("Enter resolution notes (optional):");
-            if (confirm(`Are you sure you want to mark this report as "${action}"?`)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
+    function handleReport(reportId, action) {
+        const notes = prompt("Enter resolution notes (optional):");
+        if (confirm(`Are you sure you want to mark this report as "${action}"?`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
                 <input type="hidden" name="report_id" value="${reportId}">
                 <input type="hidden" name="action" value="${action}">
                 <input type="hidden" name="notes" value="${notes ? notes.replace(/"/g, '&quot;') : ''}">
             `;
-                document.body.append(form);
-                form.submit();
-            }
+            document.body.append(form);
+            form.submit();
         }
-    </script>
-</body>
-
-</html>
+    }
+</script>
