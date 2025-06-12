@@ -167,7 +167,8 @@ require_once '../modals/reportmodal.php';
                                     <i class="fas fa-flag me-1"></i>Report
                                 </button>
                             <?php else: ?>
-                                <a href="../login.php" class="btn btn-warning btn-sm w-100"><i class="fas fa-lock me-1"></i>Login to
+                                <a href="../login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"
+                                    class="btn btn-warning btn-sm w-100"><i class="fas fa-lock me-1"></i>Login to
                                     Download</a>
                             <?php endif; ?>
                         </div>

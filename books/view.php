@@ -143,7 +143,9 @@ require_once '../includes/header.php';
                             </button>
                         </form>
                     <?php else: ?>
-                        <p class="text-muted">Please <a href="../login.php">login</a> to report this file.</p>
+                        <p class="text-muted">Please <a
+                                href="../login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">login</a> to
+                            report this file.</p>
                     <?php endif; ?>
                 </div>
             </div>

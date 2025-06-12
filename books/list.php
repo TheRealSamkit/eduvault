@@ -130,7 +130,7 @@ require_once '../modals/reportmodal.php';
                             <img src="<?php echo $book['image_path']; ?>" class="card-img-top" alt="Book Cover"
                                  style="height: 200px; object-fit: cover;">
                         <?php else: ?>
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                            <div class="card-img-top d-flex align-items-center justify-content-center"
                                  style="height: 200px;">
                                 <i class="fas fa-book fa-3x text-muted"></i>
                             </div>

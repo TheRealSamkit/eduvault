@@ -3,7 +3,9 @@ require_once 'includes/db_connect.php';
 require_once 'includes/header.php';
 
 $error = '';
-
+if (isset($_GET['redirect'])) {
+    $_SESSION['referred'] = mysqli_real_escape_string($mysqli, $_GET['redirect']);
+}
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = mysqli_real_escape_string($mysqli, $_POST['email']);
     $password = $_POST['password'];
@@ -16,8 +18,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $update_ = "UPDATE users SET last_active = current_timestamp() WHERE id = $user[id];";
             mysqli_query($mysqli, $update_);
             $_SESSION['user_id'] = $user['id'];
-            header("Location: dashboard/dashboard.php");
-            exit();
+            if (isset($_SESSION['referred'])) {
+                unset($_SESSION['referred']);
+
+                $redirect = (str_contains($_SESSION['referred'], 'index.php') || str_contains($_SESSION['referred'], 'login.php'))
+                    ? 'dashboard/dashboard.php'
+                    : $_SESSION['referred'];
+
+                unset($_SESSION['referred']);
+
+                header("Location: $redirect");
+                exit();
+            } else {
+                header("Location: dashboard/dashboard.php");
+                exit();
+            }
         }
     }
     $error = "Invalid email or password";

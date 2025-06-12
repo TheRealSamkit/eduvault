@@ -30,6 +30,7 @@ $stats = [
     'reports' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM reported_content WHERE status = 'pending'"))['count']
 ];
 ?>
+<link rel="stylesheet" href="../assets/css/theme.css">
 <div class="col-md-2 px-0 sidebar">
     <div class="p-3 text-center">
         <i class="fas fa-user-shield fa-3x mb-2"></i>

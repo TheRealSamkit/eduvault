@@ -62,7 +62,8 @@
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="#" class="text-muted text-decoration-none hover-primary">
+                            <a href="http://localhost/eduvault/books/list.php?board=5"
+                                class="text-muted text-decoration-none hover-primary">
                                 State Board
                             </a>
                         </li>
