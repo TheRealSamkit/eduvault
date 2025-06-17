@@ -57,7 +57,10 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 // Output file content
-readfile($file['file_path']);
-$_SESSION['success'] = "File downloaded successfully.";
-exit();
+if (
+    readfile($file['file_path'])
+) {
+    $_SESSION['success'] = "File downloaded successfully.";
+    exit();
+}
 ?>

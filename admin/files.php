@@ -139,7 +139,7 @@ require_once '../includes/admin_header.php';
 <script>
     $(document).ready(function () {
         $('#filesTable').DataTable({
-            order: [[8, 'desc']],
+            order: [[8, 'asc']],
             pageLength: 10
         });
 

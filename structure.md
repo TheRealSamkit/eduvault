@@ -1,24 +1,34 @@
--- This is not updated version of current structure
+--
+
 ```
 eduvault/
 ├── assets/
-│   └── images/
+│   ├── images/
+│   ├── css/
+│   ├── js/
+│   │   ├── index.js
+│   │   ├── main.js
+│   │   └── modal.js
+│   └── favicon/
+│       └── about.txt
 ├── admin/
 │   ├── books.php
+│   ├── export.php
+│   ├── reports.php
 │   ├── dashboard.php
-│   └── files.php
-│   └── login.php
-│   └── settings.php
+│   ├── files.php
+│   ├── login.php
+│   ├── settings.php
 │   └── users.php
 ├── books/
 │   ├── add.php
 │   ├── edit.php
-│   └── list.php
+│   ├── list.php
 │   └── view.php
 ├── files/
 │   ├── upload.php
 │   ├── download.php
-│   └── list.php
+│   ├── list.php
 │   └── view.php
 ├── images/
 │   └── books/

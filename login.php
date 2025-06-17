@@ -1,10 +1,15 @@
 <?php
 require_once 'includes/db_connect.php';
-require_once 'includes/header.php';
+include 'includes/header.php';
+
+
 
 $error = '';
 if (isset($_GET['redirect'])) {
     $_SESSION['referred'] = mysqli_real_escape_string($mysqli, $_GET['redirect']);
+} elseif (isset($_SESSION['user_id'])) {
+    header('Location: dashboard/dashboard.php');
+    exit();
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = mysqli_real_escape_string($mysqli, $_POST['email']);

@@ -3,10 +3,9 @@ require_once 'includes/db_connect.php';
 $additionalStyles[] = 'index.css';
 $additionalScripts[] = 'index.js';
 require_once 'includes/session.php';
-require_once 'includes/header.php';
+include 'includes/header.php';
 require_once 'includes/functions.php';
 
-// Get some statistics
 $downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads"))['count'];
 $books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];
 $files_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM digital_files"))['count'];

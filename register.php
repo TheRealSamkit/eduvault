@@ -1,6 +1,6 @@
 <?php
 require_once 'includes/db_connect.php';
-require_once 'includes/header.php';
+include 'includes/header.php';
 
 $error = '';
 $success = '';

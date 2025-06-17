@@ -25,8 +25,6 @@
                         </a>
                     </div>
                 </div>
-
-                <!-- Quick Links -->
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-primary mb-3">Platform</h6>
                     <ul class="list-unstyled">
@@ -154,12 +152,12 @@
 endif;
 if (isset($additionalScripts)) {
     foreach ($additionalScripts as $script) {
-        echo "<script src='http://localhost/eduvault/assets/js/$script'></script>";
+        echo "<script src='/eduvault/assets/js/$script'></script>";
     }
 }
 ?>
 <script src="<?= BASE_URL ?>assets/js/main.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>assets/js/bootstrap.js"></script>
 </body>
 
 </html>
