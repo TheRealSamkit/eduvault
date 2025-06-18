@@ -7,29 +7,34 @@ $success = '';
 
 // Update the PHP processing section
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = mysqli_real_escape_string($mysqli, $_POST['name']);
-    $email = mysqli_real_escape_string($mysqli, $_POST['email']);
+    $name = $_POST['name'];
+    $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $location = mysqli_real_escape_string($mysqli, $_POST['location']);
-    $phone = mysqli_real_escape_string($mysqli, $_POST['phone']);
+    $location = $_POST['location'];
+    $phone = $_POST['phone'];
+    $latitude = !empty($_POST['latitude']) ? $_POST['latitude'] : null;
+    $longitude = !empty($_POST['longitude']) ? $_POST['longitude'] : null;
 
-    $latitude = !empty($_POST['latitude']) ? "'" . mysqli_real_escape_string($mysqli, $_POST['latitude']) . "'" : 'NULL';
-    $longitude = !empty($_POST['longitude']) ? "'" . mysqli_real_escape_string($mysqli, $_POST['longitude']) . "'" : 'NULL';
-
-    $check_email = mysqli_query($mysqli, "SELECT id FROM users WHERE email = '$email'");
-    if (mysqli_num_rows($check_email) > 0) {
+    // Check if email exists (prepared statement)
+    $stmt = mysqli_prepare($mysqli, "SELECT id FROM users WHERE email = ?");
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
+    if (mysqli_stmt_num_rows($stmt) > 0) {
         $error = "Email already exists!";
     } else {
-        $query = "INSERT INTO users (name, email, password, location, phone, latitude, longitude) 
-          VALUES ('$name', '$email', '$password', '$location', '$phone', $latitude, $longitude)";
-
-
-        if (mysqli_query($mysqli, $query)) {
+        // Insert user (prepared statement)
+        $query = "INSERT INTO users (name, email, password, location, phone, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $insert_stmt = mysqli_prepare($mysqli, $query);
+        mysqli_stmt_bind_param($insert_stmt, 'sssssss', $name, $email, $password, $location, $phone, $latitude, $longitude);
+        if (mysqli_stmt_execute($insert_stmt)) {
             $success = "Registration successful! Please login.";
         } else {
             $error = "Registration failed: " . mysqli_error($mysqli);
         }
+        mysqli_stmt_close($insert_stmt);
     }
+    mysqli_stmt_close($stmt);
 }
 
 ?>

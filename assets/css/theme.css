@@ -1,122 +1,124 @@
 :root {
-  /* Brand Colors */
-  --primary-color: #1e88e5;
-  --primary-dark: #1565c0;
-  --secondary-color: #757575;
+	/* Brand Colors */
+	--primary-color: #4f46e5; /* Indigo-600 */
+	--primary-dark: #3730a3; /* Indigo-800 */
+	--secondary-color: #2563eb; /* Blue-600 */
 
-  /* State Colors */
-  --success-color: #43a047;
-  --warning-color: #fdd835;
-  --danger-color: #e53935;
+	/* State Colors */
+	--success-color: #22c55e; /* Green-500 */
+	--warning-color: #facc15; /* Yellow-400 */
+	--danger-color: #ef4444; /* Red-500 */
 
-  /* Background & Borders */
-  --bs-body-bg: #ffffff;
-  --bg-subtle: #f8f9fa;
-  --bg-body-tertiary: #ffffff;
-  --bs-border-color: rgba(0, 0, 0, 0.125);
+	/* Background & Borders */
+	--bs-body-bg: #f3f4f6; /* Gray-100 */
+	--bg-subtle: #e5e7eb; /* Gray-200 */
+	--bg-body-tertiary: #fff; /* White */
+	--bs-border-color: #d1d5db; /* Gray-300 */
 
-  /* Text & Effects */
-  --bs-body-color: #212529;
-  --bs-hover-color: #15181a;
-  --bs-shadow: rgba(0, 0, 0, 0.189);
+	--bs-inverse-color: #333333b5;
+
+	/* Text & Effects */
+	--bs-body-color: #22223b; /* Deep gray-blue */
+	--bs-hover-color: #1e293b; /* Slate-800 */
+	--bs-shadow: rgba(60, 60, 60, 0.08);
 }
 
 /* Dark Mode Variables */
 [data-bs-theme="dark"] {
-  --bs-body-bg: #121212;
-  --bg-subtle: #141414;
-  --bg-body-tertiary: #1e1e1e;
-  --bs-border-color: rgba(250, 250, 250, 0.331);
-  --bs-body-color: #e0e0e0;
-  --bs-hover-color: #ffffff;
-  --bs-shadow: rgba(255, 255, 255, 0.075);
+	--bs-inverse-color: #dad9d9ac;
+	--bs-body-bg: #18181b; /* Gray-900 */
+	--bg-subtle: #232336; /* Deep blue-gray */
+	--bg-body-tertiary: #232336; /* Deep blue-gray */
+	--bs-border-color: #2d2d3a; /* Slightly lighter for borders */
+	--bs-body-color: #e0e7ef; /* Light gray-blue */
+	--bs-hover-color: #fff; /* White */
+	--bs-shadow: rgba(83, 83, 83, 0.18);
 }
 
 body,
 .bg-dark-body,
 .list-group-item {
-  background-color: var(--bs-body-bg) !important;
-  color: var(--bs-body-color) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
+	background-color: var(--bs-body-bg) !important;
+	color: var(--bs-body-color) !important;
+	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .color {
-  color: var(--bs-body-color);
+	color: var(--bs-body-color);
 }
 .color:hover {
-  color: var(--bs-hover-color);
-  transition: color 0.3s ease;
+	color: var(--bs-hover-color);
+	transition: color 0.3s ease;
 }
 
 .navbar {
-  box-shadow: 0 2px 4px var(--bs-shadow);
+	box-shadow: 0 2px 4px var(--bs-shadow);
 }
 .navbar-brand {
-  color: var(--primary-color) !important;
-  font-weight: bold;
+	color: var(--primary-color) !important;
+	font-weight: bold;
 }
 .nav-link {
-  color: var(--secondary-color) !important;
-  transition: color 0.3s ease;
+	color: var(--bs-inverse-color) !important;
+	transition: color 0.3s ease;
 }
 .nav-link:hover,
 .nav-link.active {
-  color: var(--primary-color) !important;
+	color: var(--primary-color) !important;
 }
-
 .dropdown-menu,
 .dropdown-item {
-  color: var(--bs-body-color);
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--bs-border-color);
+	color: var(--bs-body-color);
+	background-color: var(--bg-subtle);
+	border: 1px solid var(--bs-border-color);
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
+	transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .btn-primary:hover,
 .btn-primary:focus {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
-  outline: none;
+	background-color: var(--primary-dark);
+	border-color: var(--primary-dark);
+	outline: none;
 }
 
 .card,
 .stat-card,
 .modal-body {
-  background-color: var(--bg-body-tertiary);
-  border: 1px solid var(--bs-border-color);
-  box-shadow: 0 0.125rem 0.25rem var(--bs-shadow) !important;
+	background-color: var(--bg-body-tertiary);
+	border: 1px solid var(--bs-border-color);
+	box-shadow: 0 0.125rem 0.25rem var(--bs-shadow) !important;
 }
 
 .card-header,
 .card-footer,
 .modal-header,
 .modal-footer {
-  background-color: var(--bg-subtle);
+	background-color: var(--bg-subtle);
 }
 
 .table,
 .list-group-item {
-  color: var(--bs-body-color);
+	color: var(--bs-body-color);
 }
 .list-group-item {
-  border: 1px solid var(--bs-border-color);
+	border: 1px solid var(--bs-border-color);
 }
 
 .hover-primary:hover {
-  color: var(--primary-color) !important;
-  transition: color 0.3s ease;
+	color: var(--primary-color) !important;
+	transition: color 0.3s ease;
 }
 .fab:hover,
 .fas:hover {
-  transform: translateY(-2px);
-  transition: transform 0.3s ease, color 0.3s ease;
-  color: currentColor;
+	transform: translateY(-2px);
+	transition: transform 0.3s ease, color 0.3s ease;
+	color: currentColor;
 }
 .btn-scroll:hover {
-  transform: scale(1.1);
-  transition: transform 0.3s ease;
+	transform: scale(1.1);
+	transition: transform 0.3s ease;
 }

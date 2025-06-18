@@ -9,26 +9,31 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
-$file_id = mysqli_real_escape_string($mysqli, $_GET['id']);
+$file_id = $_GET['id'];
 
-// Get file details with uploader info and download count
 $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id, 
           (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
           (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND content_type = 'file') as report_count,
           (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
           FROM digital_files f 
           JOIN users u ON f.user_id = u.id 
-          WHERE f.id = $file_id";
-$result = mysqli_query($mysqli, $query);
+          WHERE f.id = ?";
+$stmt = mysqli_prepare($mysqli, $query);
+mysqli_stmt_bind_param($stmt, 'i', $file_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $file = mysqli_fetch_assoc($result);
-
+mysqli_stmt_close($stmt);
 
 $feedback_query = "SELECT f.*, u.name as user_name
                   FROM file_feedback f 
                   JOIN users u ON f.user_id = u.id 
-                  WHERE f.file_id = $file_id 
+                  WHERE f.file_id = ? 
                   ORDER BY f.created_at DESC";
-$feedback_result = mysqli_query($mysqli, $feedback_query);
+$feedback_stmt = mysqli_prepare($mysqli, $feedback_query);
+mysqli_stmt_bind_param($feedback_stmt, 'i', $file_id);
+mysqli_stmt_execute($feedback_stmt);
+$feedback_result = mysqli_stmt_get_result($feedback_stmt);
 
 if (!$file) {
     $_SESSION['error'] = "File not found.";
@@ -38,26 +43,33 @@ if (!$file) {
 
 // Handle feedback submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && $_POST['submit_feedback']) {
-    $rating = mysqli_real_escape_string($mysqli, $_POST['rating']);
-    $comment = mysqli_real_escape_string($mysqli, $_POST['comment']);
+    $rating = $_POST['rating'];
+    $comment = $_POST['comment'];
     $user_id = $_SESSION['user_id'];
 
     // Check if user has already given feedback
-    $check_query = "SELECT id FROM file_feedback WHERE file_id = $file_id AND user_id = $user_id";
-    $check_result = mysqli_query($mysqli, $check_query);
+    $check_query = "SELECT id FROM file_feedback WHERE file_id = ? AND user_id = ?";
+    $check_stmt = mysqli_prepare($mysqli, $check_query);
+    mysqli_stmt_bind_param($check_stmt, 'ii', $file_id, $user_id);
+    mysqli_stmt_execute($check_stmt);
+    mysqli_stmt_store_result($check_stmt);
 
-    if (mysqli_num_rows($check_result) > 0) {
+    if (mysqli_stmt_num_rows($check_stmt) > 0) {
         // Update existing feedback
-        $update_query = "UPDATE file_feedback 
-                        SET rating = $rating, comment = '$comment' 
-                        WHERE file_id = $file_id AND user_id = $user_id";
-        mysqli_query($mysqli, $update_query);
+        $update_query = "UPDATE file_feedback SET rating = ?, comment = ? WHERE file_id = ? AND user_id = ?";
+        $update_stmt = mysqli_prepare($mysqli, $update_query);
+        mysqli_stmt_bind_param($update_stmt, 'isii', $rating, $comment, $file_id, $user_id);
+        mysqli_stmt_execute($update_stmt);
+        mysqli_stmt_close($update_stmt);
     } else {
         // Insert new feedback
-        $insert_query = "INSERT INTO file_feedback (file_id, user_id, rating, comment) 
-                        VALUES ($file_id, $user_id, $rating, '$comment')";
-        mysqli_query($mysqli, $insert_query);
+        $insert_query = "INSERT INTO file_feedback (file_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
+        $insert_stmt = mysqli_prepare($mysqli, $insert_query);
+        mysqli_stmt_bind_param($insert_stmt, 'iiis', $file_id, $user_id, $rating, $comment);
+        mysqli_stmt_execute($insert_stmt);
+        mysqli_stmt_close($insert_stmt);
     }
+    mysqli_stmt_close($check_stmt);
 
     // Redirect to refresh the page
     header("Location: view.php?id=$file_id&feedback=success");
@@ -65,17 +77,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && $_POST['submit_feedb
 }
 
 if (isset($_POST['submit_report']) && isLoggedIn()) {
-    $report_reason = mysqli_real_escape_string($mysqli, trim($_POST['report_reason']));
+    $report_reason = trim($_POST['report_reason']);
     $reporter_id = $_SESSION['user_id'];
 
     if (!empty($report_reason)) {
-        $insert_report = "INSERT INTO reported_content (reporter_id, content_type, content_id, reason) 
-                          VALUES ($reporter_id, 'file', $file_id, '$report_reason')";
-        if (mysqli_query($mysqli, $insert_report)) {
+        $insert_report = "INSERT INTO reported_content (reporter_id, content_type, content_id, reason) VALUES (?, 'file', ?, ?)";
+        $report_stmt = mysqli_prepare($mysqli, $insert_report);
+        mysqli_stmt_bind_param($report_stmt, 'iis', $reporter_id, $file_id, $report_reason);
+        if (mysqli_stmt_execute($report_stmt)) {
             $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
         } else {
             $_SESSION['error'] = "Failed to submit report. Please try again later.";
         }
+        mysqli_stmt_close($report_stmt);
     } else {
         $_SESSION['error'] = "Please provide a reason for your report.";
     }

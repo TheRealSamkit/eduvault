@@ -8,13 +8,13 @@ $currentPage = $_SERVER['PHP_SELF'];
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EduVault - Educational Resource Sharing</title>
+        <title><?= $pageTitle ?? "EduVault - Educational Resource Sharing" ?></title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-        <link rel="apple-touch-icon" sizes="180x180" href="<?= BASE_URL ?>assets/favicon/apple-touch-icon.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>assets/favicon/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="<?= BASE_URL ?>assets/favicon/favicon-16x16.png">
-        <link rel="manifest" href="<?= BASE_URL ?>assets/favicon/site.webmanifest">
-        <link href="<?= BASE_URL ?>assets/css/bootstrap.css" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/eduvault/assets/favicon/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/eduvault/assets/favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/eduvault/assets/favicon/favicon-16x16.png">
+        <link rel="manifest" href="/eduvault/assets/favicon/site.webmanifest">
+        <link href="/eduvault/assets/css/bootstrap.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
         <?php
         if (isset($additionalStyles)) {
@@ -23,7 +23,7 @@ $currentPage = $_SERVER['PHP_SELF'];
             }
         }
         ?>
-        <link rel='stylesheet' href='<?= BASE_URL ?>assets/css/theme.css'>
+        <link rel='stylesheet' href='/eduvault/assets/css//theme.css'>
     </head>
 
     <body class="bg-dark-body text-body">

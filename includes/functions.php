@@ -28,5 +28,24 @@ function formatFileSizeMB($bytes)
     }
 }
 
+function getAllMimes($mysqli)
+{
+    $mimes = [];
+    $result = mysqli_query($mysqli, "SELECT extension, mime_types FROM mimes");
+    while ($row = mysqli_fetch_assoc($result)) {
+        $mimes[$row['extension']] = $row['mime_types'];
+    }
+    return $mimes;
+}
+
+function getImageMimes($mysqli)
+{
+    $mimes = [];
+    $result = mysqli_query($mysqli, "SELECT extension, mime_types FROM mimes WHERE extension IN ('jpg','jpeg','png')");
+    while ($row = mysqli_fetch_assoc($result)) {
+        $mimes[$row['extension']] = $row['mime_types'];
+    }
+    return $mimes;
+}
 
 ?>

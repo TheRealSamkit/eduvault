@@ -1,17 +1,59 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 
 requireLogin();
 
 $user_id = $_SESSION['user_id'];
 
+// Handle profile update
+if (isset($_POST['save_profile'])) {
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
+    $location = trim($_POST['location']);
+    $avatar_path = null;
+    $update_password = false;
+
+    // Handle avatar upload
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
+        $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png'];
+        if (in_array($ext, $allowed)) {
+            $avatar_name = uniqid() . '.' . $ext;
+            $upload_dir = '../uploads/avatars/';
+            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_dir . $avatar_name)) {
+                $avatar_path = 'uploads/avatars/' . $avatar_name;
+            }
+        }
+    }
+
+    // Build update query
+    $query = "UPDATE users SET name=?, email=?, phone=?, location=?";
+    $params = [$name, $email, $phone, $location];
+    $types = "ssss";
+    if ($avatar_path) {
+        $query .= ", avatar_path=?";
+        $params[] = $avatar_path;
+        $types .= "s";
+    }
+    $query .= " WHERE id=?";
+    $params[] = $user_id;
+    $types .= "i";
+
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    header("Location: dashboard.php?profile_updated=1");
+    exit();
+}
+
 // User info + avatar
 $user_query = "SELECT name, email, location, avatar_path, created_at FROM users WHERE id = $user_id";
 $user_result = mysqli_query($mysqli, $user_query);
 $user = mysqli_fetch_assoc($user_result);
-$avatar = !empty($user['avatar_path']) ? "../uploads/avatars/" . $user['avatar_path'] : '../uploads/avatars/default.png';
+$avatar = !empty($user['avatar_path']) ? "../" . $user['avatar_path'] : '../uploads/avatars/default.png';
 
 // Metrics
 $books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE user_id = $user_id"))['count'];
@@ -34,6 +76,9 @@ $reports_query = "
     WHERE r.reporter_id = $user_id
     ORDER BY r.created_at DESC LIMIT 5";
 $reports_result = mysqli_query($mysqli, $reports_query);
+
+require_once '../includes/header.php';
+require_once '../modals/editProfileModal.php';
 ?>
 
 <div class="container-md my-4">
@@ -50,6 +95,8 @@ $reports_result = mysqli_query($mysqli, $reports_query);
                     class="badge bg-secondary mb-1 p-2"><?php echo htmlspecialchars($user['location'] ?: 'Location Unknown'); ?></span>
                 <button onclick="updateLocation()" class="btn btn-sm btn-outline-primary ms-2"><i
                         class="fas fa-map-marker-alt"></i> Update Location</button>
+                <button class="btn btn-sm btn-outline-info ms-2" data-bs-toggle="modal"
+                    data-bs-target="#editProfileModal"><i class="fas fa-user-edit"></i> Edit Profile</button>
             </div>
         </div>
     </div>
@@ -68,6 +115,8 @@ $reports_result = mysqli_query($mysqli, $reports_query);
                                 class="fas fa-folder-open me-2"></i>Manage My Books</a>
                         <a href="my_uploads.php" class="btn btn-outline-secondary"><i
                                 class="fas fa-folder-open me-2"></i>Manage My Files</a>
+                        <a href="../pages/change_password.php" class="btn btn-outline-primary mb-3"><i
+                                class="fas fa-key me-2"></i>Change Password</a>
                     </div>
                 </div>
             </div>
@@ -136,8 +185,6 @@ $reports_result = mysqli_query($mysqli, $reports_query);
         </div>
     </div>
 
-
-    <!-- Recent Reports -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <h5><i class="fas fa-flag me-2"></i>Recent Reports by You</h5>

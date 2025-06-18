@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
+require_once '../includes/functions.php';
 
 requireLogin();
 
@@ -10,13 +11,10 @@ $success = '';
 $subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject, id FROM subjects WHERE name != ''") or die(mysqli_error($mysqli));
 $boards = mysqli_query($mysqli, "SELECT DISTINCT name as board, id FROM boards WHERE name != '' ORDER BY id") or die(mysqli_error($mysqli));
 
-$max_image_size = 2 * 1024 * 1024; // 2MB
-$allowed_ext = ['jpg', 'jpeg', 'png'];
-$allowed_mime_types = [
-    'jpg' => 'image/jpeg',
-    'jpeg' => 'image/jpeg',
-    'png' => 'image/png'
-];
+$max_image_size = 2 * 1024 * 1024;
+$allowed_mimes = getImageMimes($mysqli);
+$allowed_ext = array_keys($allowed_mimes);
+$allowed_mime_types = $allowed_mimes;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id'];
@@ -50,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
             } else {
-                $error = "Invalid image format. Allowed: JPG, JPEG, PNG.";
+                $error = "Invalid image format. Allowed: " . strtoupper(implode(', ', $allowed_ext));
             }
         }
     }
@@ -94,9 +92,9 @@ require_once '../includes/header.php';
                         <select name="subject" class="form-select bg-dark-body" required>
                             <option value="">Select Subject</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                    <option value="<?php echo htmlspecialchars($s['id']); ?>">
-                                        <?php echo htmlspecialchars($s['subject']); ?>
-                                    </option>
+                                <option value="<?php echo htmlspecialchars($s['id']); ?>">
+                                    <?php echo htmlspecialchars($s['subject']); ?>
+                                </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -106,9 +104,9 @@ require_once '../includes/header.php';
                         <select name="board" class="form-select bg-dark-body" required>
                             <option value="">Select Board</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
-                                    <option value="<?php echo htmlspecialchars($b['id']); ?>">
-                                        <?php echo htmlspecialchars($b['board']); ?>
-                                    </option>
+                                <option value="<?php echo htmlspecialchars($b['id']); ?>">
+                                    <?php echo htmlspecialchars($b['board']); ?>
+                                </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -120,7 +118,8 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Book Image</label>
-                        <input type="file" name="image" class="form-control bg-dark-body" accept="image/*">
+                        <input type="file" name="image" class="form-control bg-dark-body" required
+                            accept=".jpg,.jpeg,.png">
                         <div class="form-text">Max size: 2MB</div>
                     </div>
 

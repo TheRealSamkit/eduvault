@@ -1,22 +1,14 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
+require_once '../includes/functions.php';
 
 requireLogin();
 
 $max_file_size = 10 * 1024 * 1024; // 10MB
-$allowed_ext = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'jpg', 'jpeg', 'png'];
-$allowed_mime_types = [
-    'pdf' => 'application/pdf',
-    'doc' => 'application/msword',
-    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'ppt' => 'application/vnd.ms-powerpoint',
-    'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'txt' => 'text/plain',
-    'jpg' => 'image/jpeg',
-    'jpeg' => 'image/jpeg',
-    'png' => 'image/png'
-];
+$allowed_mimes = getAllMimes($mysqli);
+$allowed_ext = array_keys($allowed_mimes);
+$allowed_mime_types = $allowed_mimes;
 
 $error = '';
 
@@ -123,7 +115,7 @@ require_once '../includes/header.php';
                         <select name="year" class="form-select bg-dark-body" required>
                             <option value="">Select Year</option>
                             <?php for ($i = date('Y'); $i >= 2000; $i--): ?>
-                                    <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
                             <?php endfor; ?>
                         </select>
                     </div>
@@ -131,7 +123,7 @@ require_once '../includes/header.php';
                     <div class="mb-3">
                         <label class="form-label">File</label>
                         <input type="file" name="file" class="form-control bg-dark-body" required
-                            accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt">
+                            accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>">
                         <div class="form-text">Max size: 10MB. Allowed formats:
                             <?php echo strtoupper(implode(", ", $allowed_ext)) ?>
                         </div>

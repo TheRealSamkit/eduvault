@@ -12,16 +12,22 @@ if (isset($_GET['redirect'])) {
     exit();
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = mysqli_real_escape_string($mysqli, $_POST['email']);
+    $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $query = "SELECT id, password FROM users WHERE email = '$email'";
-    $result = mysqli_query($mysqli, $query);
+    // Use prepared statement for login
+    $stmt = mysqli_prepare($mysqli, "SELECT id, password FROM users WHERE email = ?");
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if ($user = mysqli_fetch_assoc($result)) {
         if (password_verify($password, $user['password'])) {
-            $update_ = "UPDATE users SET last_active = current_timestamp() WHERE id = $user[id];";
-            mysqli_query($mysqli, $update_);
+            // Use prepared statement for update
+            $update_stmt = mysqli_prepare($mysqli, "UPDATE users SET last_active = current_timestamp() WHERE id = ?");
+            mysqli_stmt_bind_param($update_stmt, 'i', $user['id']);
+            mysqli_stmt_execute($update_stmt);
+            mysqli_stmt_close($update_stmt);
             $_SESSION['user_id'] = $user['id'];
             if (isset($_SESSION['referred'])) {
                 unset($_SESSION['referred']);

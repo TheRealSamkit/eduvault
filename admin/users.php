@@ -9,25 +9,36 @@ if (!isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['user_id'])) {
     $user_id = (int) $_POST['user_id'];
-    $action = mysqli_real_escape_string($mysqli, $_POST['action']);
+    $action = $_POST['action'];
     $admin_id = (int) $_SESSION['admin_id'];
-    $ip = mysqli_real_escape_string($mysqli, $_SERVER['REMOTE_ADDR'] ?? '');
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
 
     mysqli_begin_transaction($mysqli);
 
-    $logSql = "INSERT INTO activity_logs (admin_id, id, action, ip_address)
-               VALUES ($admin_id, $user_id, '$action', '$ip')";
-    mysqli_query($mysqli, $logSql) or die(mysqli_error($mysqli));
+    $logSql = "INSERT INTO activity_logs (admin_id, id, action, ip_address) VALUES (?, ?, ?, ?)";
+    $log_stmt = mysqli_prepare($mysqli, $logSql);
+    mysqli_stmt_bind_param($log_stmt, 'iiss', $admin_id, $user_id, $action, $ip);
+    mysqli_stmt_execute($log_stmt);
+    mysqli_stmt_close($log_stmt);
 
     if ($action === 'block') {
-        $sql = "UPDATE users SET status = 'blocked' WHERE id = $user_id";
-        mysqli_query($mysqli, $sql) or die(mysqli_error($mysqli));
+        $sql = "UPDATE users SET status = 'blocked' WHERE id = ?";
+        $stmt = mysqli_prepare($mysqli, $sql);
+        mysqli_stmt_bind_param($stmt, 'i', $user_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
     } elseif ($action === 'unblock') {
-        $sql = "UPDATE users SET status = 'active' WHERE id = $user_id";
-        mysqli_query($mysqli, $sql) or die(mysqli_error($mysqli));
+        $sql = "UPDATE users SET status = 'active' WHERE id = ?";
+        $stmt = mysqli_prepare($mysqli, $sql);
+        mysqli_stmt_bind_param($stmt, 'i', $user_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
     } elseif ($action === 'delete') {
-        $sql = "DELETE FROM users WHERE id = $user_id";
-        mysqli_query($mysqli, $sql) or die(mysqli_error($mysqli));
+        $sql = "DELETE FROM users WHERE id = ?";
+        $stmt = mysqli_prepare($mysqli, $sql);
+        mysqli_stmt_bind_param($stmt, 'i', $user_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
     }
 
     mysqli_commit($mysqli);

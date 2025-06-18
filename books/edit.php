@@ -1,16 +1,21 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
+require_once '../includes/functions.php';
 
 requireLogin();
 
 $error = '';
 $success = '';
-$max_image_size = 2 * 1024 * 1024; // 2MB
+$max_image_size = 2 * 1024 * 1024;
 $book = null;
 
 $subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject, id FROM subjects WHERE name != ''") or die(mysqli_error($mysqli));
 $boards = mysqli_query($mysqli, "SELECT DISTINCT name as board, id FROM boards WHERE name != '' ORDER BY id") or die(mysqli_error($mysqli));
+
+$allowed_mimes = getImageMimes($mysqli);
+$allowed_ext = array_keys($allowed_mimes);
+$allowed_mime_types = $allowed_mimes;
 
 // Validate & fetch book for editing
 if (isset($_GET['id'])) {
@@ -40,12 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Image handling
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        $allowed_ext = ['jpg', 'jpeg', 'png'];
-        $allowed_mime_types = [
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'png' => 'image/png'
-        ];
+        $allowed_ext = array_keys($allowed_mime_types);
         $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
 
         if (in_array($ext, $allowed_ext)) {
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
         } else {
-            $error = "Invalid image format. Allowed: JPG, JPEG, PNG.";
+            $error = "Invalid image format. Allowed: " . strtoupper(implode(', ', $allowed_ext));
         }
     }
 
@@ -171,7 +171,7 @@ require_once '../includes/header.php';
                                         style="max-width: 200px;">
                                 </div>
                         <?php endif; ?>
-                        <input type="file" name="image" class="form-control bg-dark-body" accept="image/*">
+                        <input type="file" name="image" class="form-control bg-dark-body" accept=".jpg,.jpeg,.png">
                         <div class="form-text">Leave empty to keep current image</div>
                     </div>
 

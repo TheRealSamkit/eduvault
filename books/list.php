@@ -3,25 +3,79 @@ require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 
 // Handle search and filters
-$where_conditions = ["b.status = 'Available'"]; // Only show available books
-$search = isset($_GET['search']) ? mysqli_real_escape_string($mysqli, $_GET['search']) : '';
-$board = isset($_GET['board']) ? mysqli_real_escape_string($mysqli, $_GET['board']) : '';
-$subject = isset($_GET['subject']) ? mysqli_real_escape_string($mysqli, $_GET['subject']) : '';
+$where_conditions = ["b.status = ?"];
+$params = ["Available"];
+$param_types = "s";
+
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$board = isset($_GET['board']) ? trim($_GET['board']) : '';
+$subject = isset($_GET['subject']) ? trim($_GET['subject']) : '';
 
 if (!empty($search)) {
-    $where_conditions[] = "(title LIKE '%$search%' OR subject LIKE '%$search%' OR location LIKE '%$search%')";
+    $where_conditions[] = "(b.title LIKE ? OR s.name LIKE ? OR b.location LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $param_types .= "sss";
 }
 if (!empty($board)) {
-    $where_conditions[] = "b.board_id = '$board'";
+    $where_conditions[] = "b.board_id = ?";
+    $params[] = $board;
+    $param_types .= "i";
 }
 if (!empty($subject)) {
-    $where_conditions[] = "b.subject_id = '$subject'";
+    $where_conditions[] = "b.subject_id = ?";
+    $params[] = $subject;
+    $param_types .= "i";
 }
 
 $where_clause = implode(' AND ', $where_conditions);
 
+// Get unique subjects and boards for filters (no user input, safe)
+$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
+$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
+
+$distance = isset($_GET['distance']) ? (int)$_GET['distance'] : 10; // Default 10km radius
+
 // Get books with user information
-$query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
+if (isLoggedIn()) {
+    // Get current user's location
+    $user_query = "SELECT location, latitude, longitude FROM users WHERE id = ?";
+    $user_stmt = mysqli_prepare($mysqli, $user_query);
+    mysqli_stmt_bind_param($user_stmt, "i", $_SESSION['user_id']);
+    mysqli_stmt_execute($user_stmt);
+    $user_result = mysqli_stmt_get_result($user_stmt);
+    $user_data = mysqli_fetch_assoc($user_result);
+    mysqli_stmt_close($user_stmt);
+
+    if ($user_data['latitude'] && $user_data['longitude']) {
+        $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board, u.id as owner_id,
+                  u.latitude as owner_lat, u.longitude as owner_long,
+                  (6371 * acos(cos(radians(?)) 
+                  * cos(radians(u.latitude)) 
+                  * cos(radians(u.longitude) - radians(?)) 
+                  + sin(radians(?)) 
+                  * sin(radians(u.latitude)))) AS distance
+                  FROM book_listings b 
+                  JOIN users u ON b.user_id = u.id 
+                    JOIN boards bo ON b.board_id = bo.id
+                  JOIN subjects s ON b.subject_id = s.id
+                  WHERE $where_clause
+                  HAVING distance <= ? 
+                  ORDER BY distance, b.created_at DESC";
+        $stmt = mysqli_prepare($mysqli, $query);
+        $full_param_types = "ddd" . $param_types . "i";
+        $full_params = array_merge([
+            $user_data['latitude'],
+            $user_data['longitude'],
+            $user_data['latitude'],
+        ], $params, [$distance]);
+        mysqli_stmt_bind_param($stmt, $full_param_types, ...$full_params);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+    } else {
+        // fallback to normal query if no lat/long
+        $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
                  b.image_path, b.created_at, b.user_id
         FROM book_listings b
         JOIN users u ON b.user_id = u.id 
@@ -29,39 +83,26 @@ $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name
         JOIN boards bo ON b.board_id = bo.id
         WHERE $where_clause
         ORDER BY b.created_at DESC";
-
-$result = mysqli_query($mysqli, $query);
-
-// Get unique subjects and boards for filters
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
-$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
-
-
-// After existing filter conditions
-$distance = isset($_GET['distance']) ? (int)$_GET['distance'] : 10; // Default 10km radius
-
-// Modify the query to calculate distance and filter by it
-if (isLoggedIn()) {
-    // Get current user's location
-    $user_query = "SELECT location, latitude, longitude FROM users WHERE id = " . $_SESSION['user_id'];
-    $user_result = mysqli_query($mysqli, $user_query);
-    $user_data = mysqli_fetch_assoc($user_result);
-    
-    if ($user_data['latitude'] && $user_data['longitude']) {
-        $query = "SELECT b.*, u.name as owner_name, u.location as owner_location,
-                  u.latitude as owner_lat, u.longitude as owner_long,
-                  (6371 * acos(cos(radians({$user_data['latitude']})) 
-                  * cos(radians(u.latitude)) 
-                  * cos(radians(u.longitude) - radians({$user_data['longitude']})) 
-                  + sin(radians({$user_data['latitude']})) 
-                  * sin(radians(u.latitude)))) AS distance
-                  FROM book_listings b 
-                  JOIN users u ON b.user_id = u.id 
-                  WHERE $where_clause
-                  HAVING distance <= $distance 
-                  ORDER BY distance, b.created_at DESC";
+        $stmt = mysqli_prepare($mysqli, $query);
+        mysqli_stmt_bind_param($stmt, $param_types, ...$params);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
     }
+} else {
+    $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
+                 b.image_path, b.created_at, b.user_id
+        FROM book_listings b
+        JOIN users u ON b.user_id = u.id 
+        JOIN subjects s ON b.subject_id = s.id
+        JOIN boards bo ON b.board_id = bo.id
+        WHERE $where_clause
+        ORDER BY b.created_at DESC";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, $param_types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 }
+
 require_once '../includes/header.php';
 require_once '../modals/reportmodal.php';
 
@@ -184,7 +225,7 @@ require_once '../modals/reportmodal.php';
             <?php endwhile; ?>
         <?php else: ?>
             <div class="col-12 text-center py-5">
-                <i class="fas fa-books fa-3x text-muted mb-3"></i>
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
                 <p class="lead">No books found matching your criteria.</p>
             </div>
         <?php endif; ?>

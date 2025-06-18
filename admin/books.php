@@ -13,25 +13,41 @@ if (isset($_POST['action'], $_POST['book_id'])) {
     $action = $_POST['action'];
 
     if ($action === 'remove') {
-        mysqli_query($mysqli, "DELETE FROM book_listings WHERE id = $book_id");
+        $del_stmt = mysqli_prepare($mysqli, "DELETE FROM book_listings WHERE id = ?");
+        mysqli_stmt_bind_param($del_stmt, 'i', $book_id);
+        mysqli_stmt_execute($del_stmt);
+        mysqli_stmt_close($del_stmt);
     } elseif ($action === 'verify') {
-        mysqli_query($mysqli, "UPDATE book_listings SET verified = 1 WHERE id = $book_id");
+        $verify_stmt = mysqli_prepare($mysqli, "UPDATE book_listings SET verified = 1 WHERE id = ?");
+        mysqli_stmt_bind_param($verify_stmt, 'i', $book_id);
+        mysqli_stmt_execute($verify_stmt);
+        mysqli_stmt_close($verify_stmt);
     }
 
     // Log the action
     $admin_id = $_SESSION['admin_id'];
     $ip = $_SERVER['REMOTE_ADDR'];
-    mysqli_query($mysqli, "INSERT INTO activity_logs (admin_id, action, ip_address) VALUES ($admin_id, 'Book $action ID: $book_id', '$ip')");
+    $log_stmt = mysqli_prepare($mysqli, "INSERT INTO activity_logs (admin_id, action, ip_address) VALUES (?, ?, ?)");
+    $log_action = "Book $action ID: $book_id";
+    mysqli_stmt_bind_param($log_stmt, 'iss', $admin_id, $log_action, $ip);
+    mysqli_stmt_execute($log_stmt);
+    mysqli_stmt_close($log_stmt);
 }
 
 // Handle adding boards or subjects
 if (isset($_POST['add_board'])) {
-    $board_name = mysqli_real_escape_string($mysqli, $_POST['board_name']);
-    mysqli_query($mysqli, "INSERT INTO boards (name) VALUES ('$board_name')");
+    $board_name = $_POST['board_name'];
+    $add_board_stmt = mysqli_prepare($mysqli, "INSERT INTO boards (name) VALUES (?)");
+    mysqli_stmt_bind_param($add_board_stmt, 's', $board_name);
+    mysqli_stmt_execute($add_board_stmt);
+    mysqli_stmt_close($add_board_stmt);
 }
 if (isset($_POST['add_subject'])) {
-    $subject_name = mysqli_real_escape_string($mysqli, $_POST['subject_name']);
-    mysqli_query($mysqli, "INSERT INTO subjects (name) VALUES ('$subject_name')");
+    $subject_name = $_POST['subject_name'];
+    $add_subject_stmt = mysqli_prepare($mysqli, "INSERT INTO subjects (name) VALUES (?)");
+    mysqli_stmt_bind_param($add_subject_stmt, 's', $subject_name);
+    mysqli_stmt_execute($add_subject_stmt);
+    mysqli_stmt_close($add_subject_stmt);
 }
 
 $books = mysqli_query($mysqli, "SELECT b.*, u.name as owner_name, u.email as owner_email, bo.name as board, s.name as subject

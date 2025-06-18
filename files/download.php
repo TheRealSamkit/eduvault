@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
+require_once '../includes/functions.php';
 
 if (!isLoggedIn()) {
     header("Location: ../login.php");
@@ -12,13 +13,17 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
-$file_id = mysqli_real_escape_string($mysqli, $_GET['id']);
+$file_id = $_GET['id'];
 $user_id = $_SESSION['user_id'];
 
 // Get file information
-$query = "SELECT * FROM digital_files WHERE id = $file_id";
-$result = mysqli_query($mysqli, $query);
+$query = "SELECT * FROM digital_files WHERE id = ?";
+$stmt = mysqli_prepare($mysqli, $query);
+mysqli_stmt_bind_param($stmt, 'i', $file_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $file = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
 
 if (!$file || !file_exists($file['file_path'])) {
     $_SESSION['error'] = "File not found.";
@@ -27,26 +32,23 @@ if (!$file || !file_exists($file['file_path'])) {
 }
 
 // Record the download
-$download_query = "INSERT INTO downloads (user_id, file_id, downloaded_at) 
-                  VALUES ($user_id, $file_id, NOW())";
-mysqli_query($mysqli, $download_query);
+$download_query = "INSERT INTO downloads (user_id, file_id, downloaded_at) VALUES (?, ?, NOW())";
+$download_stmt = mysqli_prepare($mysqli, $download_query);
+mysqli_stmt_bind_param($download_stmt, 'ii', $user_id, $file_id);
+mysqli_stmt_execute($download_stmt);
+mysqli_stmt_close($download_stmt);
 
-// Get file mime type
-$mime_types = [
-    'pdf' => 'application/pdf',
-    'doc' => 'application/msword',
-    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'ppt' => 'application/vnd.ms-powerpoint',
-    'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'txt' => 'text/plain',
-    'jpg' => 'image/jpeg',
-    'jpeg' => 'image/jpeg',
-    'png' => 'image/png'
-];
-
-
-$file_ext = strtolower(pathinfo($file['file_path'], PATHINFO_EXTENSION));
-$mime_type = isset($mime_types[$file_ext]) ? $mime_types[$file_ext] : 'application/octet-stream';
+// Get file mime type from mimes table
+$ext = strtolower(pathinfo($file['file_path'], PATHINFO_EXTENSION));
+$mime_type = 'application/octet-stream';
+$stmt = mysqli_prepare($mysqli, "SELECT mime_types FROM mimes WHERE extension = ? LIMIT 1");
+mysqli_stmt_bind_param($stmt, 's', $ext);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $db_mime);
+if (mysqli_stmt_fetch($stmt) && $db_mime) {
+    $mime_type = $db_mime;
+}
+mysqli_stmt_close($stmt);
 
 // Set headers for download
 header('Content-Type: ' . $mime_type);

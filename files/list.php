@@ -4,24 +4,43 @@ require_once '../includes/session.php';
 require_once '../includes/functions.php';
 
 // Handle search and filters
-$search = isset($_GET['search']) ? mysqli_real_escape_string($mysqli, $_GET['search']) : '';
-$course = isset($_GET['course']) ? mysqli_real_escape_string($mysqli, $_GET['course']) : '';
-$subject = isset($_GET['subject']) ? mysqli_real_escape_string($mysqli, $_GET['subject']) : '';
-$year = isset($_GET['year']) ? mysqli_real_escape_string($mysqli, $_GET['year']) : '';
-$file_type = isset($_GET['fileType']) ? mysqli_real_escape_string($mysqli, $_GET['fileType']) : '';
-
 $where_conditions = ["1=1"];
+$params = [];
+$param_types = "";
 
-if (!empty($search))
-    $where_conditions[] = "(title LIKE '%$search%' OR description LIKE '%$search%' OR subject LIKE '%$search%')";
-if (!empty($course))
-    $where_conditions[] = "course = '$course'";
-if (!empty($subject))
-    $where_conditions[] = "subject = '$subject'";
-if (!empty($year))
-    $where_conditions[] = "year = '$year'";
-if (!empty($file_type))
-    $where_conditions[] = "file_type = '$file_type'";
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$course = isset($_GET['course']) ? trim($_GET['course']) : '';
+$subject = isset($_GET['subject']) ? trim($_GET['subject']) : '';
+$year = isset($_GET['year']) ? trim($_GET['year']) : '';
+$file_type = isset($_GET['fileType']) ? trim($_GET['fileType']) : '';
+
+if (!empty($search)) {
+    $where_conditions[] = "(f.title LIKE ? OR f.description LIKE ? OR f.subject LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $param_types .= "sss";
+}
+if (!empty($course)) {
+    $where_conditions[] = "f.course = ?";
+    $params[] = $course;
+    $param_types .= "s";
+}
+if (!empty($subject)) {
+    $where_conditions[] = "f.subject = ?";
+    $params[] = $subject;
+    $param_types .= "s";
+}
+if (!empty($year)) {
+    $where_conditions[] = "f.year = ?";
+    $params[] = $year;
+    $param_types .= "s";
+}
+if (!empty($file_type)) {
+    $where_conditions[] = "f.file_type = ?";
+    $params[] = $file_type;
+    $param_types .= "s";
+}
 
 $where_clause = implode(' AND ', $where_conditions);
 
@@ -33,7 +52,13 @@ $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id,
     JOIN users u ON f.user_id = u.id
     WHERE $where_clause
     ORDER BY f.upload_date DESC";
-$result = mysqli_query($mysqli, $query);
+
+$stmt = mysqli_prepare($mysqli, $query);
+if (!empty($params)) {
+    mysqli_stmt_bind_param($stmt, $param_types, ...$params);
+}
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 $file_types = mysqli_query($mysqli, "SELECT DISTINCT file_type FROM digital_files WHERE file_type != ''");
 $courses = mysqli_query($mysqli, "SELECT DISTINCT course FROM digital_files WHERE course != ''");

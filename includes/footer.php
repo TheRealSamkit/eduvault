@@ -87,7 +87,7 @@
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="<?= BASE_URL ?>index.php#how_it_works" class=" text-muted text-decoration-none
+                            <a href="/eduvault/index.php#how_it_works" class=" text-muted text-decoration-none
                                 hover-primary">
                                 How to Use
                             </a>
@@ -134,8 +134,10 @@
                 </div>
                 <div class="col-md-6 text-md-end">
                     <small class="text-muted">
-                        <a href="#" class="text-decoration-none hover-primary me-3">Privacy Policy</a>
-                        <a href="#" class="text-decoration-none hover-primary me-3">Terms of Service</a>
+                        <a href="/eduvault/pages/privacy.php" class="text-decoration-none hover-primary me-3">Privacy
+                            Policy</a>
+                        <a href="/eduvault/pages/terms.php" class="text-decoration-none hover-primary me-3">Terms of
+                            Service</a>
                         <a href="#" class="text-decoration-none hover-primary">Sitemap</a>
                     </small>
                 </div>
@@ -156,8 +158,9 @@ if (isset($additionalScripts)) {
     }
 }
 ?>
-<script src="<?= BASE_URL ?>assets/js/main.js"></script>
-<script src="<?= BASE_URL ?>assets/js/bootstrap.js"></script>
+<script src="/eduvault/assets/js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>
