@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3307
--- Generation Time: Jun 12, 2025 at 03:03 PM
+-- Host: 127.0.0.1
+-- Generation Time: Jun 18, 2025 at 04:22 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,27 +37,6 @@ CREATE TABLE `activity_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `activity_logs`
---
-
-INSERT INTO `activity_logs` (`activity_id`, `id`, `admin_id`, `action`, `details`, `ip_address`, `created_at`) VALUES
-(1, NULL, 1, 'File verify ID: 1', NULL, '::1', '2025-06-11 06:38:35'),
-(2, NULL, 1, 'File verify ID: 4', NULL, '::1', '2025-06-11 06:38:45'),
-(3, NULL, 1, 'File verify ID: 5', NULL, '::1', '2025-06-11 06:39:10'),
-(5, 4, 1, 'block', NULL, '::1', '2025-06-11 08:02:27'),
-(6, 4, 1, 'unblock', NULL, '::1', '2025-06-11 08:02:55'),
-(7, NULL, 1, 'delete', NULL, '::1', '2025-06-11 08:03:13'),
-(8, NULL, 1, 'Report dismissed ID: 5', NULL, '::1', '2025-06-11 08:39:32'),
-(9, NULL, 1, 'Report resolved ID: 11', NULL, '::1', '2025-06-11 08:54:41'),
-(10, NULL, 1, 'Report dismissed ID: 14', NULL, '::1', '2025-06-11 09:49:42'),
-(11, NULL, 1, 'Report dismissed ID: 13', NULL, '::1', '2025-06-11 09:49:45'),
-(12, NULL, 1, 'Report dismissed ID: 12', NULL, '::1', '2025-06-11 09:49:47'),
-(13, NULL, 1, 'Report dismissed ID: 18', NULL, '::1', '2025-06-11 10:01:07'),
-(14, NULL, 1, 'Report dismissed ID: 17', NULL, '::1', '2025-06-11 10:01:10'),
-(15, NULL, 1, 'Report dismissed ID: 16', NULL, '::1', '2025-06-11 10:01:13'),
-(16, NULL, 1, 'Report dismissed ID: 15', NULL, '::1', '2025-06-11 10:01:16');
-
 -- --------------------------------------------------------
 
 --
@@ -78,7 +57,7 @@ CREATE TABLE `admin_users` (
 --
 
 INSERT INTO `admin_users` (`id`, `username`, `password`, `role`, `last_login`, `created_at`) VALUES
-(1, 'admin', '$2y$10$Q9oTT87zOSUl1wat6LkUSuf/F2ehpzSBl4NOfAMtkp1uEqKYxZGmi', 'super_admin', '2025-06-12 11:46:51', '2025-06-02 13:30:16');
+(1, 'admin', '$2y$10$Q9oTT87zOSUl1wat6LkUSuf/F2ehpzSBl4NOfAMtkp1uEqKYxZGmi', 'super_admin', '2025-06-18 14:06:06', '2025-06-02 13:30:16');
 
 -- --------------------------------------------------------
 
@@ -126,10 +105,71 @@ CREATE TABLE `book_listings` (
 --
 
 INSERT INTO `book_listings` (`id`, `user_id`, `title`, `status`, `image_path`, `location`, `created_at`, `board_id`, `subject_id`) VALUES
-(1, 3, 'Mathematics Class 10', 'Available', 'http://localhost/eduvault/uploads/images/684711b80674e.jpg', 'Ahmedabad', '2025-06-09 16:54:16', 4, 1),
-(2, 3, 'Chemistry Class 12', 'Available', 'http://localhost/eduvault/uploads/images/684711e40f36f.jpg', 'Ahmedabad', '2025-06-09 16:55:00', 4, 3),
-(3, 3, ' Web Technologies Text Book', 'Available', 'http://localhost/eduvault/uploads/images/6847121f15ca2.jpg', 'Ahmedabad', '2025-06-09 16:55:59', 4, 13),
-(5, 4, 'Test Size limit', 'Available', 'http://localhost/eduvault/uploads/images/6847baf3a92f2.jpg', 'Ahmedabad', '2025-06-10 04:50:45', 1, 4);
+(1, 1, 'Test Upload', 'Available', 'http://localhost/eduvault/uploads/images/68524b2a09788.jpg', 'Ahmedabad', '2025-06-18 05:14:18', 1, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `courses`
+--
+
+CREATE TABLE `courses` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `courses`
+--
+
+INSERT INTO `courses` (`id`, `name`) VALUES
+(9, 'Bachelor of Architecture (BArch)'),
+(1, 'Bachelor of Arts (BA)'),
+(7, 'Bachelor of Business Administration (BBA)'),
+(3, 'Bachelor of Commerce (BCom)'),
+(6, 'Bachelor of Computer Applications (BCA)'),
+(10, 'Bachelor of Design (BDes)'),
+(11, 'Bachelor of Education (BEd)'),
+(5, 'Bachelor of Engineering (BE)'),
+(8, 'Bachelor of Fine Arts (BFA)'),
+(15, 'Bachelor of Hotel Management (BHM)'),
+(16, 'Bachelor of Journalism and Mass Communication (BJMC)'),
+(12, 'Bachelor of Laws (LLB)'),
+(13, 'Bachelor of Pharmacy (BPharm)'),
+(14, 'Bachelor of Physiotherapy (BPT)'),
+(2, 'Bachelor of Science (BSc)'),
+(4, 'Bachelor of Technology (BTech)'),
+(19, 'BAMS (Bachelor of Ayurvedic Medicine and Surgery)'),
+(18, 'BDS (Bachelor of Dental Surgery)'),
+(20, 'BHMS (Bachelor of Homeopathic Medicine and Surgery)'),
+(21, 'BSc Nursing'),
+(45, 'Certificate in Data Science'),
+(43, 'Certificate in Digital Marketing'),
+(44, 'Certificate in Graphic Design'),
+(42, 'Certificate in Web Development'),
+(41, 'Diploma in Computer Applications'),
+(39, 'Diploma in Elementary Education (D.El.Ed)'),
+(36, 'Diploma in Engineering (Polytechnic)'),
+(40, 'Diploma in Fashion Designing'),
+(38, 'Diploma in Nursing'),
+(37, 'Diploma in Pharmacy (DPharm)'),
+(22, 'Master of Arts (MA)'),
+(28, 'Master of Business Administration (MBA)'),
+(24, 'Master of Commerce (MCom)'),
+(27, 'Master of Computer Applications (MCA)'),
+(30, 'Master of Design (MDes)'),
+(31, 'Master of Education (MEd)'),
+(26, 'Master of Engineering (ME)'),
+(29, 'Master of Fine Arts (MFA)'),
+(32, 'Master of Laws (LLM)'),
+(33, 'Master of Pharmacy (MPharm)'),
+(23, 'Master of Science (MSc)'),
+(25, 'Master of Technology (MTech)'),
+(17, 'MBBS (Bachelor of Medicine and Bachelor of Surgery)'),
+(34, 'MDS (Master of Dental Surgery)'),
+(47, 'MPhil (Master of Philosophy)'),
+(35, 'PGDM (Post Graduate Diploma in Management)'),
+(46, 'PhD (Doctor of Philosophy)');
 
 -- --------------------------------------------------------
 
@@ -143,26 +183,21 @@ CREATE TABLE `digital_files` (
   `title` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `file_path` varchar(255) DEFAULT NULL,
-  `subject` varchar(100) DEFAULT NULL,
-  `course` varchar(100) DEFAULT NULL,
-  `year` varchar(10) DEFAULT NULL,
   `verified` tinyint(1) NOT NULL DEFAULT 1,
   `file_type` varchar(20) DEFAULT NULL,
   `file_size` varchar(20) DEFAULT NULL,
-  `upload_date` timestamp NOT NULL DEFAULT current_timestamp()
+  `upload_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `subject_id` int(11) DEFAULT NULL,
+  `course_id` int(11) DEFAULT NULL,
+  `year_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `digital_files`
 --
 
-INSERT INTO `digital_files` (`id`, `user_id`, `title`, `description`, `file_path`, `subject`, `course`, `year`, `verified`, `file_type`, `file_size`, `upload_date`) VALUES
-(2, 2, 'Physics Practical', 'Physics practical file for Class 12.', 'uploads/files/physics_practical.pdf', 'Physics', 'Class 12', '2024', 1, 'pdf', '', '2025-06-09 08:17:54'),
-(3, 3, 'Web Technologies Guide', 'Guide to modern web technologies.', 'uploads/files/web_tech.pdf', 'Web Technologies', 'BCA', '2023', 0, 'pdf', '', '2025-06-09 08:17:54'),
-(4, 3, 'Test Material', 'Just A test for uploading study materail', '../uploads/files/6846a087ca4e5.docx', 'Web Tech', 'Diploma', '2012', 1, 'docx', '', '2025-06-09 08:51:19'),
-(5, 3, 'Test Material', 'Just A test for uploading study materail', '../uploads/files/6846a12ec69d7.docx', 'Web Tech', 'Diploma', '2012', 1, 'docx', '', '2025-06-09 08:54:06'),
-(6, 4, 'Test 1 JPG', 'Test ', '../uploads/files/6847c245d5e59.jpg', 'Test', 'B.Tech', '2025', 1, 'jpg', '', '2025-06-10 05:27:33'),
-(7, 4, 'Test File Size UPload', 'Test 1', '../uploads/files/68491ab1def27.pdf', 'Web Tech', 'Diploma', '2025', 0, 'pdf', '0.666753', '2025-06-11 05:57:05');
+INSERT INTO `digital_files` (`id`, `user_id`, `title`, `description`, `file_path`, `verified`, `file_type`, `file_size`, `upload_date`, `subject_id`, `course_id`, `year_id`) VALUES
+(1, 1, 'test upload', 'test', '../uploads/files/6852c545661b1.pdf', 1, 'pdf', '2.8', '2025-06-18 13:55:17', 9, 36, 1);
 
 -- --------------------------------------------------------
 
@@ -182,10 +217,7 @@ CREATE TABLE `downloads` (
 --
 
 INSERT INTO `downloads` (`id`, `file_id`, `user_id`, `downloaded_at`) VALUES
-(2, 2, 3, '2025-06-09 08:17:54'),
-(4, 2, 3, '2025-06-09 08:34:04'),
-(5, 5, 3, '2025-06-09 16:05:20'),
-(6, 6, 4, '2025-06-10 05:28:24');
+(1, 1, 1, '2025-06-18 13:55:38');
 
 -- --------------------------------------------------------
 
@@ -207,8 +239,7 @@ CREATE TABLE `file_feedback` (
 --
 
 INSERT INTO `file_feedback` (`id`, `file_id`, `user_id`, `rating`, `comment`, `created_at`) VALUES
-(2, 2, 3, 4, 'Good practical guide.', '2025-06-09 08:17:54'),
-(17, 6, 4, 5, 'ok', '2025-06-10 05:28:58');
+(1, 1, 1, 4, 'Test 2', '2025-06-18 14:00:52');
 
 -- --------------------------------------------------------
 
@@ -256,33 +287,6 @@ CREATE TABLE `reported_content` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `resolved_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `reported_content`
---
-
-INSERT INTO `reported_content` (`id`, `reporter_id`, `content_type`, `content_id`, `reason`, `status`, `admin_id`, `resolution_notes`, `created_at`, `resolved_at`) VALUES
-(1, 4, 'file', 6, 'Bad 1', 'pending', 1, NULL, '2025-06-10 06:08:39', NULL),
-(2, 4, 'user', 3, 'Bye User', 'pending', 1, NULL, '2025-06-10 08:11:48', NULL),
-(3, 4, 'user', 3, 'Noob', 'pending', 1, NULL, '2025-06-10 08:20:11', NULL),
-(4, 4, 'user', 3, 'Test 2', 'pending', 1, NULL, '2025-06-10 08:20:55', NULL),
-(5, 3, 'file', 7, 'test', 'dismissed', 1, 'ok', '2025-06-11 08:37:50', '2025-06-11 08:39:32'),
-(6, 3, 'book', 7, 'Reported', 'pending', 1, NULL, '2025-06-11 08:48:43', NULL),
-(7, 3, 'book', 7, 'Reported', 'pending', 1, NULL, '2025-06-11 08:49:14', NULL),
-(8, 3, 'book', 7, 'Reported', 'pending', 1, NULL, '2025-06-11 08:49:16', NULL),
-(9, 3, 'book', 7, 'Reported', 'pending', 1, NULL, '2025-06-11 08:49:32', NULL),
-(10, 3, 'book', 7, 'Reported', 'pending', 1, NULL, '2025-06-11 08:49:55', NULL),
-(11, 3, 'file', 6, 'Test OKKKK', 'resolved', 1, '', '2025-06-11 08:54:26', '2025-06-11 08:54:41'),
-(12, 3, 'file', 7, 'Repoer test vjfbvjfb', 'dismissed', 1, '', '2025-06-11 09:48:12', '2025-06-11 09:49:47'),
-(13, 3, 'file', 7, 'Repoer test vjfbvjfb', 'dismissed', 1, '', '2025-06-11 09:48:43', '2025-06-11 09:49:45'),
-(14, 3, 'file', 7, 'Repoer test vjfbvjfb', 'dismissed', 1, '', '2025-06-11 09:49:17', '2025-06-11 09:49:42'),
-(15, 3, 'user', 4, 'Test user', 'dismissed', 1, '', '2025-06-11 09:59:40', '2025-06-11 10:01:16'),
-(16, 3, 'user', 4, 'Test USer', 'dismissed', 1, '', '2025-06-11 10:00:22', '2025-06-11 10:01:13'),
-(17, 3, 'user', 4, 'Another Test\\r\\n', 'dismissed', 1, '', '2025-06-11 10:00:47', '2025-06-11 10:01:10'),
-(18, 3, 'user', 4, 'Another test', 'dismissed', 1, '', '2025-06-11 10:01:01', '2025-06-11 10:01:07'),
-(19, 3, 'file', 7, 'Test ', 'pending', 1, NULL, '2025-06-11 10:13:06', NULL),
-(20, 3, 'book', 5, 'Report Book', 'pending', 1, NULL, '2025-06-11 10:18:53', NULL),
-(21, 3, 'book', 5, 'Report Book Test', 'pending', 1, NULL, '2025-06-11 12:47:44', NULL);
 
 -- --------------------------------------------------------
 
@@ -368,9 +372,39 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `avatar_path`, `password`, `location`, `phone`, `status`, `created_at`, `last_active`, `latitude`, `longitude`) VALUES
-(2, 'Jane Smith', 'jane@example.com', 'default.png', '$2y$10$MX/jQNLabvw1LEqzDQZMb.CcsGiQpI0izxJbxHbHdwpwHoT0omzrO', 'Mumbai', '9123456789', 'active', '2025-06-09 08:17:53', '2025-06-09 08:17:53', 19.07600000, 72.87770000),
-(3, 'Rahul Kumar', 'rahul@example.com', 'default.png', '$2y$10$fYvtqI7v3c2.Tob1T/43LuNqAHYt4fXOynVSG5a9lXGD/uUC44a3K', 'Bangalore', '9988776655', 'active', '2025-06-09 08:17:53', '2025-06-12 10:48:07', 22.71956870, 75.85772580),
-(4, 'Samkit Jain', 'samkitjain2809@gmail.com', 'default.png', '$2y$10$mjJX3auWxBZEa9tYrr6V1ujaA5RX9HXU4stpL.CcFtLySH4avkGZG', 'Ahmedabad', '7772020586', 'active', '2025-06-10 03:33:03', '2025-06-12 11:22:24', 22.71956870, 75.85772580);
+(1, 'Samkit_Jain', 'Jay@gmail.com', 'uploads/avatars/685250a33481e.png', '$2y$10$lG8nguVhBZKKAnpxOy5nV.8XNPGQRsSiUqopHTLoV1XpOWXFOfKaC', 'Vadodara', '7984651320', 'active', '2025-06-18 05:12:27', '2025-06-18 14:19:09', 23.09386970, 72.68163910),
+(2, 'krish', 'krish@mail.com', 'default.png', '$2y$10$0hu1mjsfWEhIBXfYVP/DQe9FjdWywrRXMQOJqh086uSX5HLL.JN2e', 'Ahmedabad', '1234567890', 'active', '2025-06-18 14:18:25', '2025-06-18 14:18:39', 23.09386970, 72.68163910);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `years`
+--
+
+CREATE TABLE `years` (
+  `id` int(11) NOT NULL,
+  `year` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `years`
+--
+
+INSERT INTO `years` (`id`, `year`) VALUES
+(6, '1st Semester'),
+(1, '1st Year'),
+(7, '2nd Semester'),
+(2, '2nd Year'),
+(8, '3rd Semester'),
+(3, '3rd Year'),
+(9, '4th Semester'),
+(4, '4th Year'),
+(10, '5th Semester'),
+(5, '5th Year'),
+(11, '6th Semester'),
+(12, '7th Semester'),
+(13, '8th Semester'),
+(14, 'Final Year');
 
 --
 -- Indexes for dumped tables
@@ -406,6 +440,13 @@ ALTER TABLE `book_listings`
   ADD KEY `user_id` (`user_id`),
   ADD KEY `fk_board` (`board_id`),
   ADD KEY `fk_subject` (`subject_id`);
+
+--
+-- Indexes for table `courses`
+--
+ALTER TABLE `courses`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- Indexes for table `digital_files`
@@ -467,6 +508,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `years`
+--
+ALTER TABLE `years`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `year` (`year`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -474,7 +522,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `admin_users`
@@ -492,25 +540,31 @@ ALTER TABLE `boards`
 -- AUTO_INCREMENT for table `book_listings`
 --
 ALTER TABLE `book_listings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `courses`
+--
+ALTER TABLE `courses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `digital_files`
 --
 ALTER TABLE `digital_files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `downloads`
 --
 ALTER TABLE `downloads`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `file_feedback`
 --
 ALTER TABLE `file_feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `mimes`
@@ -522,13 +576,13 @@ ALTER TABLE `mimes`
 -- AUTO_INCREMENT for table `reported_content`
 --
 ALTER TABLE `reported_content`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `system_settings`
@@ -540,7 +594,13 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `years`
+--
+ALTER TABLE `years`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables

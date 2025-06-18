@@ -35,31 +35,12 @@ if (isset($_POST['action'], $_POST['book_id'])) {
     mysqli_stmt_close($log_stmt);
 }
 
-// Handle adding boards or subjects
-if (isset($_POST['add_board'])) {
-    $board_name = $_POST['board_name'];
-    $add_board_stmt = mysqli_prepare($mysqli, "INSERT INTO boards (name) VALUES (?)");
-    mysqli_stmt_bind_param($add_board_stmt, 's', $board_name);
-    mysqli_stmt_execute($add_board_stmt);
-    mysqli_stmt_close($add_board_stmt);
-}
-if (isset($_POST['add_subject'])) {
-    $subject_name = $_POST['subject_name'];
-    $add_subject_stmt = mysqli_prepare($mysqli, "INSERT INTO subjects (name) VALUES (?)");
-    mysqli_stmt_bind_param($add_subject_stmt, 's', $subject_name);
-    mysqli_stmt_execute($add_subject_stmt);
-    mysqli_stmt_close($add_subject_stmt);
-}
-
 $books = mysqli_query($mysqli, "SELECT b.*, u.name as owner_name, u.email as owner_email, bo.name as board, s.name as subject
                                 FROM book_listings b
                                 JOIN users u ON b.user_id = u.id
                                 JOIN boards bo ON b.board_id = bo.id
                                 JOIN subjects s ON b.subject_id = s.id
                                 ORDER BY b.created_at DESC");
-
-$boards = getAllBoards($mysqli);
-$subjects = getAllSubjects($mysqli);
 
 $title = "Book Management - Admin Panel";
 require_once '../includes/admin_header.php';
@@ -133,65 +114,6 @@ require_once '../includes/admin_header.php';
                         </table>
                     </div>
                 </div>
-
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <h4><i class="fas fa-chalkboard me-2"></i>Boards</h4>
-                        <div class="card">
-                            <div class="card-body table-responsive">
-                                <table class="table" id="boardsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($board = mysqli_fetch_assoc($boards)): ?>
-                                            <tr>
-                                                <td><?= $board['id']; ?></td>
-                                                <td><?= htmlspecialchars($board['board']); ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                                <button class="btn btn-outline-primary w-100 mt-2" data-bs-toggle="modal"
-                                    data-bs-target="#addBoardModal">
-                                    <i class="fas fa-plus me-2"></i>Add New Board
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <h4><i class="fas fa-book-open me-2"></i>Subjects</h4>
-                        <div class="card">
-                            <div class="card-body table-responsive">
-                                <table class="table" id="subjectsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($subject = mysqli_fetch_assoc($subjects)): ?>
-                                            <tr>
-                                                <td><?= $subject['id']; ?></td>
-                                                <td><?= htmlspecialchars($subject['subject']); ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                                <button class="btn btn-outline-primary w-100 mt-2" data-bs-toggle="modal"
-                                    data-bs-target="#addSubjectModal">
-                                    <i class="fas fa-plus me-2"></i>Add New Subject
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
@@ -199,27 +121,11 @@ require_once '../includes/admin_header.php';
     <?php
     require_once '../modals/viewBookModal.php';
     require_once '../modals/addBookModal.php';
-    require_once '../modals/addSubjectModal.php';
     include '../includes/admin_footer.php'; ?>
 
     <script>
         $(document).ready(function () {
             $('#booksTable').DataTable({ order: [[8, 'desc']], pageLength: 10 });
-            $('#boardsTable').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                pageLength: 10,
-                order: [[1, 'asc']]
-            });
-
-            $('#subjectsTable').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                pageLength: 10,
-                order: [[1, 'asc']]
-            });
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
 

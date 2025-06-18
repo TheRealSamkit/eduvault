@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
-require_once '../includes/header.php';
 require_once '../includes/functions.php';
 
 if (!isset($_GET['id'])) {
@@ -33,10 +32,17 @@ if (!$file) {
 }
 
 // Handle feedback submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && $_POST['submit_feedback']) {
-    $rating = $_POST['rating'];
-    $comment = $_POST['comment'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit_feedback'])) {
+    $rating = (int) $_POST['rating'];
+    $comment = trim($_POST['comment']);
     $user_id = $_SESSION['user_id'];
+
+    // Validate rating
+    if ($rating < 1 || $rating > 5) {
+        $_SESSION['error'] = "Invalid rating value.";
+        header("Location: view.php?id=$file_id");
+        exit();
+    }
 
     // Check if user has already given feedback
     $check_query = "SELECT id FROM file_feedback WHERE file_id = ? AND user_id = ?";
@@ -46,24 +52,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && $_POST['submit_feedb
     mysqli_stmt_store_result($check_stmt);
 
     if (mysqli_stmt_num_rows($check_stmt) > 0) {
-        // Update existing feedback
-        $update_query = "UPDATE file_feedback SET rating = ?, comment = ? WHERE file_id = ? AND user_id = ?";
-        $update_stmt = mysqli_prepare($mysqli, $update_query);
-        mysqli_stmt_bind_param($update_stmt, 'isii', $rating, $comment, $file_id, $user_id);
-        mysqli_stmt_execute($update_stmt);
-        mysqli_stmt_close($update_stmt);
-    } else {
-        // Insert new feedback
-        $insert_query = "INSERT INTO file_feedback (file_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
-        $insert_stmt = mysqli_prepare($mysqli, $insert_query);
-        mysqli_stmt_bind_param($insert_stmt, 'iiis', $file_id, $user_id, $rating, $comment);
-        mysqli_stmt_execute($insert_stmt);
-        mysqli_stmt_close($insert_stmt);
+        $_SESSION['error'] = "You have already submitted feedback for this file.";
+        header("Location: view.php?id=$file_id");
+        exit();
     }
+
+    // Insert new feedback
+    $insert_query = "INSERT INTO file_feedback (file_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
+    $insert_stmt = mysqli_prepare($mysqli, $insert_query);
+    mysqli_stmt_bind_param($insert_stmt, 'iiis', $file_id, $user_id, $rating, $comment);
+
+    if (mysqli_stmt_execute($insert_stmt)) {
+        $_SESSION['success'] = "Thank you for your feedback!";
+    } else {
+        $_SESSION['error'] = "Failed to submit feedback. Please try again later.";
+    }
+
+    mysqli_stmt_close($insert_stmt);
     mysqli_stmt_close($check_stmt);
 
     // Redirect to refresh the page
-    header("Location: view.php?id=$file_id&feedback=success");
+    header("Location: view.php?id=$file_id");
     exit();
 }
 
@@ -87,6 +96,7 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
     header("Location: view.php?id=$file_id#report");
     exit();
 }
+require_once '../includes/header.php';
 ?>
 
 <div class="container">
@@ -161,27 +171,42 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
                     <h4 class="mb-0"><i class="fas fa-comments me-2"></i>Feedback</h4>
                 </div>
                 <div class="card-body">
-                    <?php if (isLoggedIn()): ?>
-                        <form method="POST" class="mb-4">
-                            <div class="mb-3">
-                                <label class="form-label">Rating</label>
-                                <select name="rating" class="form-select bg-dark-body" required>
-                                    <option value="">Select Rating</option>
-                                    <?php for ($i = 5; $i >= 1; $i--): ?>
-                                        <option value="<?php echo $i; ?>">
-                                            <?php echo str_repeat('★', $i) . str_repeat('☆', 5 - $i); ?>
-                                        </option>
-                                    <?php endfor; ?>
-                                </select>
+                    <?php if (isLoggedIn()):
+                        // Check if user has already given feedback
+                        $user_feedback_query = "SELECT * FROM file_feedback WHERE file_id = ? AND user_id = ?";
+                        $user_feedback_stmt = mysqli_prepare($mysqli, $user_feedback_query);
+                        mysqli_stmt_bind_param($user_feedback_stmt, 'ii', $file_id, $_SESSION['user_id']);
+                        mysqli_stmt_execute($user_feedback_stmt);
+                        $user_feedback = mysqli_fetch_assoc(mysqli_stmt_get_result($user_feedback_stmt));
+                        mysqli_stmt_close($user_feedback_stmt);
+
+                        if (!$user_feedback): ?>
+                            <form method="POST" class="mb-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Rating</label>
+                                    <div class="rating">
+                                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                                            <input type="radio" name="rating" value="<?php echo $i; ?>" id="star<?php echo $i; ?>"
+                                                required>
+                                            <label for="star<?php echo $i; ?>" title="<?php echo $i; ?> stars">
+                                                <i class="fas fa-star"></i>
+                                            </label>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comment</label>
+                                    <textarea name="comment" class="form-control bg-dark-body" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" name="submit_feedback">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>You have already submitted feedback for this file.
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Comment</label>
-                                <textarea name="comment" class="form-control bg-dark-body" rows="3" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary" name="submit_feedback">
-                                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
-                            </button>
-                        </form>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <div class="feedback-list">
@@ -267,5 +292,35 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
     </div>
 </div>
 </div>
+
+<style>
+    .rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .rating input {
+        display: none;
+    }
+
+    .rating label {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #ddd;
+        padding: 0 0.1em;
+    }
+
+    .rating input:checked~label,
+    .rating label:hover,
+    .rating label:hover~label {
+        color: #ffd700;
+    }
+
+    .rating label:hover i:before,
+    .rating label:hover~label i:before {
+        content: "\f005";
+    }
+</style>
 
 <?php require_once '../includes/footer.php'; ?>

@@ -5,17 +5,12 @@ include 'includes/header.php';
 $error = '';
 $success = '';
 
-// Update the PHP processing section
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $location = $_POST['location'];
     $phone = $_POST['phone'];
-    $latitude = !empty($_POST['latitude']) ? $_POST['latitude'] : null;
-    $longitude = !empty($_POST['longitude']) ? $_POST['longitude'] : null;
-
-    // Check if email exists (prepared statement)
     $stmt = mysqli_prepare($mysqli, "SELECT id FROM users WHERE email = ?");
     mysqli_stmt_bind_param($stmt, 's', $email);
     mysqli_stmt_execute($stmt);
@@ -23,10 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (mysqli_stmt_num_rows($stmt) > 0) {
         $error = "Email already exists!";
     } else {
-        // Insert user (prepared statement)
-        $query = "INSERT INTO users (name, email, password, location, phone, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO users (name, email, password, location, phone) VALUES (?, ?, ?, ?, ?)";
         $insert_stmt = mysqli_prepare($mysqli, $query);
-        mysqli_stmt_bind_param($insert_stmt, 'sssssss', $name, $email, $password, $location, $phone, $latitude, $longitude);
+        mysqli_stmt_bind_param($insert_stmt, 'sssss', $name, $email, $password, $location, $phone);
         if (mysqli_stmt_execute($insert_stmt)) {
             $success = "Registration successful! Please login.";
         } else {
@@ -94,23 +88,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </div>
-
-<script>
-    document.querySelector('form').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                document.getElementById('latitude').value = position.coords.latitude;
-                document.getElementById('longitude').value = position.coords.longitude;
-                e.target.submit();
-            }, function () {
-                e.target.submit();
-            });
-        } else {
-            e.target.submit();
-        }
-    });
-
-</script>
 <?php require_once 'includes/footer.php'; ?>
