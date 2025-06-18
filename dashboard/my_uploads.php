@@ -30,12 +30,7 @@ if (isset($_POST['delete_file'])) {
 }
 
 // Get user's files with download count
-$files_query = "SELECT f.*, 
-                (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
-                (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id) as report_count
-                FROM digital_files f 
-                WHERE f.user_id = $user_id 
-                ORDER BY f.upload_date DESC";
+$files_query = "SELECT f.*, s.name as subject, c.name as course, y.year as year, (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count, (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id) as report_count FROM digital_files f LEFT JOIN subjects s ON f.subject_id = s.id LEFT JOIN courses c ON f.course_id = c.id LEFT JOIN years y ON f.year_id = y.id WHERE f.user_id = $user_id ORDER BY f.upload_date DESC";
 $files_result = mysqli_query($mysqli, $files_query);
 ?>
 

@@ -45,6 +45,10 @@ $stats = [
         <a href="books.php" class="nav-link <?php echo ($current_page == 'books.php') ? 'active' : ''; ?>">
             <i class="fas fa-book me-2"></i>Books
         </a>
+        <a href="educational_metadata.php"
+            class="nav-link <?php echo ($current_page == 'educational_metadata.php') ? 'active' : ''; ?>">
+            <i class="fas fa-book me-2"></i>Educational Metadata
+        </a>
         <a href="files.php" class="nav-link <?php echo ($current_page == 'files.php') ? 'active' : ''; ?>">
             <i class="fas fa-file-alt me-2"></i>Files
         </a>

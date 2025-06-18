@@ -1,11 +1,16 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
+require_once '../includes/functions.php';
 
-// Handle search and filters
 $where_conditions = ["b.status = ?"];
 $params = ["Available"];
 $param_types = "s";
+
+// Pagination settings
+$items_per_page = 12; // Number of items per page
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($current_page - 1) * $items_per_page;
 
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $board = isset($_GET['board']) ? trim($_GET['board']) : '';
@@ -31,81 +36,54 @@ if (!empty($subject)) {
 
 $where_clause = implode(' AND ', $where_conditions);
 
-// Get unique subjects and boards for filters (no user input, safe)
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
-$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
+$subjects = getAllSubjects($mysqli);
+$boards = getAllBoards($mysqli);
 
-$distance = isset($_GET['distance']) ? (int)$_GET['distance'] : 10; // Default 10km radius
+// Get total count for pagination
+$count_query = "SELECT COUNT(*) as total FROM book_listings b WHERE $where_clause";
+$count_stmt = mysqli_prepare($mysqli, $count_query);
+if (!empty($params)) {
+    mysqli_stmt_bind_param($count_stmt, $param_types, ...$params);
+}
+mysqli_stmt_execute($count_stmt);
+$total_items = mysqli_fetch_assoc(mysqli_stmt_get_result($count_stmt))['total'];
+$total_pages = ceil($total_items / $items_per_page);
 
 // Get books with user information
-if (isLoggedIn()) {
-    // Get current user's location
-    $user_query = "SELECT location, latitude, longitude FROM users WHERE id = ?";
-    $user_stmt = mysqli_prepare($mysqli, $user_query);
-    mysqli_stmt_bind_param($user_stmt, "i", $_SESSION['user_id']);
-    mysqli_stmt_execute($user_stmt);
-    $user_result = mysqli_stmt_get_result($user_stmt);
-    $user_data = mysqli_fetch_assoc($user_result);
-    mysqli_stmt_close($user_stmt);
+$query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
+         b.image_path, b.created_at, b.user_id
+FROM book_listings b
+JOIN users u ON b.user_id = u.id 
+JOIN subjects s ON b.subject_id = s.id
+JOIN boards bo ON b.board_id = bo.id
+WHERE $where_clause
+ORDER BY b.created_at DESC
+LIMIT ?, ?";
 
-    if ($user_data['latitude'] && $user_data['longitude']) {
-        $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board, u.id as owner_id,
-                  u.latitude as owner_lat, u.longitude as owner_long,
-                  (6371 * acos(cos(radians(?)) 
-                  * cos(radians(u.latitude)) 
-                  * cos(radians(u.longitude) - radians(?)) 
-                  + sin(radians(?)) 
-                  * sin(radians(u.latitude)))) AS distance
-                  FROM book_listings b 
-                  JOIN users u ON b.user_id = u.id 
-                    JOIN boards bo ON b.board_id = bo.id
-                  JOIN subjects s ON b.subject_id = s.id
-                  WHERE $where_clause
-                  HAVING distance <= ? 
-                  ORDER BY distance, b.created_at DESC";
-        $stmt = mysqli_prepare($mysqli, $query);
-        $full_param_types = "ddd" . $param_types . "i";
-        $full_params = array_merge([
-            $user_data['latitude'],
-            $user_data['longitude'],
-            $user_data['latitude'],
-        ], $params, [$distance]);
-        mysqli_stmt_bind_param($stmt, $full_param_types, ...$full_params);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-    } else {
-        // fallback to normal query if no lat/long
-        $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
-                 b.image_path, b.created_at, b.user_id
-        FROM book_listings b
-        JOIN users u ON b.user_id = u.id 
-        JOIN subjects s ON b.subject_id = s.id
-        JOIN boards bo ON b.board_id = bo.id
-        WHERE $where_clause
-        ORDER BY b.created_at DESC";
-        $stmt = mysqli_prepare($mysqli, $query);
-        mysqli_stmt_bind_param($stmt, $param_types, ...$params);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-    }
-} else {
-    $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
-                 b.image_path, b.created_at, b.user_id
-        FROM book_listings b
-        JOIN users u ON b.user_id = u.id 
-        JOIN subjects s ON b.subject_id = s.id
-        JOIN boards bo ON b.board_id = bo.id
-        WHERE $where_clause
-        ORDER BY b.created_at DESC";
-    $stmt = mysqli_prepare($mysqli, $query);
-    mysqli_stmt_bind_param($stmt, $param_types, ...$params);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+$stmt = mysqli_prepare($mysqli, $query);
+if (!$stmt) {
+    die("Query preparation failed: " . mysqli_error($mysqli));
+}
+
+$param_types .= "ii"; // Add types for LIMIT parameters
+$params[] = $offset;
+$params[] = $items_per_page;
+
+if (!mysqli_stmt_bind_param($stmt, $param_types, ...$params)) {
+    die("Parameter binding failed: " . mysqli_stmt_error($stmt));
+}
+
+if (!mysqli_stmt_execute($stmt)) {
+    die("Query execution failed: " . mysqli_stmt_error($stmt));
+}
+
+$result = mysqli_stmt_get_result($stmt);
+if (!$result) {
+    die("Getting result failed: " . mysqli_stmt_error($stmt));
 }
 
 require_once '../includes/header.php';
 require_once '../modals/reportmodal.php';
-
 ?>
 
 <div class="row mb-4 container-fluid gx-2">
@@ -117,7 +95,7 @@ require_once '../modals/reportmodal.php';
                         <input type="text" name="search" class="form-control bg-dark-body" 
                                placeholder="Search books..." value="<?php echo htmlspecialchars($search); ?>">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select name="board" class="form-select bg-dark-body">
                             <option value="">All Boards</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
@@ -128,7 +106,7 @@ require_once '../modals/reportmodal.php';
                             <?php endwhile; ?>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select name="subject" class="form-select bg-dark-body">
                             <option value="">All Subjects</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
@@ -139,17 +117,6 @@ require_once '../modals/reportmodal.php';
                             <?php endwhile; ?>
                         </select>
                     </div>
-                    <?php if (isLoggedIn() && $user_data['latitude'] && $user_data['longitude']): ?>
-                    <div class="col-md-2">
-                        <select name="distance" class="form-select bg-dark-body">
-                            <option value="5" <?php echo $distance == 5 ? 'selected' : ''; ?>>Within 5 km</option>
-                            <option value="10" <?php echo $distance == 10 ? 'selected' : ''; ?>>Within 10 km</option>
-                            <option value="20" <?php echo $distance == 20 ? 'selected' : ''; ?>>Within 20 km</option>
-                            <option value="50" <?php echo $distance == 50 ? 'selected' : ''; ?>>Within 50 km</option>
-                            <option value="100" <?php echo $distance == 100 ? 'selected' : ''; ?>>Within 100 km</option>
-                        </select>
-                    </div>
-                    <?php endif; ?>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-search me-2"></i>Search
@@ -186,30 +153,24 @@ require_once '../modals/reportmodal.php';
                                     <i class="fas fa-university me-1"></i><?php echo htmlspecialchars($book['board']); ?>
                                     <br>
                                     <i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($book['owner_location']); ?>
-                                    <?php if (isset($book['distance'])): ?>
-                                        <br>    
-                                            <i class="fas fa-route me-1"></i><?php echo round($book['distance'], 1); ?> km away
-                                    <?php endif; ?>
                                 </small>
                             </p>
                         </div>
                                     
                         <div class="card-footer gy-2">
                             <?php if (isLoggedIn()): ?>
-                                
-                            <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
-                                <i class="fas fa-info-circle me-1"></i>View Details
-                            </a>
+                                <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-info-circle me-1"></i>View Details
+                                </a>
                                 <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"
                                     data-content-type="book" data-report-id="<?php echo $book['id']; ?>"
                                     data-report-title="<?php echo htmlspecialchars($book['title']); ?>">
                                     <i class="fas fa-flag me-1"></i>Report
                                 </button>
                             <?php else: ?>
-                                
-                            <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
-                                <i class="fas fa-info-circle me-1"></i>View Details
-                            </a>
+                                <a href="view.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-info-circle me-1"></i>View Details
+                                </a>
                             <?php endif; ?>
                             <small class="float-end text-muted">
                             <?php if (isLoggedIn()): ?>
@@ -229,6 +190,35 @@ require_once '../modals/reportmodal.php';
                 <p class="lead">No books found matching your criteria.</p>
             </div>
         <?php endif; ?>
+    </div>
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <?php if ($total_pages > 1): ?>
+                        <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?page=<?php echo $current_page - 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($board) ? '&board=' . urlencode($board) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?>">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($board) ? '&board=' . urlencode($board) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?>">
+                                    <?php echo $i; ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+                        
+                        <li class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?page=<?php echo $current_page + 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($board) ? '&board=' . urlencode($board) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?>">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 

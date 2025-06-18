@@ -4,7 +4,7 @@ require_once '../includes/functions.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 

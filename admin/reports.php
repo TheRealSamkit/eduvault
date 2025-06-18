@@ -4,7 +4,7 @@ require_once '../includes/functions.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -66,45 +66,45 @@ require_once '../includes/admin_header.php';
                             </thead>
                             <tbody>
                                 <?php while ($report = mysqli_fetch_assoc($reports)): ?>
-                                    <tr>
-                                        <td><?php echo $report['id']; ?></td>
-                                        <td class="text-uppercase"><?php echo $report['content_type']; ?></td>
-                                        <td><?php echo $report['content_id']; ?></td>
-                                        <td>
-                                            <?php if ($report['reporter_name']): ?>
-                                                <span data-bs-toggle="tooltip"
-                                                    title="<?php echo htmlspecialchars($report['reporter_email']); ?>">
-                                                    <?php echo htmlspecialchars($report['reporter_name']); ?>
+                                        <tr>
+                                            <td><?php echo $report['id']; ?></td>
+                                            <td class="text-uppercase"><?php echo $report['content_type']; ?></td>
+                                            <td><?php echo $report['content_id']; ?></td>
+                                            <td>
+                                                <?php if ($report['reporter_name']): ?>
+                                                        <span data-bs-toggle="tooltip"
+                                                            title="<?php echo htmlspecialchars($report['reporter_email']); ?>">
+                                                            <?php echo htmlspecialchars($report['reporter_name']); ?>
+                                                        </span>
+                                                <?php else: ?>
+                                                        <em>Guest</em>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo nl2br(htmlspecialchars($report['reason'])); ?></td>
+                                            <td>
+                                                <span class="badge bg-<?php
+                                                echo $report['status'] === 'pending' ? 'warning' :
+                                                    ($report['status'] === 'resolved' ? 'success' : 'secondary');
+                                                ?>">
+                                                    <?php echo ucfirst($report['status']); ?>
                                                 </span>
-                                            <?php else: ?>
-                                                <em>Guest</em>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?php echo nl2br(htmlspecialchars($report['reason'])); ?></td>
-                                        <td>
-                                            <span class="badge bg-<?php
-                                            echo $report['status'] === 'pending' ? 'warning' :
-                                                ($report['status'] === 'resolved' ? 'success' : 'secondary');
-                                            ?>">
-                                                <?php echo ucfirst($report['status']); ?>
-                                            </span>
-                                        </td>
-                                        <td><?php echo date('M d, Y H:i', strtotime($report['created_at'])); ?></td>
-                                        <td>
-                                            <?php if ($report['status'] === 'pending'): ?>
-                                                <button class="btn btn-sm btn-success me-1"
-                                                    onclick="handleReport(<?php echo $report['id']; ?>, 'resolved')">
-                                                    <i class="fas fa-check"></i> Resolve
-                                                </button>
-                                                <button class="btn btn-sm btn-danger"
-                                                    onclick="handleReport(<?php echo $report['id']; ?>, 'dismissed')">
-                                                    <i class="fas fa-times"></i> Dismiss
-                                                </button>
-                                            <?php else: ?>
-                                                <em>No actions</em>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td><?php echo date('M d, Y H:i', strtotime($report['created_at'])); ?></td>
+                                            <td>
+                                                <?php if ($report['status'] === 'pending'): ?>
+                                                        <button class="btn btn-sm btn-success me-1"
+                                                            onclick="handleReport(<?php echo $report['id']; ?>, 'resolved')">
+                                                            <i class="fas fa-check"></i> Resolve
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger"
+                                                            onclick="handleReport(<?php echo $report['id']; ?>, 'dismissed')">
+                                                            <i class="fas fa-times"></i> Dismiss
+                                                        </button>
+                                                <?php else: ?>
+                                                        <em>No actions</em>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
                                 <?php endwhile; ?>
                             </tbody>
                         </table>

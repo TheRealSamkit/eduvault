@@ -50,7 +50,7 @@ if (isset($_POST['save_profile'])) {
 }
 
 // User info + avatar
-$user_query = "SELECT name, email, location, avatar_path, created_at FROM users WHERE id = $user_id";
+$user_query = "SELECT * FROM users WHERE id = $user_id";
 $user_result = mysqli_query($mysqli, $user_query);
 $user = mysqli_fetch_assoc($user_result);
 $avatar = !empty($user['avatar_path']) ? "../" . $user['avatar_path'] : '../uploads/avatars/default.png';
@@ -93,8 +93,7 @@ require_once '../modals/editProfileModal.php';
                     <?php echo date("F j, Y", strtotime($user['created_at'])); ?></small><br>
                 <span
                     class="badge bg-secondary mb-1 p-2"><?php echo htmlspecialchars($user['location'] ?: 'Location Unknown'); ?></span>
-                <button onclick="updateLocation()" class="btn btn-sm btn-outline-primary ms-2"><i
-                        class="fas fa-map-marker-alt"></i> Update Location</button>
+
                 <button class="btn btn-sm btn-outline-info ms-2" data-bs-toggle="modal"
                     data-bs-target="#editProfileModal"><i class="fas fa-user-edit"></i> Edit Profile</button>
             </div>
@@ -207,33 +206,5 @@ require_once '../modals/editProfileModal.php';
     </div>
 
 </div>
-
-<script>
-    function updateLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
-
-                fetch('update_location.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `latitude=${latitude}&longitude=${longitude}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Failed to update location.');
-                        }
-                    })
-                    .catch(() => alert('Failed to update location.'));
-            });
-        } else {
-            alert("Geolocation is not supported by your browser.");
-        }
-    }
-</script>
 
 <?php require_once '../includes/footer.php'; ?>

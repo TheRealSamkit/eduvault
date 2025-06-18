@@ -4,7 +4,7 @@ require_once '../includes/functions.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -27,6 +27,10 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 1 WHERE id = $file_id");
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
+    } elseif ($action === 'ban') {
+        mysqli_query($mysqli, "UPDATE digital_files SET verified = 0 WHERE id = $file_id");
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
 
     // Log the action
@@ -35,14 +39,7 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
     mysqli_query($mysqli, "INSERT INTO activity_logs (admin_id, action, ip_address) 
                           VALUES ($admin_id, 'File $action ID: $file_id', '$ip')");
 }
-$query = "
-    SELECT f.*, u.name AS owner_name, u.email AS owner_email, COUNT(d.file_id) AS download_count
-    FROM digital_files f
-    JOIN users u ON f.user_id = u.id
-    LEFT JOIN downloads d ON f.id = d.file_id
-    GROUP BY f.id
-    ORDER BY f.upload_date DESC";
-$files = mysqli_query($mysqli, $query);
+$files = mysqli_query($mysqli, "SELECT f.*, s.name as subject, c.name as course, y.year as year, u.name as uploader_name, u.id as uploader_id, (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count FROM digital_files f JOIN users u ON f.user_id = u.id LEFT JOIN subjects s ON f.subject_id = s.id LEFT JOIN courses c ON f.course_id = c.id LEFT JOIN years y ON f.year_id = y.id");
 $title = "File Management - Admin Panel";
 require_once '../includes/admin_header.php';
 ?>
@@ -74,6 +71,8 @@ require_once '../includes/admin_header.php';
                                     <th>Title</th>
                                     <th>Type</th>
                                     <th>Subject</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
                                     <th>Owner</th>
                                     <th>Size</th>
                                     <th>Downloads</th>
@@ -92,10 +91,12 @@ require_once '../includes/admin_header.php';
                                             <?php echo strtoupper($file['file_type']); ?>
                                         </td>
                                         <td><?php echo htmlspecialchars($file['subject']); ?></td>
+                                        <td><?php echo htmlspecialchars($file['course']); ?></td>
+                                        <td><?php echo htmlspecialchars($file['year']); ?></td>
                                         <td>
                                             <span data-bs-toggle="tooltip"
-                                                title="<?php echo htmlspecialchars($file['owner_email']); ?>">
-                                                <?php echo htmlspecialchars($file['owner_name']); ?>
+                                                title="<?php echo htmlspecialchars($file['uploader_id']); ?>">
+                                                <?php echo htmlspecialchars($file['uploader_name']); ?>
                                             </span>
                                         </td>
                                         <td><?php echo htmlspecialchars(formatFileSizeMB($file['file_size'])); ?></td>
@@ -116,6 +117,11 @@ require_once '../includes/admin_header.php';
                                                     <button type="button" class="btn btn-sm btn-outline-success"
                                                         onclick="verifyFile(<?php echo $file['id']; ?>)">
                                                         <i class="fas fa-check"></i>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn-sm btn-outline-warning"
+                                                        onclick="banFile(<?php echo $file['id']; ?>)">
+                                                        <i class="fas fa-ban"></i>
                                                     </button>
                                                 <?php endif; ?>
                                                 <button type="button" class="btn btn-sm btn-outline-danger"
@@ -153,6 +159,12 @@ require_once '../includes/admin_header.php';
     function verifyFile(fileId) {
         if (confirm('Are you sure you want to verify this file?')) {
             submitFileAction(fileId, 'verify');
+        }
+    }
+
+    function banFile(fileId) {
+        if (confirm('Are you sure you want to ban this file?')) {
+            submitFileAction(fileId, 'ban');
         }
     }
 
