@@ -1,11 +1,16 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
+require_once '../includes/functions.php';
 
-// Handle search and filters
 $where_conditions = ["b.status = ?"];
 $params = ["Available"];
 $param_types = "s";
+
+// Pagination settings
+$items_per_page = 12; // Number of items per page
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($current_page - 1) * $items_per_page;
 
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $board = isset($_GET['board']) ? trim($_GET['board']) : '';
@@ -31,11 +36,20 @@ if (!empty($subject)) {
 
 $where_clause = implode(' AND ', $where_conditions);
 
-// Get unique subjects and boards for filters (no user input, safe)
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject,id FROM subjects WHERE name != ''");
-$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board,id FROM boards  WHERE name != '' order by id");
+$subjects = getAllSubjects($mysqli);
+$boards = getAllBoards($mysqli);
 
 $distance = isset($_GET['distance']) ? (int)$_GET['distance'] : 10; // Default 10km radius
+
+// Get total count for pagination
+$count_query = "SELECT COUNT(*) as total FROM book_listings b WHERE $where_clause";
+$count_stmt = mysqli_prepare($mysqli, $count_query);
+if (!empty($params)) {
+    mysqli_stmt_bind_param($count_stmt, $param_types, ...$params);
+}
+mysqli_stmt_execute($count_stmt);
+$total_items = mysqli_fetch_assoc(mysqli_stmt_get_result($count_stmt))['total'];
+$total_pages = ceil($total_items / $items_per_page);
 
 // Get books with user information
 if (isLoggedIn()) {
@@ -49,27 +63,35 @@ if (isLoggedIn()) {
     mysqli_stmt_close($user_stmt);
 
     if ($user_data['latitude'] && $user_data['longitude']) {
-        $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board, u.id as owner_id,
-                  u.latitude as owner_lat, u.longitude as owner_long,
-                  (6371 * acos(cos(radians(?)) 
-                  * cos(radians(u.latitude)) 
-                  * cos(radians(u.longitude) - radians(?)) 
-                  + sin(radians(?)) 
-                  * sin(radians(u.latitude)))) AS distance
-                  FROM book_listings b 
-                  JOIN users u ON b.user_id = u.id 
-                    JOIN boards bo ON b.board_id = bo.id
-                  JOIN subjects s ON b.subject_id = s.id
-                  WHERE $where_clause
-                  HAVING distance <= ? 
-                  ORDER BY distance, b.created_at DESC";
+        $query = "SELECT b.*, u.name as owner_name, u.location as owner_location, s.name as subject, bo.name as board,u.id as owner_id, 
+                 b.image_path, b.created_at, b.user_id,
+                 (6371 * acos(cos(radians(?)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians(?)) + sin(radians(?)) * sin(radians(u.latitude)))) AS distance
+        FROM book_listings b
+        JOIN users u ON b.user_id = u.id 
+        JOIN subjects s ON b.subject_id = s.id
+        JOIN boards bo ON b.board_id = bo.id
+        WHERE $where_clause
+        HAVING distance <= ? 
+        ORDER BY distance, b.created_at DESC
+        LIMIT ?, ?";
         $stmt = mysqli_prepare($mysqli, $query);
-        $full_param_types = "ddd" . $param_types . "i";
-        $full_params = array_merge([
-            $user_data['latitude'],
-            $user_data['longitude'],
-            $user_data['latitude'],
-        ], $params, [$distance]);
+        
+        // Combine all parameters in the correct order
+        $full_params = array_merge(
+            $params, // First the WHERE clause parameters (status, search, etc.)
+            [
+                $user_data['latitude'],  // Then the location parameters
+                $user_data['longitude'],
+                $user_data['latitude'],
+                $distance,               // Then the distance parameter
+                $offset,                 // Finally the pagination parameters
+                $items_per_page
+            ]
+        );
+        
+        // Combine parameter types in the same order
+        $full_param_types = $param_types . "dddsii";
+        
         mysqli_stmt_bind_param($stmt, $full_param_types, ...$full_params);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
@@ -82,8 +104,12 @@ if (isLoggedIn()) {
         JOIN subjects s ON b.subject_id = s.id
         JOIN boards bo ON b.board_id = bo.id
         WHERE $where_clause
-        ORDER BY b.created_at DESC";
+        ORDER BY b.created_at DESC
+        LIMIT ?, ?";
         $stmt = mysqli_prepare($mysqli, $query);
+        $param_types .= "ii"; // Add types for LIMIT parameters
+        $params[] = $offset;
+        $params[] = $items_per_page;
         mysqli_stmt_bind_param($stmt, $param_types, ...$params);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
@@ -96,8 +122,12 @@ if (isLoggedIn()) {
         JOIN subjects s ON b.subject_id = s.id
         JOIN boards bo ON b.board_id = bo.id
         WHERE $where_clause
-        ORDER BY b.created_at DESC";
+        ORDER BY b.created_at DESC
+        LIMIT ?, ?";
     $stmt = mysqli_prepare($mysqli, $query);
+    $param_types .= "ii"; // Add types for LIMIT parameters
+    $params[] = $offset;
+    $params[] = $items_per_page;
     mysqli_stmt_bind_param($stmt, $param_types, ...$params);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -229,6 +259,35 @@ require_once '../modals/reportmodal.php';
                 <p class="lead">No books found matching your criteria.</p>
             </div>
         <?php endif; ?>
+    </div>
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <?php if ($total_pages > 1): ?>
+                        <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?page=<?php echo $current_page - 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($board) ? '&board=' . urlencode($board) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?>">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($board) ? '&board=' . urlencode($board) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?>">
+                                    <?php echo $i; ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+                        
+                        <li class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?page=<?php echo $current_page + 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($board) ? '&board=' . urlencode($board) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?>">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 

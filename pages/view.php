@@ -154,7 +154,7 @@ require_once '../includes/header.php';
 <div class="container-md p-0 card mb-3">
     <?php if (mysqli_num_rows($result) > 0): ?>
         <?php $user = mysqli_fetch_assoc($result); ?>
-        <?php $avatar = !empty($user['avatar_path']) ? "../uploads/avatars/" . $user['avatar_path'] : '../uploads/avatars/default.png'; ?>
+        <?php $avatar = !empty($user['avatar_path']) ? "../" . $user['avatar_path'] : '../uploads/avatars/default.png'; ?>
 
         <div class="card-header d-flex align-items-center gap-3">
             <img src="<?php echo htmlspecialchars($avatar); ?>" class="rounded-circle img-thumbnail bg-dark" width="80"
@@ -197,7 +197,7 @@ require_once '../includes/header.php';
                     <div class="col-md-6">
                         <div class="card bg-success text-white shadow-sm">
                             <div class="card-body">
-                                <h6 class="card-title"><i class="fas fa-file-alt me-2"></i>My Files</h6>
+                                <h6 class="card-title"><i class="fas fa-file-alt me-2"></i>Total Files</h6>
                                 <h2 class="mb-0"><?php echo $files_count; ?></h2>
                             </div>
                         </div>

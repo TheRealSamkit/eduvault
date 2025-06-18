@@ -10,20 +10,7 @@ if (!isset($_GET['id'])) {
 }
 
 $file_id = $_GET['id'];
-
-$query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id, 
-          (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
-          (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND content_type = 'file') as report_count,
-          (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
-          FROM digital_files f 
-          JOIN users u ON f.user_id = u.id 
-          WHERE f.id = ?";
-$stmt = mysqli_prepare($mysqli, $query);
-mysqli_stmt_bind_param($stmt, 'i', $file_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$file = mysqli_fetch_assoc($result);
-mysqli_stmt_close($stmt);
+$file = getFileWithStats($mysqli, $file_id);
 
 $feedback_query = "SELECT f.*, u.name as user_name
                   FROM file_feedback f 

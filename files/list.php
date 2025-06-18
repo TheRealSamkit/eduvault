@@ -8,6 +8,14 @@ $where_conditions = ["1=1"];
 $params = [];
 $param_types = "";
 
+// Only show verified files
+$where_conditions[] = "f.verified = 1";
+
+// Pagination settings
+$items_per_page = 12; // Number of items per page
+$current_page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($current_page - 1) * $items_per_page;
+
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $course = isset($_GET['course']) ? trim($_GET['course']) : '';
 $subject = isset($_GET['subject']) ? trim($_GET['subject']) : '';
@@ -44,21 +52,18 @@ if (!empty($file_type)) {
 
 $where_clause = implode(' AND ', $where_conditions);
 
-$query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id,
-    (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND status = 'resolved') as report_count,
-    (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
-    (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
-    FROM digital_files f
-    JOIN users u ON f.user_id = u.id
-    WHERE $where_clause
-    ORDER BY f.upload_date DESC";
-
-$stmt = mysqli_prepare($mysqli, $query);
+// Get total count for pagination
+$count_query = "SELECT COUNT(*) as total FROM digital_files f WHERE $where_clause";
+$count_stmt = mysqli_prepare($mysqli, $count_query);
 if (!empty($params)) {
-    mysqli_stmt_bind_param($stmt, $param_types, ...$params);
+    mysqli_stmt_bind_param($count_stmt, $param_types, ...$params);
 }
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+mysqli_stmt_execute($count_stmt);
+$total_items = mysqli_fetch_assoc(mysqli_stmt_get_result($count_stmt))['total'];
+$total_pages = ceil($total_items / $items_per_page);
+
+// Modify the main query to include pagination
+$result = getFilesWithStats($mysqli, $where_clause, $params, $param_types, $offset, $items_per_page);
 
 $file_types = mysqli_query($mysqli, "SELECT DISTINCT file_type FROM digital_files WHERE file_type != ''");
 $courses = mysqli_query($mysqli, "SELECT DISTINCT course FROM digital_files WHERE course != ''");
@@ -205,6 +210,38 @@ require_once '../modals/reportmodal.php';
                 <p class="lead">No files found matching your criteria.</p>
             </div>
         <?php endif; ?>
+    </div>
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <?php if ($total_pages > 1): ?>
+                        <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link"
+                                href="?page=<?php echo $current_page - 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course) ? '&course=' . urlencode($course) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?><?php echo !empty($year) ? '&year=' . urlencode($year) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
+                                <a class="page-link"
+                                    href="?page=<?php echo $i; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course) ? '&course=' . urlencode($course) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?><?php echo !empty($year) ? '&year=' . urlencode($year) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
+                                    <?php echo $i; ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
+                            <a class="page-link"
+                                href="?page=<?php echo $current_page + 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course) ? '&course=' . urlencode($course) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?><?php echo !empty($year) ? '&year=' . urlencode($year) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 <?php require_once '../includes/footer.php'; ?>

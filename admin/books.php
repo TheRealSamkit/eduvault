@@ -1,9 +1,10 @@
 <?php
 require_once '../includes/db_connect.php';
+require_once '../includes/functions.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -57,8 +58,8 @@ $books = mysqli_query($mysqli, "SELECT b.*, u.name as owner_name, u.email as own
                                 JOIN subjects s ON b.subject_id = s.id
                                 ORDER BY b.created_at DESC");
 
-$boards = mysqli_query($mysqli, "SELECT * FROM boards ORDER BY name ASC");
-$subjects = mysqli_query($mysqli, "SELECT * FROM subjects ORDER BY name ASC");
+$boards = getAllBoards($mysqli);
+$subjects = getAllSubjects($mysqli);
 
 $title = "Book Management - Admin Panel";
 require_once '../includes/admin_header.php';
@@ -149,7 +150,7 @@ require_once '../includes/admin_header.php';
                                         <?php while ($board = mysqli_fetch_assoc($boards)): ?>
                                             <tr>
                                                 <td><?= $board['id']; ?></td>
-                                                <td><?= htmlspecialchars($board['name']); ?></td>
+                                                <td><?= htmlspecialchars($board['board']); ?></td>
                                             </tr>
                                         <?php endwhile; ?>
                                     </tbody>
@@ -177,7 +178,7 @@ require_once '../includes/admin_header.php';
                                         <?php while ($subject = mysqli_fetch_assoc($subjects)): ?>
                                             <tr>
                                                 <td><?= $subject['id']; ?></td>
-                                                <td><?= htmlspecialchars($subject['name']); ?></td>
+                                                <td><?= htmlspecialchars($subject['subject']); ?></td>
                                             </tr>
                                         <?php endwhile; ?>
                                     </tbody>

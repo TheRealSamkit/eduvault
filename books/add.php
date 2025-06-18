@@ -8,8 +8,8 @@ requireLogin();
 $error = '';
 $success = '';
 
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT name as subject, id FROM subjects WHERE name != ''") or die(mysqli_error($mysqli));
-$boards = mysqli_query($mysqli, "SELECT DISTINCT name as board, id FROM boards WHERE name != '' ORDER BY id") or die(mysqli_error($mysqli));
+$subjects = getAllSubjects($mysqli);
+$boards = getAllBoards($mysqli);
 
 $max_image_size = 2 * 1024 * 1024;
 $allowed_mimes = getImageMimes($mysqli);

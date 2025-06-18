@@ -23,7 +23,7 @@ $currentPage = $_SERVER['PHP_SELF'];
             }
         }
         ?>
-        <link rel='stylesheet' href='/eduvault/assets/css//theme.css'>
+        <link rel='stylesheet' href='/eduvault/assets/css/theme.css'>
     </head>
 
     <body class="bg-dark-body text-body">

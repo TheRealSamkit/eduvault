@@ -1,40 +1,40 @@
 :root {
-	/* Brand Colors */
-	--primary-color: #4f46e5; /* Indigo-600 */
-	--primary-dark: #3730a3; /* Indigo-800 */
-	--secondary-color: #2563eb; /* Blue-600 */
+	/* Primary Colors (Basic) */
+	--primary-color: #00a1e4; /* Blue */
+	--secondary-color: #ff0000; /* Red */
+	--accent-color: #008000; /* Green */
 
-	/* State Colors */
-	--success-color: #22c55e; /* Green-500 */
-	--warning-color: #facc15; /* Yellow-400 */
-	--danger-color: #ef4444; /* Red-500 */
+	/* Status Colors */
+	--success-color: #008000; /* Green */
+	--warning-color: #ffff00; /* Yellow */
+	--danger-color: #ff0000; /* Red */
 
-	/* Background & Borders */
-	--bs-body-bg: #f3f4f6; /* Gray-100 */
-	--bg-subtle: #e5e7eb; /* Gray-200 */
-	--bg-body-tertiary: #fff; /* White */
-	--bs-border-color: #d1d5db; /* Gray-300 */
+	/* Background & Text */
+	--bs-body-bg: #ffffff; /* White */
+	--bs-body-color: #000000; /* Black */
+	--bg-subtle: #f0f0f0; /* Light Gray */
+	--bg-body-tertiary: #ffffff; /* White */
+	--bs-border-color: #cccccc; /* Light Gray border */
+	--bs-hover-color: #333333;
 
-	--bs-inverse-color: #333333b5;
-
-	/* Text & Effects */
-	--bs-body-color: #22223b; /* Deep gray-blue */
-	--bs-hover-color: #1e293b; /* Slate-800 */
-	--bs-shadow: rgba(60, 60, 60, 0.08);
+	--bs-shadow: rgba(0, 0, 0, 0.1);
+	--bs-inverse-color: #555555;
 }
 
-/* Dark Mode Variables */
+/* Dark Mode */
 [data-bs-theme="dark"] {
-	--bs-inverse-color: #dad9d9ac;
-	--bs-body-bg: #18181b; /* Gray-900 */
-	--bg-subtle: #232336; /* Deep blue-gray */
-	--bg-body-tertiary: #232336; /* Deep blue-gray */
-	--bs-border-color: #2d2d3a; /* Slightly lighter for borders */
-	--bs-body-color: #e0e7ef; /* Light gray-blue */
-	--bs-hover-color: #fff; /* White */
-	--bs-shadow: rgba(83, 83, 83, 0.18);
+	--bs-body-bg: #000000; /* Black */
+	--bs-body-color: #ffffff; /* White */
+	--bg-subtle: #1a1a1a; /* Dark Gray */
+	--bg-body-tertiary: #1a1a1a; /* Dark Gray */
+	--bs-border-color: #444444; /* Dark Border */
+	--bs-inverse-color: #bbbbbb;
+	--bs-hover-color: #ffffff;
+
+	--bs-shadow: rgba(255, 255, 255, 0.1);
 }
 
+/* Common Styling */
 body,
 .bg-dark-body,
 .list-group-item {
@@ -43,45 +43,43 @@ body,
 	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.color {
-	color: var(--bs-body-color);
-}
-.color:hover {
-	color: var(--bs-hover-color);
-	transition: color 0.3s ease;
-}
-
 .navbar {
+	background-color: var(--bg-subtle);
 	box-shadow: 0 2px 4px var(--bs-shadow);
 }
+
 .navbar-brand {
 	color: var(--primary-color) !important;
 	font-weight: bold;
 }
+
 .nav-link {
 	color: var(--bs-inverse-color) !important;
 	transition: color 0.3s ease;
 }
+
 .nav-link:hover,
 .nav-link.active {
 	color: var(--primary-color) !important;
 }
+
 .dropdown-menu,
 .dropdown-item {
-	color: var(--bs-body-color);
 	background-color: var(--bg-subtle);
+	color: var(--bs-body-color);
 	border: 1px solid var(--bs-border-color);
 }
 
 .btn-primary {
 	background-color: var(--primary-color);
 	border-color: var(--primary-color);
-	transition: background-color 0.3s ease, border-color 0.3s ease;
+	color: #fff;
 }
+
 .btn-primary:hover,
 .btn-primary:focus {
-	background-color: var(--primary-dark);
-	border-color: var(--primary-dark);
+	background-color: #0087c1;
+	border-color: #00a1e4;
 	outline: none;
 }
 
@@ -112,13 +110,33 @@ body,
 	color: var(--primary-color) !important;
 	transition: color 0.3s ease;
 }
+
 .fab:hover,
 .fas:hover {
 	transform: translateY(-2px);
 	transition: transform 0.3s ease, color 0.3s ease;
 	color: currentColor;
 }
+
 .btn-scroll:hover {
 	transform: scale(1.1);
 	transition: transform 0.3s ease;
+}
+
+[data-bs-theme="dark"] .pagination .page-link {
+	background-color: #1a1a1a !important;
+	color: #fff !important;
+	border-color: #333333 !important;
+}
+
+[data-bs-theme="dark"] .pagination .page-item.active .page-link {
+	background-color: #333333 !important;
+	color: #fff !important;
+	border-color: #333333 !important;
+}
+
+[data-bs-theme="dark"] .pagination .page-link:hover,
+[data-bs-theme="dark"] .pagination .page-link:focus {
+	background-color: #2a2a2a !important;
+	color: #fff !important;
 }
