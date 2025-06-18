@@ -83,9 +83,15 @@ function getFilesWithStats($mysqli, $where = "1=1", $params = [], $param_types =
     $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id,
         (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND status = 'resolved') as report_count,
         (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
-        (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating
+        (SELECT AVG(rating) FROM file_feedback WHERE file_id = f.id) as avg_rating,
+        s.name as subject,
+        c.name as course,
+        y.year
         FROM digital_files f
         JOIN users u ON f.user_id = u.id
+        LEFT JOIN subjects s ON f.subject_id = s.id
+        LEFT JOIN courses c ON f.course_id = c.id
+        LEFT JOIN years y ON f.year_id = y.id
         WHERE $where $order LIMIT ?, ?";
 
     $stmt = mysqli_prepare($mysqli, $query);

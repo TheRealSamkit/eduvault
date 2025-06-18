@@ -25,8 +25,8 @@
 [data-bs-theme="dark"] {
 	--bs-body-bg: #000000; /* Black */
 	--bs-body-color: #ffffff; /* White */
-	--bg-subtle: #1a1a1a; /* Dark Gray */
-	--bg-body-tertiary: #1a1a1a; /* Dark Gray */
+	--bg-subtle: #1b1b1b; /* Dark Gray */
+	--bg-body-tertiary: #2a2a2a; /* Dark Gray */
 	--bs-border-color: #444444; /* Dark Border */
 	--bs-inverse-color: #bbbbbb;
 	--bs-hover-color: #ffffff;

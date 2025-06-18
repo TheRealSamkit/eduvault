@@ -39,7 +39,7 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
     mysqli_query($mysqli, "INSERT INTO activity_logs (admin_id, action, ip_address) 
                           VALUES ($admin_id, 'File $action ID: $file_id', '$ip')");
 }
-$files = getFilesWithStats($mysqli);
+$files = mysqli_query($mysqli, "SELECT f.*, s.name as subject, c.name as course, y.year as year, u.name as uploader_name, u.id as uploader_id, (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count FROM digital_files f JOIN users u ON f.user_id = u.id LEFT JOIN subjects s ON f.subject_id = s.id LEFT JOIN courses c ON f.course_id = c.id LEFT JOIN years y ON f.year_id = y.id");
 $title = "File Management - Admin Panel";
 require_once '../includes/admin_header.php';
 ?>
@@ -71,6 +71,8 @@ require_once '../includes/admin_header.php';
                                     <th>Title</th>
                                     <th>Type</th>
                                     <th>Subject</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
                                     <th>Owner</th>
                                     <th>Size</th>
                                     <th>Downloads</th>
@@ -89,6 +91,8 @@ require_once '../includes/admin_header.php';
                                             <?php echo strtoupper($file['file_type']); ?>
                                         </td>
                                         <td><?php echo htmlspecialchars($file['subject']); ?></td>
+                                        <td><?php echo htmlspecialchars($file['course']); ?></td>
+                                        <td><?php echo htmlspecialchars($file['year']); ?></td>
                                         <td>
                                             <span data-bs-toggle="tooltip"
                                                 title="<?php echo htmlspecialchars($file['uploader_id']); ?>">

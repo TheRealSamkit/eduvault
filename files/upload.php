@@ -12,13 +12,18 @@ $allowed_mime_types = $allowed_mimes;
 
 $error = '';
 
+// Fetch normalized lists
+$subjects = mysqli_query($mysqli, "SELECT id, name FROM subjects ORDER BY name ASC");
+$courses = mysqli_query($mysqli, "SELECT id, name FROM courses ORDER BY name ASC");
+$years = mysqli_query($mysqli, "SELECT id, year FROM years ORDER BY year DESC");
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id'];
     $title = mysqli_real_escape_string($mysqli, $_POST['title']);
     $description = mysqli_real_escape_string($mysqli, $_POST['description']);
-    $subject = mysqli_real_escape_string($mysqli, $_POST['subject']);
-    $course = mysqli_real_escape_string($mysqli, $_POST['course']);
-    $year = (int) $_POST['year']; // sanitize as integer for security
+    $subject_id = (int) $_POST['subject_id'];
+    $course_id = (int) $_POST['course_id'];
+    $year_id = (int) $_POST['year_id'];
 
     // Handle file upload
     if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
@@ -41,11 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
 
                 if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
-                    $query = "INSERT INTO digital_files (user_id, title, description, subject, course, year, file_path, file_type,file_size) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $query = "INSERT INTO digital_files (user_id, title, description, subject_id, course_id, year_id, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                     $stmt = mysqli_prepare($mysqli, $query);
-                    mysqli_stmt_bind_param($stmt, "issssisss", $user_id, $title, $description, $subject, $course, $year, $file_path, $ext, $file_size);
+                    mysqli_stmt_bind_param($stmt, "issiiisss", $user_id, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size);
 
                     if (mysqli_stmt_execute($stmt)) {
                         $_SESSION['success'] = "File uploaded successfully!";
@@ -96,27 +100,31 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <input type="text" name="subject" class="form-control bg-dark-body" required>
+                        <select name="subject_id" class="form-select bg-dark-body" required>
+                            <option value="">Select Subject</option>
+                            <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
+                                <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></option>
+                            <?php endwhile; ?>
+                        </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Course</label>
-                        <select name="course" class="form-select bg-dark-body" required>
+                        <select name="course_id" class="form-select bg-dark-body" required>
                             <option value="">Select Course</option>
-                            <option value="B.Tech">B.Tech</option>
-                            <option value="Diploma">Diploma</option>
-                            <option value="UPSC">UPSC</option>
-                            <option value="Other">Other</option>
+                            <?php while ($c = mysqli_fetch_assoc($courses)): ?>
+                                <option value="<?php echo $c['id']; ?>"><?php echo htmlspecialchars($c['name']); ?></option>
+                            <?php endwhile; ?>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Year</label>
-                        <select name="year" class="form-select bg-dark-body" required>
+                        <select name="year_id" class="form-select bg-dark-body" required>
                             <option value="">Select Year</option>
-                            <?php for ($i = date('Y'); $i >= 2000; $i--): ?>
-                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                            <?php endfor; ?>
+                            <?php while ($y = mysqli_fetch_assoc($years)): ?>
+                                <option value="<?php echo $y['id']; ?>"><?php echo htmlspecialchars($y['year']); ?></option>
+                            <?php endwhile; ?>
                         </select>
                     </div>
 

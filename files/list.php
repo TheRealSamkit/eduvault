@@ -17,9 +17,9 @@ $current_page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $offset = ($current_page - 1) * $items_per_page;
 
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$course = isset($_GET['course']) ? trim($_GET['course']) : '';
-$subject = isset($_GET['subject']) ? trim($_GET['subject']) : '';
-$year = isset($_GET['year']) ? trim($_GET['year']) : '';
+$subject_id = isset($_GET['subject']) ? (int) $_GET['subject'] : '';
+$course_id = isset($_GET['course']) ? (int) $_GET['course'] : '';
+$year_id = isset($_GET['year']) ? (int) $_GET['year'] : '';
 $file_type = isset($_GET['fileType']) ? trim($_GET['fileType']) : '';
 
 if (!empty($search)) {
@@ -29,20 +29,20 @@ if (!empty($search)) {
     $params[] = "%$search%";
     $param_types .= "sss";
 }
-if (!empty($course)) {
-    $where_conditions[] = "f.course = ?";
-    $params[] = $course;
-    $param_types .= "s";
+if (!empty($course_id)) {
+    $where_conditions[] = "f.course_id = ?";
+    $params[] = $course_id;
+    $param_types .= "i";
 }
-if (!empty($subject)) {
-    $where_conditions[] = "f.subject = ?";
-    $params[] = $subject;
-    $param_types .= "s";
+if (!empty($subject_id)) {
+    $where_conditions[] = "f.subject_id = ?";
+    $params[] = $subject_id;
+    $param_types .= "i";
 }
-if (!empty($year)) {
-    $where_conditions[] = "f.year = ?";
-    $params[] = $year;
-    $param_types .= "s";
+if (!empty($year_id)) {
+    $where_conditions[] = "f.year_id = ?";
+    $params[] = $year_id;
+    $param_types .= "i";
 }
 if (!empty($file_type)) {
     $where_conditions[] = "f.file_type = ?";
@@ -66,9 +66,9 @@ $total_pages = ceil($total_items / $items_per_page);
 $result = getFilesWithStats($mysqli, $where_clause, $params, $param_types, $offset, $items_per_page);
 
 $file_types = mysqli_query($mysqli, "SELECT DISTINCT file_type FROM digital_files WHERE file_type != ''");
-$courses = mysqli_query($mysqli, "SELECT DISTINCT course FROM digital_files WHERE course != ''");
-$subjects = mysqli_query($mysqli, "SELECT DISTINCT subject FROM digital_files WHERE subject != ''");
-$years = mysqli_query($mysqli, "SELECT DISTINCT year FROM digital_files WHERE year != 0 ORDER BY year DESC");
+$subjects = mysqli_query($mysqli, "SELECT id, name FROM subjects ORDER BY name ASC");
+$courses = mysqli_query($mysqli, "SELECT id, name FROM courses ORDER BY name ASC");
+$years = mysqli_query($mysqli, "SELECT id, year FROM years ORDER BY year DESC");
 
 require_once '../includes/header.php';
 require_once '../modals/reportmodal.php';
@@ -86,8 +86,8 @@ require_once '../modals/reportmodal.php';
                             <select name="course" class="form-select bg-dark-body">
                                 <option value="">All Courses</option>
                                 <?php while ($c = mysqli_fetch_assoc($courses)): ?>
-                                    <option value="<?php echo htmlspecialchars($c['course']); ?>" <?php echo $course == $c['course'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($c['course']); ?>
+                                    <option value="<?php echo $c['id']; ?>" <?php echo $course_id == $c['id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($c['name']); ?>
                                     </option>
                                 <?php endwhile; ?>
                             </select>
@@ -106,9 +106,7 @@ require_once '../modals/reportmodal.php';
                             <select name="subject" class="form-select bg-dark-body">
                                 <option value="">All Subjects</option>
                                 <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                    <option value="<?php echo htmlspecialchars($s['subject']); ?>" <?php echo $subject == $s['subject'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($s['subject']); ?>
-                                    </option>
+                                    <option value="<?php echo $s['id']; ?>" <?php echo $subject_id == $s['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($s['name']); ?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
@@ -116,9 +114,7 @@ require_once '../modals/reportmodal.php';
                             <select name="year" class="form-select bg-dark-body">
                                 <option value="">All Years</option>
                                 <?php while ($y = mysqli_fetch_assoc($years)): ?>
-                                    <option value="<?php echo $y['year']; ?>" <?php echo $year == $y['year'] ? 'selected' : ''; ?>>
-                                        <?php echo $y['year']; ?>
-                                    </option>
+                                    <option value="<?php echo $y['id']; ?>" <?php echo $year_id == $y['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($y['year']); ?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
@@ -218,7 +214,7 @@ require_once '../modals/reportmodal.php';
                     <?php if ($total_pages > 1): ?>
                         <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
                             <a class="page-link"
-                                href="?page=<?php echo $current_page - 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course) ? '&course=' . urlencode($course) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?><?php echo !empty($year) ? '&year=' . urlencode($year) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
+                                href="?page=<?php echo $current_page - 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course_id) ? '&course=' . urlencode($course_id) : ''; ?><?php echo !empty($subject_id) ? '&subject=' . urlencode($subject_id) : ''; ?><?php echo !empty($year_id) ? '&year=' . urlencode($year_id) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
                                 <i class="fas fa-chevron-left"></i>
                             </a>
                         </li>
@@ -226,7 +222,7 @@ require_once '../modals/reportmodal.php';
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
                                 <a class="page-link"
-                                    href="?page=<?php echo $i; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course) ? '&course=' . urlencode($course) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?><?php echo !empty($year) ? '&year=' . urlencode($year) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
+                                    href="?page=<?php echo $i; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course_id) ? '&course=' . urlencode($course_id) : ''; ?><?php echo !empty($subject_id) ? '&subject=' . urlencode($subject_id) : ''; ?><?php echo !empty($year_id) ? '&year=' . urlencode($year_id) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
                                     <?php echo $i; ?>
                                 </a>
                             </li>
@@ -234,7 +230,7 @@ require_once '../modals/reportmodal.php';
 
                         <li class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
                             <a class="page-link"
-                                href="?page=<?php echo $current_page + 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course) ? '&course=' . urlencode($course) : ''; ?><?php echo !empty($subject) ? '&subject=' . urlencode($subject) : ''; ?><?php echo !empty($year) ? '&year=' . urlencode($year) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
+                                href="?page=<?php echo $current_page + 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?><?php echo !empty($course_id) ? '&course=' . urlencode($course_id) : ''; ?><?php echo !empty($subject_id) ? '&subject=' . urlencode($subject_id) : ''; ?><?php echo !empty($year_id) ? '&year=' . urlencode($year_id) : ''; ?><?php echo !empty($file_type) ? '&fileType=' . urlencode($file_type) : ''; ?>">
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                         </li>
