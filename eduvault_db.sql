@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 18, 2025 at 04:22 PM
+-- Generation Time: Jun 18, 2025 at 06:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -100,13 +100,6 @@ CREATE TABLE `book_listings` (
   `subject_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `book_listings`
---
-
-INSERT INTO `book_listings` (`id`, `user_id`, `title`, `status`, `image_path`, `location`, `created_at`, `board_id`, `subject_id`) VALUES
-(1, 1, 'Test Upload', 'Available', 'http://localhost/eduvault/uploads/images/68524b2a09788.jpg', 'Ahmedabad', '2025-06-18 05:14:18', 1, 4);
-
 -- --------------------------------------------------------
 
 --
@@ -192,13 +185,6 @@ CREATE TABLE `digital_files` (
   `year_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `digital_files`
---
-
-INSERT INTO `digital_files` (`id`, `user_id`, `title`, `description`, `file_path`, `verified`, `file_type`, `file_size`, `upload_date`, `subject_id`, `course_id`, `year_id`) VALUES
-(1, 1, 'test upload', 'test', '../uploads/files/6852c545661b1.pdf', 1, 'pdf', '2.8', '2025-06-18 13:55:17', 9, 36, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -211,13 +197,6 @@ CREATE TABLE `downloads` (
   `user_id` int(11) DEFAULT NULL,
   `downloaded_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `downloads`
---
-
-INSERT INTO `downloads` (`id`, `file_id`, `user_id`, `downloaded_at`) VALUES
-(1, 1, 1, '2025-06-18 13:55:38');
 
 -- --------------------------------------------------------
 
@@ -233,13 +212,6 @@ CREATE TABLE `file_feedback` (
   `comment` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `file_feedback`
---
-
-INSERT INTO `file_feedback` (`id`, `file_id`, `user_id`, `rating`, `comment`, `created_at`) VALUES
-(1, 1, 1, 4, 'Test 2', '2025-06-18 14:00:52');
 
 -- --------------------------------------------------------
 
@@ -356,7 +328,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `avatar_path` varchar(255) NOT NULL DEFAULT 'default.png',
+  `avatar_path` varchar(255) NOT NULL DEFAULT 'uploads/avatars/default.png',
   `password` varchar(255) NOT NULL,
   `location` varchar(100) DEFAULT NULL,
   `phone` varchar(15) DEFAULT NULL,
@@ -366,14 +338,6 @@ CREATE TABLE `users` (
   `latitude` decimal(10,8) DEFAULT NULL,
   `longitude` decimal(11,8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `name`, `email`, `avatar_path`, `password`, `location`, `phone`, `status`, `created_at`, `last_active`, `latitude`, `longitude`) VALUES
-(1, 'Samkit_Jain', 'Jay@gmail.com', 'uploads/avatars/685250a33481e.png', '$2y$10$lG8nguVhBZKKAnpxOy5nV.8XNPGQRsSiUqopHTLoV1XpOWXFOfKaC', 'Vadodara', '7984651320', 'active', '2025-06-18 05:12:27', '2025-06-18 14:19:09', 23.09386970, 72.68163910),
-(2, 'krish', 'krish@mail.com', 'default.png', '$2y$10$0hu1mjsfWEhIBXfYVP/DQe9FjdWywrRXMQOJqh086uSX5HLL.JN2e', 'Ahmedabad', '1234567890', 'active', '2025-06-18 14:18:25', '2025-06-18 14:18:39', 23.09386970, 72.68163910);
 
 -- --------------------------------------------------------
 
@@ -540,7 +504,7 @@ ALTER TABLE `boards`
 -- AUTO_INCREMENT for table `book_listings`
 --
 ALTER TABLE `book_listings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -552,19 +516,19 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `digital_files`
 --
 ALTER TABLE `digital_files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `downloads`
 --
 ALTER TABLE `downloads`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `file_feedback`
 --
 ALTER TABLE `file_feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `mimes`
@@ -594,7 +558,7 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `years`
