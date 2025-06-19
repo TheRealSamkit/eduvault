@@ -10,7 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report']) && i
         $stmt->bind_param("isis", $user_id, $reported_content, $reported_id, $reason);
         $stmt->execute();
         $stmt->close();
-        $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
+        flash('success', 'Thank you for your report. We will review it shortly.');
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } else {
+        flash('error', 'Please provide a valid reason for reporting.');
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
     }

@@ -89,7 +89,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         mysqli_stmt_bind_param($stmt, "siisssii", $title, $subject, $board, $location, $status, $image_path, $book_id, $_SESSION['user_id']);
 
         if (mysqli_stmt_execute($stmt)) {
-            $_SESSION['success'] = "Book updated successfully!";
+            $_SESSION['toasts'] = [
+                'type' => 'success',
+                'message' => 'Book updated successfully!'
+            ];
             header("Location: edit.php?id=$book_id");
             exit();
         } else {
@@ -98,7 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (!empty($error)) {
-        $_SESSION['error'] = $error;
+        $_SESSION['toasts'] = [
+            'type' => 'error',
+            'message' => $error
+        ];
         header("Location: edit.php?id=$book_id");
         exit();
     }

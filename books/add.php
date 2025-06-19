@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 finfo_close($finfo);
 
                 if ($detected_mime !== $allowed_mime_types[$ext]) {
-                    $error = "Invalid image MIME type.";
+                    $error = "Invalid image type.";
                 } else {
                     $image_name = uniqid() . '.' . $ext;
                     $upload_dir = '../uploads/images/';
@@ -58,14 +58,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = mysqli_prepare($mysqli, $query);
         mysqli_stmt_bind_param($stmt, 'isisss', $user_id, $title, $subject, $board, $location, $image_path);
         if (mysqli_stmt_execute($stmt)) {
-            $_SESSION['success'] = "Book added successfully!";
+            $_SESSION['toasts'] = [
+                'type' => 'success',
+                'message' => 'Book added successfully!'
+            ];
         } else {
-            $_SESSION['error'] = "Failed to add book: " . mysqli_error($mysqli);
+            $error = "Failed to add book. Please try again later.";
         }
-        header("Location: add.php");
-        exit();
     } else {
-        $_SESSION['error'] = $error;
+        $_SESSION['toasts'][] = [
+            'type' => 'error',
+            'message' => $error
+        ];
         header("Location: add.php");
         exit();
     }

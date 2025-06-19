@@ -107,5 +107,31 @@ function getFilesWithStats($mysqli, $where = "1=1", $params = [], $param_types =
     $result = mysqli_stmt_get_result($stmt);
     return $result;
 }
+function toastBgClass($type)
+{
+    switch ($type) {
+        case 'success':
+            return 'success';
+        case 'error':
+            return 'danger';
+        case 'warning':
+            return 'warning';
+        case 'info':
+            return 'info';
+        default:
+            return 'secondary';
+    }
+}
 
+function flash(string $type, string $message): void
+{
+    if (!isset($_SESSION['toasts'])) {
+        $_SESSION['toasts'] = [];
+    }
+
+    $_SESSION['toasts'][] = [
+        'type' => $type, // 'success', 'error', 'info', 'warning'
+        'message' => $message
+    ];
+}
 ?>

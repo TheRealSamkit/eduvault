@@ -26,7 +26,7 @@ mysqli_stmt_execute($feedback_stmt);
 $feedback_result = mysqli_stmt_get_result($feedback_stmt);
 
 if (!$file) {
-    $_SESSION['error'] = "File not found.";
+    flash("error", 'File not found or does not exist.');
     header("Location: list.php");
     exit();
 }
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit
 
     // Validate rating
     if ($rating < 1 || $rating > 5) {
-        $_SESSION['error'] = "Invalid rating value.";
+        flash('error', 'Invalid rating value. Please select a rating between 1 and 5.');
         header("Location: view.php?id=$file_id");
         exit();
     }
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit
     mysqli_stmt_store_result($check_stmt);
 
     if (mysqli_stmt_num_rows($check_stmt) > 0) {
-        $_SESSION['error'] = "You have already submitted feedback for this file.";
+        flash('info', 'You have already submitted feedback for this file.');
         header("Location: view.php?id=$file_id");
         exit();
     }
@@ -63,9 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit
     mysqli_stmt_bind_param($insert_stmt, 'iiis', $file_id, $user_id, $rating, $comment);
 
     if (mysqli_stmt_execute($insert_stmt)) {
-        $_SESSION['success'] = "Thank you for your feedback!";
+        flash('success', 'Thank you for your feedback!');
     } else {
-        $_SESSION['error'] = "Failed to submit feedback. Please try again later.";
+        flash('error', 'Failed to submit feedback. Please try again later.');
     }
 
     mysqli_stmt_close($insert_stmt);
@@ -85,13 +85,13 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
         $report_stmt = mysqli_prepare($mysqli, $insert_report);
         mysqli_stmt_bind_param($report_stmt, 'iis', $reporter_id, $file_id, $report_reason);
         if (mysqli_stmt_execute($report_stmt)) {
-            $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
+            flash('success', 'Report submitted successfully. Thank you for helping us keep the platform safe.');
         } else {
-            $_SESSION['error'] = "Failed to submit report. Please try again later.";
+            flash('error', 'Failed to submit report. Please try again later.');
         }
         mysqli_stmt_close($report_stmt);
     } else {
-        $_SESSION['error'] = "Please provide a reason for your report.";
+        flash('error', 'Report reason cannot be empty.');
     }
     header("Location: view.php?id=$file_id#report");
     exit();

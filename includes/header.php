@@ -30,18 +30,25 @@ $currentPage = $_SERVER['PHP_SELF'];
         <div class="bg-dark-body d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 "
             style="z-index: 9999;" id="pageLoader">
             <div class="text-center">
-                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                <div class="spinner-border text-primary fs-2 mb-3 d-flex justify-content-center align-items-center"
+                    style="width: 5rem; height: 5rem;" role="status">
                     <span class="visually-hidden">Loading...</span>
+                    <div class="spinner-border text-success fs-2 d-flex justify-content-center align-items-center"
+                        style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                        <div class="spinner-border text-warning fs-6" style="width: 1rem; height: 1rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
-                <h4 class="text-primary">Loading EduVault...</h4>
             </div>
         </div>
-        <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')): ?>
 
+        <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')):
+            ?>
             <nav class="navbar navbar-expand-lg mb-4 bg-dark-body">
                 <div class="container">
-                    <a class="navbar-brand" href="/eduvault/index.php">
-                        <i class="fas fa-book-reader me-2"></i>EduVault
+                    <a class="navbar-brand" href="/eduvault/index.php">EduVault
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                         <i class="fas fa-bars color fs-2"></i>
@@ -50,14 +57,12 @@ $currentPage = $_SERVER['PHP_SELF'];
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
                                 <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'books') ? 'active' : ''; ?>"
-                                    href="/eduvault/books/list.php">
-                                    <i class="fas fa-book me-1"></i>Books
+                                    href="/eduvault/books/list.php">Books
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'files') ? 'active' : ''; ?>"
-                                    href="/eduvault/files/list.php">
-                                    <i class="fas fa-file-alt me-1"></i>Study Materials
+                                    href="/eduvault/files/list.php">Study Materials
                                 </a>
                             </li>
                             <?php if (isLoggedIn()): ?>
@@ -68,26 +73,23 @@ $currentPage = $_SERVER['PHP_SELF'];
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/eduvault/logout.php">
-                                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                    <a class="nav-link" href="/eduvault/logout.php">Logout
                                     </a>
                                 </li>
                             <?php else: ?>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/eduvault/login.php">
-                                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                                    <a class="nav-link" href="/eduvault/login.php">Login
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/eduvault/register.php">
-                                        <i class="fas fa-user-plus me-1"></i>Register
+                                    <a class="nav-link" href="/eduvault/register.php">Register
                                     </a>
                                 </li>
                             <?php endif; ?>
                             <li class="nav-item dropdown">
                                 <button class="btn nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                     aria-expanded="false">
-                                    <i class="fas fa-adjust"></i> Theme
+                                    <i class="fas fa-adjust"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><button type="button" class="dropdown-item d-flex align-items-center"
@@ -109,32 +111,21 @@ $currentPage = $_SERVER['PHP_SELF'];
                 </div>
             </nav>
         <?php endif; ?>
-        <div class="toast-container position-fixed top-0 end-0 p-3">
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="toast align-items-center text-white bg-danger border-0 show" role="alert" aria-live="assertive"
-                    aria-atomic="true" id="errorToast">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            <?= $_SESSION['error'];
-                            unset($_SESSION['error']); ?>
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                            aria-label="Close"></button>
-                    </div>
-                </div>
-            <?php endif; ?>
 
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive"
-                    aria-atomic="true" id="successToast">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            <?= $_SESSION['success'];
-                            unset($_SESSION['success']); ?>
+        <?php if (!empty($_SESSION['toasts'])): ?>
+            <div class="toast-container position-fixed top-0 end-0 p-3 show" style="z-index: 1055;">
+                <?php foreach ($_SESSION['toasts'] as $toast): ?>
+                    <div class="toast align-items-center text-white bg-<?= toastBgClass($toast['type']) ?> border-0 mb-2"
+                        role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <?= htmlspecialchars($toast['message']) ?>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                aria-label="Close"></button>
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                            aria-label="Close"></button>
                     </div>
-                </div>
-            <?php endif; ?>
-        </div>
+                <?php endforeach; ?>
+            </div>
+            <?php unset($_SESSION['toasts']); ?>
+        <?php endif; ?>

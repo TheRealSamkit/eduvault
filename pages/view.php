@@ -137,13 +137,13 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
         $report_stmt = mysqli_prepare($mysqli, $insert_report);
         mysqli_stmt_bind_param($report_stmt, 'iis', $reporter_id, $get_user_id, $report_reason);
         if (mysqli_stmt_execute($report_stmt)) {
-            $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
+            flash('success', "Report submitted successfully. Thank you for helping us keep the platform safe.");
         } else {
-            $_SESSION['error'] = "Failed to submit report. Please try again later.";
+            flash('error', "Failed to submit report. Please try again later.");
         }
         mysqli_stmt_close($report_stmt);
     } else {
-        $_SESSION['error'] = "Please provide a reason for your report.";
+        flash('error', "Report reason cannot be empty.");
     }
     header("Location: view.php?id=$get_user_id#report");
     exit();

@@ -26,7 +26,7 @@ $file = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
 if (!$file || !file_exists($file['file_path'])) {
-    $_SESSION['error'] = "File not found.";
+    flash('error', 'File not found or does not exist.');
     header("Location: list.php");
     exit();
 }
@@ -59,10 +59,7 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 // Output file content
-if (
-    readfile($file['file_path'])
-) {
-    $_SESSION['success'] = "File downloaded successfully.";
-    exit();
-}
+readfile($file['file_path']);
+flash('success', 'File downloaded successfully.');
+exit();
 ?>

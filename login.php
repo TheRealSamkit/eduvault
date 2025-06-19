@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Use prepared statement for login
     $stmt = mysqli_prepare($mysqli, "SELECT id, password FROM users WHERE email = ?");
     mysqli_stmt_bind_param($stmt, 's', $email);
     mysqli_stmt_execute($stmt);
@@ -23,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($user = mysqli_fetch_assoc($result)) {
         if (password_verify($password, $user['password'])) {
-            // Use prepared statement for update
             $update_stmt = mysqli_prepare($mysqli, "UPDATE users SET last_active = current_timestamp() WHERE id = ?");
             mysqli_stmt_bind_param($update_stmt, 'i', $user['id']);
             mysqli_stmt_execute($update_stmt);
