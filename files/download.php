@@ -4,12 +4,12 @@ require_once '../includes/session.php';
 require_once '../includes/functions.php';
 
 if (!isLoggedIn()) {
-    header("Location: ../login.php");
+    redirect("../login.php");
     exit();
 }
 
 if (!isset($_GET['id'])) {
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 
@@ -27,7 +27,7 @@ mysqli_stmt_close($stmt);
 
 if (!$file || !file_exists($file['file_path'])) {
     flash('error', 'File not found or does not exist.');
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 

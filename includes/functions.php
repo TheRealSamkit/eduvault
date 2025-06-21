@@ -60,7 +60,7 @@ function getAllBoards($mysqli)
     return $result;
 }
 
-function getFileWithStats($mysqli, $file_id)
+function getFileWithStats($mysqli, $file_id): array|bool|null
 {
     $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id, 
         (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
@@ -78,7 +78,7 @@ function getFileWithStats($mysqli, $file_id)
     return $file;
 }
 
-function getFilesWithStats($mysqli, $where = "1=1", $params = [], $param_types = "", $offset = 0, $limit = 12, $order = "ORDER BY f.upload_date DESC")
+function getFilesWithStats($mysqli, $where = "1=1", $params = [], $param_types = "", $offset = 0, $limit = 12, $order = "ORDER BY f.upload_date DESC"): bool|mysqli_result
 {
     $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id,
         (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND status = 'resolved') as report_count,
@@ -134,4 +134,10 @@ function flash(string $type, string $message): void
         'message' => $message
     ];
 }
+function redirect(string $url): void
+{
+    header("Location: $url");
+    exit();
+}
+
 ?>

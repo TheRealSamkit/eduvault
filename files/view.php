@@ -4,7 +4,7 @@ require_once '../includes/session.php';
 require_once '../includes/functions.php';
 
 if (!isset($_GET['id'])) {
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 
@@ -27,7 +27,7 @@ $feedback_result = mysqli_stmt_get_result($feedback_stmt);
 
 if (!$file) {
     flash("error", 'File not found or does not exist.');
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit
     // Validate rating
     if ($rating < 1 || $rating > 5) {
         flash('error', 'Invalid rating value. Please select a rating between 1 and 5.');
-        header("Location: view.php?id=$file_id");
+        redirect("view.php?id=$file_id");
         exit();
     }
 
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit
 
     if (mysqli_stmt_num_rows($check_stmt) > 0) {
         flash('info', 'You have already submitted feedback for this file.');
-        header("Location: view.php?id=$file_id");
+        redirect("view.php?id=$file_id");
         exit();
     }
 
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit
     mysqli_stmt_close($check_stmt);
 
     // Redirect to refresh the page
-    header("Location: view.php?id=$file_id");
+    redirect("view.php?id=$file_id");
     exit();
 }
 
@@ -93,7 +93,7 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
     } else {
         flash('error', 'Report reason cannot be empty.');
     }
-    header("Location: view.php?id=$file_id#report");
+    redirect("view.php?id=$file_id#report");
     exit();
 }
 require_once '../includes/header.php';

@@ -29,7 +29,7 @@ if (isset($_GET['id'])) {
     $book = mysqli_fetch_assoc($result);
 
     if (!$book) {
-        header("Location: ../dashboard/my_books.php");
+        redirect("../dashboard/my_books.php");
         exit();
     }
 }
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'type' => 'success',
                 'message' => 'Book updated successfully!'
             ];
-            header("Location: edit.php?id=$book_id");
+            redirect("edit.php?id=$book_id");
             exit();
         } else {
             $error = "Failed to update book: " . mysqli_error($mysqli);
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'type' => 'error',
             'message' => $error
         ];
-        header("Location: edit.php?id=$book_id");
+        redirect("edit.php?id=$book_id");
         exit();
     }
 }

@@ -4,8 +4,7 @@ session_start();
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: index.php");
-    exit();
+    redirect('index.php');
 }
 // Get recent activities
 $activities = mysqli_query($mysqli, "SELECT al.*, u.name as user_name, au.username as admin_name 

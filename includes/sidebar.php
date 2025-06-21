@@ -30,19 +30,3 @@
     </nav>
 </div>
 <div class="sidebar-backdrop d-lg-none" id="sidebarBackdrop" style="display:none;"></div>
-
-<script>
-    const sidebar = document.getElementById('dashboardSidebar');
-    const toggleBtn = document.getElementById('sidebarToggle');
-    const backdrop = document.getElementById('sidebarBackdrop');
-    if (toggleBtn && sidebar && backdrop) {
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('show');
-            backdrop.style.display = sidebar.classList.contains('show') ? 'block' : 'none';
-        });
-        backdrop.addEventListener('click', function () {
-            sidebar.classList.remove('show');
-            backdrop.style.display = 'none';
-        });
-    }
-</script>

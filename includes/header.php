@@ -121,8 +121,8 @@ $currentPage = $_SERVER['PHP_SELF'];
                             <i class="fas fa-bars"></i>
                         </button>
                     <?php endif; ?>
-                    <a class="navbar-brand d-none d-sm-block fw-bold" href="/eduvault/index.php">EduVault</a>
-                    <a class="navbar-brand d-block d-sm-none fw-bold" href="/eduvault/index.php">EV</a>
+                    <a class="navbar-brand d-none d-sm-block fw-bold" href="/eduvault/dashboard/dashboard.php">EduVault</a>
+                    <a class="navbar-brand d-block d-sm-none fw-bold" href="/eduvault/dashboard/dashboard.php">EV</a>
                     <div class="d-flex align-items-center ms-auto gap-2">
                         <button class="btn d-md-none fa-color" type="button" data-bs-toggle="collapse"
                             data-bs-target="#mobileSearchBar" aria-controls="mobileSearchBar" aria-expanded="false"
@@ -132,7 +132,7 @@ $currentPage = $_SERVER['PHP_SELF'];
                         <form class="d-none d-md-flex" method="GET" action="/eduvault/files/list.php">
                             <input type="text" name="search" class="form-control input-dark text-white border-0 me-2"
                                 style="min-width:300px; max-width:500px;" placeholder="Search...">
-                            <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+                            <button class="btn fa-color" type="submit"><i class="fas fa-search"></i></button>
                         </form>
                         <button class="btn position-relative fa-color" title="Notifications">
                             <i class="fas fa-bell fa-lg"></i>

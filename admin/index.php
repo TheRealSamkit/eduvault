@@ -3,7 +3,7 @@ require_once '../includes/db_connect.php';
 session_start();
 
 if (isset($_SESSION['admin_id'])) {
-    header("Location: dashboard.php");
+    redirect("dashboard.php");
     exit();
 }
 
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             mysqli_stmt_execute($update_stmt);
             mysqli_stmt_close($update_stmt);
 
-            header("Location: dashboard.php");
+            redirect("dashboard.php");
             exit();
         }
     }

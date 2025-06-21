@@ -11,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report']) && i
         $stmt->execute();
         $stmt->close();
         flash('success', 'Thank you for your report. We will review it shortly.');
-        header("Location: " . $_SERVER['PHP_SELF']);
+        redirect("" . $_SERVER['PHP_SELF']);
         exit();
     } else {
         flash('error', 'Please provide a valid reason for reporting.');
-        header("Location: " . $_SERVER['PHP_SELF']);
+        redirect("" . $_SERVER['PHP_SELF']);
         exit();
     }
 }

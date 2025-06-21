@@ -5,12 +5,12 @@ require_once '../modals/editProfileModal.php';
 
 require_once '../modals/reportmodal.php';
 if (!isLoggedIn()) {
-    header("Location: ../login.php");
+    redirect("../login.php");
     exit();
 }
 
 if (!isset($_GET["id"])) {
-    header("Location:" . $_SERVER['HTTP_REFERER']);
+    redirect("" . $_SERVER['HTTP_REFERER']);
     exit();
 }
 
@@ -67,7 +67,7 @@ if (isset($_POST['save_profile']) && $_SESSION['user_id'] === $get_user_id) {
     mysqli_stmt_bind_param($stmt, $types, ...$params);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
-    header("Location: view.php?id=$get_user_id&profile_updated=1");
+    redirect("view.php?id=$get_user_id&profile_updated=1");
     exit();
 }
 
@@ -145,7 +145,7 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
     } else {
         flash('error', "Report reason cannot be empty.");
     }
-    header("Location: view.php?id=$get_user_id#report");
+    redirect("view.php?id=$get_user_id#report");
     exit();
 }
 

@@ -3,7 +3,7 @@ require_once '../includes/db_connect.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: index.php");
+    redirect("index.php");
     exit();
 }
 
@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_mime'])) {
     $mime_type = mysqli_real_escape_string($mysqli, $_POST['mime_types']);
     $extension = mysqli_real_escape_string($mysqli, $_POST['extension']);
     mysqli_query($mysqli, "INSERT INTO mimes (mime_types, extension) VALUES ('$mime_type', '$extension')");
-    header("Location: settings.php?success=1");
+    redirect("settings.php?success=1");
     exit();
 }
 

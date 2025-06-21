@@ -1,15 +1,11 @@
 <?php
 require_once 'includes/db_connect.php';
-include 'includes/header.php';
-
-
-
+require_once 'includes/functions.php';
 $error = '';
 if (isset($_GET['redirect'])) {
     $_SESSION['referred'] = mysqli_real_escape_string($mysqli, $_GET['redirect']);
 } elseif (isset($_SESSION['user_id'])) {
-    header('Location: dashboard/dashboard.php');
-    exit();
+    redirect('dashboard/dashboard.php');
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
@@ -35,17 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     : $_SESSION['referred'];
 
                 unset($_SESSION['referred']);
-
-                header("Location: $redirect");
-                exit();
+                redirect($redirect);
             } else {
-                header("Location: dashboard/dashboard.php");
-                exit();
+                redirect('dashboard/dashboard.php');
             }
         }
     }
     $error = "Invalid email or password";
 }
+include 'includes/header.php';
 ?>
 <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center px-2">
     <div class="w-100" style="max-width: 400px;">

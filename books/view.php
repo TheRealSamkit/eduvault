@@ -3,7 +3,7 @@ require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 
 if (!isset($_GET['id'])) {
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 
@@ -19,7 +19,7 @@ $result = mysqli_query($mysqli, $query);
 $book = mysqli_fetch_assoc($result);
 
 if (!$book) {
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 if (isset($_POST['submit_report']) && isLoggedIn()) {
@@ -46,7 +46,7 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
             'message' => "Report reason cannot be empty."
         ];
     }
-    header("Location: view.php?id=$book_id");
+    redirect("view.php?id=$book_id");
     exit();
 }
 

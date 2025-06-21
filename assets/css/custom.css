@@ -1,5 +1,5 @@
 .dashboard-sidebar {
-	min-height: 150vh;
+	min-height: 120vh;
 	transition: all 0.3s;
 	z-index: 1040;
 	width: 250px;
@@ -34,5 +34,11 @@
 		height: 100vh;
 		background: rgba(0, 0, 0, 0.3);
 		z-index: 1039;
+	}
+}
+
+@media (max-width: 991.98px) {
+	.main-content {
+		margin-left: 0;
 	}
 }

@@ -1,23 +1,26 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
+require_once '../includes/functions.php';
 
 requireLogin();
 
 $user_id = $_SESSION['user_id'];
-
 $sidebar = true;
-// Handle profile update
+
 if (isset($_POST['save_profile'])) {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
     $location = trim($_POST['location']);
     $avatar_path = null;
-    $update_password = false;
+
+    $result = mysqli_query($mysqli, "SELECT avatar_path FROM users WHERE id = $user_id");
+    $row = mysqli_fetch_assoc($result);
+    $old_avatar = $row['avatar_path'] ?? 'uploads/avatars/default.png';
 
     // Handle avatar upload
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
         $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png'];
         if (in_array($ext, $allowed)) {
@@ -25,28 +28,49 @@ if (isset($_POST['save_profile'])) {
             $upload_dir = '../uploads/avatars/';
             if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_dir . $avatar_name)) {
                 $avatar_path = 'uploads/avatars/' . $avatar_name;
+                if ($old_avatar !== 'uploads/avatars/default.png' && file_exists('../' . $old_avatar)) {
+                    unlink('../' . $old_avatar);
+                }
+            } else {
+                flash('error', 'Failed to upload avatar. Please try again.');
+                redirect("dashboard.php?profile_updated=0");
+                exit;
             }
+        } else {
+            flash('error', 'Invalid file type for avatar. Only JPG, JPEG, PNG allowed.');
+            redirect("dashboard.php?profile_updated=0");
+            exit;
         }
     }
 
-    // Build update query
     $query = "UPDATE users SET name=?, email=?, phone=?, location=?";
     $params = [$name, $email, $phone, $location];
     $types = "ssss";
+
     if ($avatar_path) {
         $query .= ", avatar_path=?";
         $params[] = $avatar_path;
         $types .= "s";
     }
+
     $query .= " WHERE id=?";
     $params[] = $user_id;
     $types .= "i";
 
     $stmt = mysqli_prepare($mysqli, $query);
-    mysqli_stmt_bind_param($stmt, $types, ...$params);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-    header("Location: dashboard.php?profile_updated=1");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+        if (mysqli_stmt_execute($stmt)) {
+            flash('success', 'Profile updated successfully.');
+        } else {
+            flash('error', 'Failed to update profile. Please try again.');
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        flash('error', 'Database error. Please try again later.');
+    }
+
+    redirect("dashboard.php?profile_updated=1");
     exit();
 }
 
@@ -81,18 +105,10 @@ $reports_result = mysqli_query($mysqli, $reports_query);
 require_once '../includes/header.php';
 require_once '../modals/editProfileModal.php';
 ?>
-
-<style>
-    @media (max-width: 991.98px) {
-        .main-content {
-            margin-left: 0;
-        }
-    }
-</style>
 <div class="d-flex align-items-start">
     <?php include '../includes/sidebar.php'; ?>
     <div class="flex-grow-1 main-content">
-        <div class="container-fluid my-4">
+        <div class="container-fluid">
             <div class="card shadow-sm mb-4">
                 <div class="card-body d-flex align-items-center gap-3">
                     <img src="<?php echo htmlspecialchars($_SESSION['avatar']); ?>"
