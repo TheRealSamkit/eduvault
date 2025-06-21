@@ -3,8 +3,12 @@ require_once 'includes/db_connect.php';
 $additionalStyles[] = 'index.css';
 $additionalScripts[] = 'index.js';
 require_once 'includes/session.php';
-include 'includes/header.php';
 require_once 'includes/functions.php';
+if (isLoggedIn()) {
+    header("Location: dashboard/dashboard.php");
+    exit();
+}
+include 'includes/header.php';
 
 $downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads"))['count'];
 $books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];

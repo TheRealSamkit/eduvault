@@ -131,7 +131,7 @@ require_once '../includes/admin_header.php';
                                 <h4 class="mb-3">Display Settings</h4>
                                 <div class="mb-3">
                                     <label class="form-label">Items Per Page</label>
-                                    <select class="form-select bg-dark-body" name="settings[items_per_page]">
+                                    <select class="form-select input-dark" name="settings[items_per_page]">
                                         <?php
                                         $current = (int) $settings_data['items_per_page']['setting_value'];
                                         foreach ([10, 12, 15, 20, 25, 30] as $value) {

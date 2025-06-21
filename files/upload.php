@@ -133,7 +133,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <select name="subject_id" class="form-select bg-dark-body" required>
+                        <select name="subject_id" class="form-select input-dark" required>
                             <option value="">Select Subject</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
                                 <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></option>
@@ -143,7 +143,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Course</label>
-                        <select name="course_id" class="form-select bg-dark-body" required>
+                        <select name="course_id" class="form-select input-dark" required>
                             <option value="">Select Course</option>
                             <?php while ($c = mysqli_fetch_assoc($courses)): ?>
                                 <option value="<?php echo $c['id']; ?>"><?php echo htmlspecialchars($c['name']); ?></option>
@@ -153,7 +153,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Year</label>
-                        <select name="year_id" class="form-select bg-dark-body" required>
+                        <select name="year_id" class="form-select input-dark" required>
                             <option value="">Select Year</option>
                             <?php while ($y = mysqli_fetch_assoc($years)): ?>
                                 <option value="<?php echo $y['id']; ?>"><?php echo htmlspecialchars($y['year']); ?></option>

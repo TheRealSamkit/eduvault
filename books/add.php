@@ -93,7 +93,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <select name="subject" class="form-select bg-dark-body" required>
+                        <select name="subject" class="form-select input-dark" required>
                             <option value="">Select Subject</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
                                 <option value="<?php echo htmlspecialchars($s['id']); ?>">
@@ -105,7 +105,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Board</label>
-                        <select name="board" class="form-select bg-dark-body" required>
+                        <select name="board" class="form-select input-dark" required>
                             <option value="">Select Board</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
                                 <option value="<?php echo htmlspecialchars($b['id']); ?>">

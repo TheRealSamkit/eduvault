@@ -80,10 +80,10 @@ require_once '../modals/reportmodal.php';
             <div class="card shadow-sm">
                 <div class="card-body">
                     <form method="GET" class="row g-3">
-                        <div class="col-md-3"><input type="text" name="search" class="form-control bg-dark-body"
+                        <div class="col-md-3"><input type="text" name="search" class="form-control input-dark"
                                 placeholder="Search files..." value="<?php echo htmlspecialchars($search); ?>"></div>
                         <div class="col-md-2">
-                            <select name="course" class="form-select bg-dark-body">
+                            <select name="course" class="form-select input-dark">
                                 <option value="">All Courses</option>
                                 <?php while ($c = mysqli_fetch_assoc($courses)): ?>
                                     <option value="<?php echo $c['id']; ?>" <?php echo $course_id == $c['id'] ? 'selected' : ''; ?>>
@@ -93,7 +93,7 @@ require_once '../modals/reportmodal.php';
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="fileType" class="form-select bg-dark-body">
+                            <select name="fileType" class="form-select input-dark">
                                 <option value="">All File Types</option>
                                 <?php while ($f = mysqli_fetch_assoc($file_types)): ?>
                                     <option value="<?php echo htmlspecialchars($f['file_type']); ?>" <?php echo $file_type == $f['file_type'] ? 'selected' : ''; ?>>
@@ -103,7 +103,7 @@ require_once '../modals/reportmodal.php';
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="subject" class="form-select bg-dark-body">
+                            <select name="subject" class="form-select input-dark">
                                 <option value="">All Subjects</option>
                                 <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
                                     <option value="<?php echo $s['id']; ?>" <?php echo $subject_id == $s['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($s['name']); ?></option>
@@ -111,7 +111,7 @@ require_once '../modals/reportmodal.php';
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="year" class="form-select bg-dark-body">
+                            <select name="year" class="form-select input-dark">
                                 <option value="">All Years</option>
                                 <?php while ($y = mysqli_fetch_assoc($years)): ?>
                                     <option value="<?php echo $y['id']; ?>" <?php echo $year_id == $y['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($y['year']); ?></option>
@@ -202,7 +202,8 @@ require_once '../modals/reportmodal.php';
                 </div>
             <?php endwhile; ?>
         <?php else: ?>
-            <div class="col-12 text-center py-5"><i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <div class="col-12 text-center py-5">
+                <img src="/eduvault/assets/svg/no_files.svg" alt="" class="img-fluid mb-3" style="max-width: 200px;">
                 <p class="lead">No files found matching your criteria.</p>
             </div>
         <?php endif; ?>

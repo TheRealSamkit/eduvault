@@ -159,7 +159,7 @@ if (isset($additionalScripts)) {
 }
 ?>
 <script src="/eduvault/assets/js/main.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/eduvault/assets/js/bootstrap.js"></script>
 
 </body>
 
