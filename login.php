@@ -2,6 +2,7 @@
 require_once 'includes/db_connect.php';
 require_once 'includes/functions.php';
 $error = '';
+session_start();
 if (isset($_GET['redirect'])) {
     $_SESSION['referred'] = mysqli_real_escape_string($mysqli, $_GET['redirect']);
 } elseif (isset($_SESSION['user_id'])) {
@@ -39,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     $error = "Invalid email or password";
 }
+session_write_close();
 include 'includes/header.php';
 ?>
 <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center px-2">

@@ -60,6 +60,30 @@ function getAllBoards($mysqli)
     return $result;
 }
 
+function getAllYears($mysqli)
+{
+    $result = mysqli_query($mysqli, "SELECT id, year FROM years ORDER BY year DESC");
+    return $result;
+}
+
+function getAllCourses($mysqli)
+{
+    $result = mysqli_query($mysqli, "SELECT id, name as course FROM courses WHERE name != '' ORDER BY name ASC");
+    return $result;
+}
+
+function getCount($mysqli, $table, $alias, $id)
+{
+    $query = "SELECT COUNT(*) as $alias FROM $table WHERE user_id = ?";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $count = mysqli_fetch_assoc($result)[$alias];
+    mysqli_stmt_close($stmt);
+    return $count;
+}
+
 function getFileWithStats($mysqli, $file_id): array|bool|null
 {
     $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id, 

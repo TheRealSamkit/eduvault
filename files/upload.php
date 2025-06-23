@@ -6,14 +6,13 @@ require_once '../includes/functions.php';
 $sidebar = true;
 requireLogin();
 
-$max_file_size = 10 * 1024 * 1024; // 10MB
+$max_file_size = 10 * 1024 * 1024;
 $allowed_mimes = getAllMimes($mysqli);
 $allowed_ext = array_keys($allowed_mimes);
 $allowed_mime_types = $allowed_mimes;
 
 $error = '';
 
-// Fetch normalized lists
 $subjects = mysqli_query($mysqli, "SELECT id, name FROM subjects ORDER BY name ASC");
 $courses = mysqli_query($mysqli, "SELECT id, name FROM courses ORDER BY name ASC");
 $years = mysqli_query($mysqli, "SELECT id, year FROM years ORDER BY year DESC");
@@ -26,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $course_id = (int) $_POST['course_id'];
     $year_id = (int) $_POST['year_id'];
 
-    // Handle file upload
     if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
         $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
 
@@ -35,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } elseif ($_FILES['file']['size'] > $max_file_size) {
             $error = "File size exceeds 10MB limit";
         } else {
-            // MIME type check
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $detected_mime = finfo_file($finfo, $_FILES['file']['tmp_name']);
             finfo_close($finfo);

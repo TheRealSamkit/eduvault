@@ -23,11 +23,10 @@ $year_id = isset($_GET['year']) ? (int) $_GET['year'] : '';
 $file_type = isset($_GET['fileType']) ? trim($_GET['fileType']) : '';
 
 if (!empty($search)) {
-    $where_conditions[] = "(f.title LIKE ? OR f.description LIKE ? OR f.subject LIKE ?)";
+    $where_conditions[] = "(f.title LIKE ? OR f.description LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
-    $params[] = "%$search%";
-    $param_types .= "sss";
+    $param_types .= "ss";
 }
 if (!empty($course_id)) {
     $where_conditions[] = "f.course_id = ?";
@@ -66,7 +65,7 @@ $total_pages = ceil($total_items / $items_per_page);
 $result = getFilesWithStats($mysqli, $where_clause, $params, $param_types, $offset, $items_per_page);
 
 $file_types = mysqli_query($mysqli, "SELECT DISTINCT file_type FROM digital_files WHERE file_type != ''");
-$subjects = mysqli_query($mysqli, "SELECT id, name FROM subjects ORDER BY name ASC");
+$subjects = getAllSubjects($mysqli);
 $courses = mysqli_query($mysqli, "SELECT id, name FROM courses ORDER BY name ASC");
 $years = mysqli_query($mysqli, "SELECT id, year FROM years ORDER BY year DESC");
 
@@ -106,7 +105,7 @@ require_once '../modals/reportmodal.php';
                             <select name="subject" class="form-select input-dark">
                                 <option value="">All Subjects</option>
                                 <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                    <option value="<?php echo $s['id']; ?>" <?php echo $subject_id == $s['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($s['name']); ?></option>
+                                    <option value="<?php echo $s['id']; ?>" <?php echo $subject_id == $s['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($s['subject']); ?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>

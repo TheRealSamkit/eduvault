@@ -8,82 +8,16 @@ requireLogin();
 $user_id = $_SESSION['user_id'];
 $sidebar = true;
 
-if (isset($_POST['save_profile'])) {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $phone = trim($_POST['phone']);
-    $location = trim($_POST['location']);
-    $avatar_path = null;
-
-    $result = mysqli_query($mysqli, "SELECT avatar_path FROM users WHERE id = $user_id");
-    $row = mysqli_fetch_assoc($result);
-    $old_avatar = $row['avatar_path'] ?? 'uploads/avatars/default.png';
-
-    // Handle avatar upload
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
-        $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg', 'jpeg', 'png'];
-        if (in_array($ext, $allowed)) {
-            $avatar_name = uniqid() . '.' . $ext;
-            $upload_dir = '../uploads/avatars/';
-            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_dir . $avatar_name)) {
-                $avatar_path = 'uploads/avatars/' . $avatar_name;
-                if ($old_avatar !== 'uploads/avatars/default.png' && file_exists('../' . $old_avatar)) {
-                    unlink('../' . $old_avatar);
-                }
-            } else {
-                flash('error', 'Failed to upload avatar. Please try again.');
-                redirect("dashboard.php?profile_updated=0");
-                exit;
-            }
-        } else {
-            flash('error', 'Invalid file type for avatar. Only JPG, JPEG, PNG allowed.');
-            redirect("dashboard.php?profile_updated=0");
-            exit;
-        }
-    }
-
-    $query = "UPDATE users SET name=?, email=?, phone=?, location=?";
-    $params = [$name, $email, $phone, $location];
-    $types = "ssss";
-
-    if ($avatar_path) {
-        $query .= ", avatar_path=?";
-        $params[] = $avatar_path;
-        $types .= "s";
-    }
-
-    $query .= " WHERE id=?";
-    $params[] = $user_id;
-    $types .= "i";
-
-    $stmt = mysqli_prepare($mysqli, $query);
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-        if (mysqli_stmt_execute($stmt)) {
-            flash('success', 'Profile updated successfully.');
-        } else {
-            flash('error', 'Failed to update profile. Please try again.');
-        }
-        mysqli_stmt_close($stmt);
-    } else {
-        flash('error', 'Database error. Please try again later.');
-    }
-
-    redirect("dashboard.php?profile_updated=1");
-    exit();
-}
-
 // User info + avatar
 $user_query = "SELECT * FROM users WHERE id = $user_id";
 $user_result = mysqli_query($mysqli, $user_query);
 $user = mysqli_fetch_assoc($user_result);
 $_SESSION['avatar'] = !empty($user['avatar_path']) ? "../" . $user['avatar_path'] : '../uploads/avatars/default.png';
 
-// Metrics
-$books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE user_id = $user_id"))['count'];
-$files_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM digital_files WHERE user_id = $user_id"))['count'];
-$downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads WHERE file_id IN (SELECT id FROM digital_files WHERE user_id = $user_id)"))['count'];
+
+$books_count = getCount($mysqli, 'book_listings', 'book_count', $user_id);
+$files_count = getCount($mysqli, 'digital_files', 'file_count', $user_id);
+$downloads_count = getCount($mysqli, 'downloads', 'downloads_count', $user_id) ?? 0;
 $avg_feedback = round(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT AVG(rating) as avg FROM file_feedback WHERE file_id IN (SELECT id FROM digital_files WHERE user_id = $user_id)"))['avg'] ?? 0, 1);
 
 // Recent uploads

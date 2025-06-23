@@ -146,7 +146,8 @@ $currentPage = $_SERVER['PHP_SELF'];
                                     width="36" height="36">
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                                <li><a class="dropdown-item" href="/eduvault/dashboard/dashboard.php">Profile</a></li>
+                                <li><a class="dropdown-item"
+                                        href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>">Profile</a></li>
                                 <li><button type="button" class="dropdown-item d-flex align-items-center"
                                         data-theme-value="light">Light
                                     </button></li>
