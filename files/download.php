@@ -4,12 +4,12 @@ require_once '../includes/session.php';
 require_once '../includes/functions.php';
 
 if (!isLoggedIn()) {
-    header("Location: ../login.php");
+    redirect("../login.php");
     exit();
 }
 
 if (!isset($_GET['id'])) {
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 
@@ -26,8 +26,8 @@ $file = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
 if (!$file || !file_exists($file['file_path'])) {
-    $_SESSION['error'] = "File not found.";
-    header("Location: list.php");
+    flash('error', 'File not found or does not exist.');
+    redirect("list.php");
     exit();
 }
 
@@ -59,10 +59,7 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 // Output file content
-if (
-    readfile($file['file_path'])
-) {
-    $_SESSION['success'] = "File downloaded successfully.";
-    exit();
-}
+readfile($file['file_path']);
+flash('success', 'File downloaded successfully.');
+exit();
 ?>

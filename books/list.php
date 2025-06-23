@@ -92,11 +92,11 @@ require_once '../modals/reportmodal.php';
             <div class="card-body">
                 <form method="GET" class="row g-3" >
                     <div class="col-md-4">
-                        <input type="text" name="search" class="form-control bg-dark-body" 
+                        <input type="text" name="search" class="form-control input-dark" 
                                placeholder="Search books..." value="<?php echo htmlspecialchars($search); ?>">
                     </div>
                     <div class="col-md-3">
-                        <select name="board" class="form-select bg-dark-body">
+                        <select name="board" class="form-select input-dark">
                             <option value="">All Boards</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
                                 <option value="<?php echo htmlspecialchars($b['id']); ?>" 
@@ -107,7 +107,7 @@ require_once '../modals/reportmodal.php';
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="subject" class="form-select bg-dark-body">
+                        <select name="subject" class="form-select input-dark">
                             <option value="">All Subjects</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
                                 <option value="<?php echo htmlspecialchars($s['id']); ?>"

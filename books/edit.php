@@ -29,7 +29,7 @@ if (isset($_GET['id'])) {
     $book = mysqli_fetch_assoc($result);
 
     if (!$book) {
-        header("Location: ../dashboard/my_books.php");
+        redirect("../dashboard/my_books.php");
         exit();
     }
 }
@@ -89,8 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         mysqli_stmt_bind_param($stmt, "siisssii", $title, $subject, $board, $location, $status, $image_path, $book_id, $_SESSION['user_id']);
 
         if (mysqli_stmt_execute($stmt)) {
-            $_SESSION['success'] = "Book updated successfully!";
-            header("Location: edit.php?id=$book_id");
+            $_SESSION['toasts'] = [
+                'type' => 'success',
+                'message' => 'Book updated successfully!'
+            ];
+            redirect("edit.php?id=$book_id");
             exit();
         } else {
             $error = "Failed to update book: " . mysqli_error($mysqli);
@@ -98,8 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (!empty($error)) {
-        $_SESSION['error'] = $error;
-        header("Location: edit.php?id=$book_id");
+        $_SESSION['toasts'] = [
+            'type' => 'error',
+            'message' => $error
+        ];
+        redirect("edit.php?id=$book_id");
         exit();
     }
 }
@@ -123,7 +129,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <select name="subject" class="form-select bg-dark-body" required>
+                        <select name="subject" class="form-select input-dark" required>
                             <option value="">Select Subject</option>
                             <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
                                     <option value="<?php echo htmlspecialchars($s['id']); ?>" 
@@ -136,7 +142,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Board</label>
-                        <select name="board" class="form-select bg-dark-body" required>
+                        <select name="board" class="form-select input-dark" required>
                             <option value="">Select Board</option>
                             <?php while ($b = mysqli_fetch_assoc($boards)): ?>
                                     <option value="<?php echo htmlspecialchars($b['id']); ?>" 
@@ -149,7 +155,7 @@ require_once '../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select bg-dark-body" required>
+                        <select name="status" class="form-select input-dark" required>
                             <option value="Available" <?php echo $book['status'] == 'Available' ? 'selected' : ''; ?>>
                                 Available</option>
                             <option value="Donated" <?php echo $book['status'] == 'Donated' ? 'selected' : ''; ?>>Donated

@@ -3,15 +3,17 @@ require_once 'includes/db_connect.php';
 $additionalStyles[] = 'index.css';
 $additionalScripts[] = 'index.js';
 require_once 'includes/session.php';
-include 'includes/header.php';
 require_once 'includes/functions.php';
+if (isLoggedIn()) {
+    redirect('dashboard/dashboard.php');
+}
+include 'includes/header.php';
 
 $downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads"))['count'];
 $books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];
 $files_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM digital_files"))['count'];
 $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM users where last_active >= now() - Interval 1 hour"))['count'];
 
-// Get recent books and files for featured section
 $recent_books = mysqli_query($mysqli, "SELECT b.*,u.name as author FROM book_listings b join users u on b.user_id=u.id WHERE b.status = 'Available' ORDER BY created_at DESC LIMIT 6");
 $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY upload_date DESC LIMIT 6");
 ?>

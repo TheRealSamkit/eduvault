@@ -4,7 +4,7 @@ require_once '../includes/functions.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: index.php");
+    redirect("index.php");
     exit();
 }
 
@@ -21,15 +21,15 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
             unlink($file_data['file_path']);
         }
         mysqli_query($mysqli, "DELETE FROM digital_files WHERE id = $file_id");
-        header("Location: " . $_SERVER['PHP_SELF']);
+        redirect("" . $_SERVER['PHP_SELF']);
         exit();
     } elseif ($action === 'verify') {
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 1 WHERE id = $file_id");
-        header("Location: " . $_SERVER['PHP_SELF']);
+        redirect("" . $_SERVER['PHP_SELF']);
         exit();
     } elseif ($action === 'ban') {
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 0 WHERE id = $file_id");
-        header("Location: " . $_SERVER['PHP_SELF']);
+        redirect("" . $_SERVER['PHP_SELF']);
         exit();
     }
 

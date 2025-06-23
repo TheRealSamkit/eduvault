@@ -60,7 +60,31 @@ function getAllBoards($mysqli)
     return $result;
 }
 
-function getFileWithStats($mysqli, $file_id)
+function getAllYears($mysqli)
+{
+    $result = mysqli_query($mysqli, "SELECT id, year FROM years ORDER BY year DESC");
+    return $result;
+}
+
+function getAllCourses($mysqli)
+{
+    $result = mysqli_query($mysqli, "SELECT id, name as course FROM courses WHERE name != '' ORDER BY name ASC");
+    return $result;
+}
+
+function getCount($mysqli, $table, $alias, $id)
+{
+    $query = "SELECT COUNT(*) as $alias FROM $table WHERE user_id = ?";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $count = mysqli_fetch_assoc($result)[$alias];
+    mysqli_stmt_close($stmt);
+    return $count;
+}
+
+function getFileWithStats($mysqli, $file_id): array|bool|null
 {
     $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id, 
         (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count,
@@ -78,7 +102,7 @@ function getFileWithStats($mysqli, $file_id)
     return $file;
 }
 
-function getFilesWithStats($mysqli, $where = "1=1", $params = [], $param_types = "", $offset = 0, $limit = 12, $order = "ORDER BY f.upload_date DESC")
+function getFilesWithStats($mysqli, $where = "1=1", $params = [], $param_types = "", $offset = 0, $limit = 12, $order = "ORDER BY f.upload_date DESC"): bool|mysqli_result
 {
     $query = "SELECT f.*, u.name as uploader_name, u.id as uploader_id,
         (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id AND status = 'resolved') as report_count,
@@ -106,6 +130,38 @@ function getFilesWithStats($mysqli, $where = "1=1", $params = [], $param_types =
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
     return $result;
+}
+function toastBgClass($type)
+{
+    switch ($type) {
+        case 'success':
+            return 'success';
+        case 'error':
+            return 'danger';
+        case 'warning':
+            return 'warning';
+        case 'info':
+            return 'info';
+        default:
+            return 'secondary';
+    }
+}
+
+function flash(string $type, string $message): void
+{
+    if (!isset($_SESSION['toasts'])) {
+        $_SESSION['toasts'] = [];
+    }
+
+    $_SESSION['toasts'][] = [
+        'type' => $type, // 'success', 'error', 'info', 'warning'
+        'message' => $message
+    ];
+}
+function redirect(string $url): void
+{
+    header("Location: $url");
+    exit();
 }
 
 ?>

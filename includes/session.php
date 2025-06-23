@@ -9,7 +9,7 @@ function isLoggedIn()
 function requireLogin()
 {
     if (!isLoggedIn()) {
-        header("Location: /eduvault/login.php");
+        redirect("/eduvault/login.php");
         exit();
     }
 }

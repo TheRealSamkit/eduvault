@@ -1,21 +1,17 @@
 <?php
 require_once 'includes/db_connect.php';
-include 'includes/header.php';
-
-
-
+require_once 'includes/functions.php';
 $error = '';
+session_start();
 if (isset($_GET['redirect'])) {
     $_SESSION['referred'] = mysqli_real_escape_string($mysqli, $_GET['redirect']);
 } elseif (isset($_SESSION['user_id'])) {
-    header('Location: dashboard/dashboard.php');
-    exit();
+    redirect('dashboard/dashboard.php');
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Use prepared statement for login
     $stmt = mysqli_prepare($mysqli, "SELECT id, password FROM users WHERE email = ?");
     mysqli_stmt_bind_param($stmt, 's', $email);
     mysqli_stmt_execute($stmt);
@@ -23,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($user = mysqli_fetch_assoc($result)) {
         if (password_verify($password, $user['password'])) {
-            // Use prepared statement for update
             $update_stmt = mysqli_prepare($mysqli, "UPDATE users SET last_active = current_timestamp() WHERE id = ?");
             mysqli_stmt_bind_param($update_stmt, 'i', $user['id']);
             mysqli_stmt_execute($update_stmt);
@@ -37,17 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     : $_SESSION['referred'];
 
                 unset($_SESSION['referred']);
-
-                header("Location: $redirect");
-                exit();
+                redirect($redirect);
             } else {
-                header("Location: dashboard/dashboard.php");
-                exit();
+                redirect('dashboard/dashboard.php');
             }
         }
     }
     $error = "Invalid email or password";
 }
+session_write_close();
+include 'includes/header.php';
 ?>
 <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center px-2">
     <div class="w-100" style="max-width: 400px;">

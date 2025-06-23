@@ -1,25 +1,6 @@
-<?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report']) && isLoggedIn()) {
-    $reported_id = (int) $_POST['reported_id'];
-    $reported_content = mysqli_real_escape_string($mysqli, $_POST['reported_content']);
-    $reason = mysqli_real_escape_string($mysqli, $_POST['report_reason']);
-    $user_id = $_SESSION['user_id'];
-
-    if (!empty($reason) && $reported_id > 0) {
-        $stmt = $mysqli->prepare("INSERT INTO reported_content (reporter_id, content_type, content_id, reason, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmt->bind_param("isis", $user_id, $reported_content, $reported_id, $reason);
-        $stmt->execute();
-        $stmt->close();
-        $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit();
-    }
-}
-
-?>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+        <form method="POST" action="/eduvault/handlers/report_handler.php">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="reportModalLabel">Report

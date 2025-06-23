@@ -4,8 +4,7 @@ require_once '../includes/functions.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: index.php");
-    exit();
+    redirect('index.php');
 }
 
 // Handle book actions

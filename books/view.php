@@ -3,7 +3,7 @@ require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 
 if (!isset($_GET['id'])) {
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 
@@ -19,7 +19,7 @@ $result = mysqli_query($mysqli, $query);
 $book = mysqli_fetch_assoc($result);
 
 if (!$book) {
-    header("Location: list.php");
+    redirect("list.php");
     exit();
 }
 if (isset($_POST['submit_report']) && isLoggedIn()) {
@@ -30,14 +30,23 @@ if (isset($_POST['submit_report']) && isLoggedIn()) {
         $insert_report = "INSERT INTO reported_content (reporter_id, content_type, content_id, reason) 
                           VALUES ($reporter_id, 'book', $book_id, '$report_reason')";
         if (mysqli_query($mysqli, $insert_report)) {
-            $_SESSION['success'] = "Thank you for your report. We'll review it soon.";
+            $_SESSION['toasts'] = [
+                'type' => 'success',
+                'message' => "Report submitted successfully. Thank you for helping us keep the platform safe."
+            ];
         } else {
-            $_SESSION['error'] = "Failed to submit report. Please try again later.";
+            $_SESSION['toasts'] = [
+                'type' => 'error',
+                'message' => "Failed to submit report. Please try again later."
+            ];
         }
     } else {
-        $_SESSION['error'] = "Please provide a reason for your report.";
+        $_SESSION['toasts'] = [
+            'type' => 'error',
+            'message' => "Report reason cannot be empty."
+        ];
     }
-    header("Location: view.php?id=$book_id");
+    redirect("view.php?id=$book_id");
     exit();
 }
 

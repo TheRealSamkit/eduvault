@@ -4,7 +4,7 @@
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
                     <h5 class="text-primary mb-3">
-                        <i class="fas fa-book-reader me-2"></i>EduVault
+                        EduVault
                     </h5>
                     <p class="text-muted mb-3">
                         India's unified platform for students to donate, exchange physical books, and share digital study
@@ -159,7 +159,7 @@ if (isset($additionalScripts)) {
 }
 ?>
 <script src="/eduvault/assets/js/main.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/eduvault/assets/js/bootstrap.js"></script>
 
 </body>
 
