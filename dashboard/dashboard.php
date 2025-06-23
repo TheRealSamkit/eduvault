@@ -15,7 +15,7 @@ $user = mysqli_fetch_assoc($user_result);
 $_SESSION['avatar'] = !empty($user['avatar_path']) ? "../" . $user['avatar_path'] : '../uploads/avatars/default.png';
 
 
-$books_count = getCount($mysqli, 'book_listings', 'book_count', $user_id);
+// $books_count = getCount($mysqli, 'book_listings', 'book_count', $user_id);
 $files_count = getCount($mysqli, 'digital_files', 'file_count', $user_id);
 $downloads_count = getCount($mysqli, 'downloads', 'downloads_count', $user_id) ?? 0;
 $avg_feedback = round(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT AVG(rating) as avg FROM file_feedback WHERE file_id IN (SELECT id FROM digital_files WHERE user_id = $user_id)"))['avg'] ?? 0, 1);
@@ -25,7 +25,7 @@ $activity_query = "
     SELECT 'book' as type, id, title, created_at as date FROM book_listings WHERE user_id = $user_id
     UNION
     SELECT 'file' as type, id, title, upload_date as date FROM digital_files WHERE user_id = $user_id
-    ORDER BY date DESC LIMIT 5";
+    ORDER BY date DESC LIMIT 3";
 $activity_result = mysqli_query($mysqli, $activity_query);
 
 // Recent reports by user
@@ -43,37 +43,25 @@ require_once '../modals/editProfileModal.php';
     <?php include '../includes/sidebar.php'; ?>
     <div class="flex-grow-1 main-content">
         <div class="container-fluid">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <img src="<?php echo htmlspecialchars($_SESSION['avatar']); ?>"
-                        class="rounded-circle img-thumbnail bg-dark" width="90" alt="User Avatar">
-                    <div>
-                        <h3 class="mb-0"><?php echo htmlspecialchars($user['name']); ?></h3>
-                        <small class="text-muted"><?php echo htmlspecialchars($user['email']); ?></small><br>
-                        <small class="text-muted">Joined:
-                            <?php echo date("F j, Y", strtotime($user['created_at'])); ?></small><br>
-                        <span
-                            class="badge bg-secondary mb-1 p-2"><?php echo htmlspecialchars($user['location'] ?: 'Location Unknown'); ?></span>
-
-                        <button class="btn btn-sm btn-outline-info ms-2" data-bs-toggle="modal"
-                            data-bs-target="#editProfileModal"><i class="fas fa-user-edit"></i> Edit Profile</button>
-                    </div>
-                </div>
-            </div>
-
+            <h1 class="my-2">Welcome, <?php echo htmlspecialchars($user['name']); ?>!
+            </h1>
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <div class="card shadow-sm h-100">
                         <div class="card-body">
                             <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
                             <div class="d-grid gap-2">
-                                <a href="../books/add.php" class="btn btn-outline-primary"><i
-                                        class="fas fa-book me-2"></i>Add
-                                    New Book</a>
+                                <?php if ($books_enabled): ?>
+                                    <a href="../books/add.php" class="btn btn-outline-primary"><i
+                                            class="fas fa-book me-2"></i>Add
+                                        New Book</a>
+                                <?php endif; ?>
                                 <a href="../files/upload.php" class="btn btn-outline-success"><i
                                         class="fas fa-upload me-2"></i>Upload File</a>
-                                <a href="my_books.php" class="btn btn-outline-secondary"><i
-                                        class="fas fa-folder-open me-2"></i>Manage My Books</a>
+                                <?php if ($books_enabled): ?>
+                                    <a href="my_books.php" class="btn btn-outline-secondary"><i
+                                            class="fas fa-folder-open me-2"></i>Manage My Books</a>
+                                <?php endif; ?>
                                 <a href="my_uploads.php" class="btn btn-outline-secondary"><i
                                         class="fas fa-folder-open me-2"></i>Manage My Files</a>
                                 <a href="../pages/change_password.php" class="btn btn-outline-primary mb-3"><i
@@ -108,12 +96,23 @@ require_once '../modals/editProfileModal.php';
                 </div>
             </div>
             <div class="row g-3 mb-4">
+                <?php if ($books_enabled): ?>
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white shadow-sm text-center p-2">
+                            <div class="card-body">
+                                <i class="fas fa-book fa-2x mb-2"></i>
+                                <h2><?php echo $books_count; ?></h2>
+                                <p class="mb-0">Books</p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <div class="col-md-3">
                     <div class="card bg-primary text-white shadow-sm text-center p-2">
                         <div class="card-body">
-                            <i class="fas fa-book fa-2x mb-2"></i>
-                            <h2><?php echo $books_count; ?></h2>
-                            <p class="mb-0">Books</p>
+                            <i class="fas fa-eye fa-2x mb-2"></i>
+                            <h2><?php echo 5; ?></h2>
+                            <p class="mb-0">Remaining Tokens</p>
                         </div>
                     </div>
                 </div>

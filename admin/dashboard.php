@@ -44,15 +44,17 @@ require_once '../includes/admin_header.php'
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card stat-card bg-success text-white">
-                        <div class="card-body">
-                            <h3 class="card-title"><?php echo $stats['books']; ?></h3>
-                            <p class="card-text">Books Listed</p>
-                            <i class="fas fa-book fa-2x position-absolute end-0 bottom-0 mb-3 me-3 opacity-50"></i>
+                <?php if ($books_enabled): ?>
+                    <div class="col-md-3">
+                        <div class="card stat-card bg-success text-white">
+                            <div class="card-body">
+                                <h3 class="card-title"><?php echo $stats['books']; ?></h3>
+                                <p class="card-text">Books Listed</p>
+                                <i class="fas fa-book fa-2x position-absolute end-0 bottom-0 mb-3 me-3 opacity-50"></i>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
                 <div class="col-md-3">
                     <div class="card stat-card bg-info text-white">
                         <div class="card-body">

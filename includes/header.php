@@ -1,6 +1,7 @@
 <?php
 require_once 'session.php';
 $currentPage = $_SERVER['PHP_SELF'];
+$books_enabled = false;
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
@@ -55,11 +56,13 @@ $currentPage = $_SERVER['PHP_SELF'];
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav ms-auto">
-                                <li class="nav-item">
-                                    <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'books') ? 'active' : ''; ?>"
-                                        href="/eduvault/books/list.php">Books
-                                    </a>
-                                </li>
+                                <?php if ($books_enabled): ?>
+                                    <li class="nav-item">
+                                        <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'books') ? 'active' : ''; ?>"
+                                            href="/eduvault/books/list.php">Books
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
                                 <li class="nav-item">
                                     <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'files') ? 'active' : ''; ?>"
                                         href="/eduvault/files/list.php">Study Materials

@@ -10,12 +10,14 @@ if (isLoggedIn()) {
 include 'includes/header.php';
 
 $downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads"))['count'];
-$books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];
 $files_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM digital_files"))['count'];
 $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM users where last_active >= now() - Interval 1 hour"))['count'];
 
-$recent_books = mysqli_query($mysqli, "SELECT b.*,u.name as author FROM book_listings b join users u on b.user_id=u.id WHERE b.status = 'Available' ORDER BY created_at DESC LIMIT 6");
 $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY upload_date DESC LIMIT 6");
+if ($books_enabled) {
+    $books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];
+    $recent_books = mysqli_query($mysqli, "SELECT b.*,u.name as author FROM book_listings b join users u on b.user_id=u.id WHERE b.status = 'Available' ORDER BY created_at DESC LIMIT 6");
+}
 ?>
 <div class="hero-section">
     <div class="container hero-content">
@@ -45,14 +47,16 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
 </div>
 
 <div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="stat-card">
-                <div class="stat-number" data-target="<?php echo $books_count; ?>">0</div>
-                <div class="text-muted fs-5">Available Books</div>
-                <small class="text-success"><i class="fas fa-arrow-up"></i> Growing daily</small>
+    <div class="row mb-5 justify-content-center">
+        <?php if ($books_enabled): ?>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card">
+                    <div class="stat-number" data-target="<?php echo $books_count; ?>">0</div>
+                    <div class="text-muted fs-5">Available Books</div>
+                    <small class="text-success"><i class="fas fa-arrow-up"></i> Growing daily</small>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="stat-card">
                 <div class="stat-number" data-target="<?php echo $files_count; ?>">0</div>
@@ -86,19 +90,21 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
         </div>
 
         <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card feature-card h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon">
-                            <i class="fas fa-book fa-2x"></i>
+            <?php if ($books_enabled): ?>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-book fa-2x"></i>
+                            </div>
+                            <h4 class="mb-3">Book Sharing</h4>
+                            <p class="text-muted">Share and borrow books with students in your area. Save money and help
+                                others learn while building a sustainable education ecosystem.</p>
+                            <a href="books/list.php" class="btn btn-outline-primary mt-3">Explore Books</a>
                         </div>
-                        <h4 class="mb-3">Book Sharing</h4>
-                        <p class="text-muted">Share and borrow books with students in your area. Save money and help
-                            others learn while building a sustainable education ecosystem.</p>
-                        <a href="books/list.php" class="btn btn-outline-primary mt-3">Explore Books</a>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card feature-card h-100">
                     <div class="card-body text-center p-4">
@@ -179,29 +185,31 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
         </div>
 
         <div class="row mb-5">
-            <div class="col-12">
-                <h4 class="mb-4"><i class="fas fa-book text-primary me-2"></i>Latest Books</h4>
-            </div>
-            <?php while ($book = mysqli_fetch_assoc($recent_books)): ?>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card resource-card">
-                        <img class="card-img-top" src="<?php echo htmlspecialchars($book['image_path']) ?>" alt="book cover"
-                            style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h6 class="card-title"><?php echo htmlspecialchars($book['title']); ?>
-                                <span
-                                    class="category-badge bg-success text-white m-2"><?php echo htmlspecialchars($book['status'] ?? 'General'); ?></span>
-                            </h6>
-                            <p class="text-muted small">by <?php echo htmlspecialchars($book['author']); ?></p>
-                            <p class="text-muted small"><i class="fas fa-map-marker-alt"></i>
-                                <?php echo htmlspecialchars($book['location']); ?></p>
+            <?php if ($books_enabled): ?>
+                <div class="col-12">
+                    <h4 class="mb-4"><i class="fas fa-book text-primary me-2"></i>Latest Books</h4>
+                </div>
+                <?php while ($book = mysqli_fetch_assoc($recent_books)): ?>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card resource-card">
+                            <img class="card-img-top" src="<?php echo htmlspecialchars($book['image_path']) ?>" alt="book cover"
+                                style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h6 class="card-title"><?php echo htmlspecialchars($book['title']); ?>
+                                    <span
+                                        class="category-badge bg-success text-white m-2"><?php echo htmlspecialchars($book['status'] ?? 'General'); ?></span>
+                                </h6>
+                                <p class="text-muted small">by <?php echo htmlspecialchars($book['author']); ?></p>
+                                <p class="text-muted small"><i class="fas fa-map-marker-alt"></i>
+                                    <?php echo htmlspecialchars($book['location']); ?></p>
 
-                            <a href="books/view.php?id=<?php echo $book['id']; ?>" class="btn btn-sm btn-primary">View
-                                Details</a>
+                                <a href="books/view.php?id=<?php echo $book['id']; ?>" class="btn btn-sm btn-primary">View
+                                    Details</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php endwhile; ?>
+                <?php endwhile;
+            endif; ?>
         </div>
 
         <div class="row">
@@ -294,7 +302,7 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
                     <a href="register.php" class="btn btn-light btn-lg px-5 py-3 me-3">
                         <i class="fas fa-rocket me-2"></i>Join EduVault Today
                     </a>
-                    <a href="books/list.php" class="btn btn-outline-light btn-lg px-5 py-3">
+                    <a href="files/list.php" class="btn btn-outline-light btn-lg px-5 py-3">
                         <i class="fas fa-search me-2"></i>Browse Resources
                     </a>
                 <?php else: ?>

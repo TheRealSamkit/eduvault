@@ -149,7 +149,6 @@ require_once '../includes/admin_header.php';
             pageLength: 10
         });
 
-        // Initialize tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -186,6 +185,6 @@ require_once '../includes/admin_header.php';
     }
 
     function exportFiles(format) {
-        window.location.href = `exports/export.php?format=${format}&type=files`;
+        window.location.href = `export.php?format=${format}&type=files`;
     }
 </script>
