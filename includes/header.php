@@ -2,6 +2,20 @@
 require_once 'session.php';
 $currentPage = $_SERVER['PHP_SELF'];
 $books_enabled = false;
+if (isLoggedIn()) {
+    $user_query = "SELECT * FROM users WHERE id = $user_id";
+    $user_result = mysqli_query($mysqli, $user_query);
+    $user = mysqli_fetch_assoc($user_result);
+    if (!empty($user['avatar_path'])) {
+        if (!str_starts_with($user['avatar_path'], 'http') && !str_starts_with($user['avatar_path'], 'https')) {
+            $_SESSION['avatar'] = '../' . $user['avatar_path'];
+        } else {
+            $_SESSION['avatar'] = $user['avatar_path'];
+        }
+    } else {
+        $_SESSION['avatar'] = '../uploads/avatars/default.png';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
@@ -75,16 +89,16 @@ $books_enabled = false;
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/logout.php">Logout
+                                        <a class="nav-link" href="/eduvault/auth/logout.php">Logout
                                         </a>
                                     </li>
                                 <?php else: ?>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/login.php">Login
+                                        <a class="nav-link" href="/eduvault/auth/login.php">Login
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/register.php">Register
+                                        <a class="nav-link" href="/eduvault/auth/register.php">Register
                                         </a>
                                     </li>
                                 <?php endif; ?>
@@ -167,7 +181,7 @@ $books_enabled = false;
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item text-danger" href="/eduvault/logout.php">Logout</a></li>
+                                <li><a class="dropdown-item text-danger" href="/eduvault/auth/logout.php">Logout</a></li>
                             </ul>
                         </div>
                     </div>

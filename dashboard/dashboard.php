@@ -8,13 +8,6 @@ requireLogin();
 $user_id = $_SESSION['user_id'];
 $sidebar = true;
 
-// User info + avatar
-$user_query = "SELECT * FROM users WHERE id = $user_id";
-$user_result = mysqli_query($mysqli, $user_query);
-$user = mysqli_fetch_assoc($user_result);
-$_SESSION['avatar'] = !empty($user['avatar_path']) ? "../" . $user['avatar_path'] : '../uploads/avatars/default.png';
-
-
 // $books_count = getCount($mysqli, 'book_listings', 'book_count', $user_id);
 $files_count = getCount($mysqli, 'digital_files', 'file_count', $user_id);
 $downloads_count = getCount($mysqli, 'downloads', 'downloads_count', $user_id) ?? 0;
@@ -124,21 +117,21 @@ require_once '../modals/editProfileModal.php';
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
-                        <div class="row gap-2 ms-1">
+                        <div class="row gap-2 ms-sm-2">
                             <?php if ($books_enabled): ?>
-                                <a href="../books/add.php" class="btn btn-outline-primary col-md-2"><i
+                                <a href="../books/add.php" class="btn btn-outline-primary col-md-3"><i
                                         class="fas fa-book me-2"></i>Add
                                     New Book</a>
                             <?php endif; ?>
-                            <a href="../files/upload.php" class="btn btn-outline-success col-md-2"><i
+                            <a href="../files/upload.php" class="btn btn-outline-success col-md-3"><i
                                     class="fas fa-upload me-2"></i>Upload File</a>
                             <?php if ($books_enabled): ?>
-                                <a href="my_books.php" class="btn btn-outline-secondary col-md-2"><i
+                                <a href="my_books.php" class="btn btn-outline-secondary col-md-3"><i
                                         class="fas fa-folder-open me-2"></i>Manage My Books</a>
                             <?php endif; ?>
-                            <a href="my_uploads.php" class="btn btn-outline-secondary col-md-2"><i
+                            <a href="my_uploads.php" class="btn btn-outline-secondary col-md-3"><i
                                     class="fas fa-folder-open me-2"></i>Manage My Files</a>
-                            <a href="../pages/change_password.php" class="btn btn-outline-primary col-md-2"><i
+                            <a href="../pages/change_password.php" class="btn btn-outline-primary col-md-3"><i
                                     class="fas fa-key me-2"></i>Change Password</a>
                         </div>
                     </div>

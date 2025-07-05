@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
 const sidebar = document.getElementById("dashboardSidebar");
 const toggleBtn = document.getElementById("sidebarToggle");
 const backdrop = document.getElementById("sidebarBackdrop");
+const passwordinp = document.getElementById("passwordInput");
 if (toggleBtn && sidebar && backdrop) {
 	toggleBtn.addEventListener("click", function () {
 		sidebar.classList.toggle("show");
@@ -70,4 +71,21 @@ if (toggleBtn && sidebar && backdrop) {
 		sidebar.classList.remove("show");
 		backdrop.style.display = "none";
 	});
+}
+
+if (passwordinp) {
+	const togglePasswordBtn = document.getElementById("togglePassword");
+	if (togglePasswordBtn) {
+		togglePasswordBtn.addEventListener("click", togglePasswordVisibility);
+	}
+}
+
+function togglePasswordVisibility() {
+	const type =
+		passwordinp.getAttribute("type") === "password" ? "text" : "password";
+	passwordinp.setAttribute("type", type);
+
+	// Toggle eye icon
+	this.querySelector("i").classList.toggle("fa-eye");
+	this.querySelector("i").classList.toggle("fa-eye-slash");
 }

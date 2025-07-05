@@ -11,6 +11,14 @@
 	font-size: 1.1rem;
 }
 
+.eye {
+	all: unset;
+	width: 10%;
+	height: 100%;
+	padding: 10px;
+	cursor: pointer;
+} /* Force Google button to full width */
+
 @media (max-width: 991.98px) {
 	.dashboard-sidebar {
 		position: fixed;

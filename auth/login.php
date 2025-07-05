@@ -1,6 +1,6 @@
 <?php
-require_once 'includes/db_connect.php';
-require_once 'includes/functions.php';
+require_once '../includes/db_connect.php';
+require_once '../includes/functions.php';
 $error = '';
 session_start();
 if (isset($_GET['redirect'])) {
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $error = "Invalid email or password";
 }
 session_write_close();
-include 'includes/header.php';
+include '../includes/header.php';
 ?>
 <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center px-2">
     <div class="w-100" style="max-width: 400px;">
@@ -62,18 +62,36 @@ include 'includes/header.php';
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control bg-dark-body" required>
+                        <div class="input-group">
+                            <input type="password" name="password" class="form-control" id="passwordInput" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 mb-3 rounded-pill">
+                    <button type="submit" class="btn btn-primary w-100 mb-1">
                         <i class="fas fa-sign-in-alt me-2"></i>Login
                     </button>
                 </form>
+                <div class="text-center mb-3">
+                    <p class="text-muted mb-2">or</p>
+                    <div id="g_id_onload"
+                        data-client_id="982609216899-e94n99lb6b4mi9n1gdbs395at8lrt6hc.apps.googleusercontent.com"
+                        data-context="signin" data-ux_mode="redirect"
+                        data-login_uri="http://localhost/eduvault/auth/google-callback.php" data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"
+                        data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <script src="https://accounts.google.com/gsi/client" async defer></script>
 
                 <div class="d-flex justify-content-between gap-2">
-                    <a href="index.php" class="btn btn-outline-secondary w-50 rounded-pill">
+                    <a href="/eduvault/index.php" class="btn btn-outline-secondary w-50 rounded-pill">
                         <i class="fas fa-home me-2"></i>Home
                     </a>
-                    <a href="register.php" class="btn btn-outline-info w-50 rounded-pill">
+                    <a href="/eduvault/register.php" class="btn btn-outline-info w-50 rounded-pill">
                         <i class="fas fa-user-plus me-2"></i>Register
                     </a>
                 </div>
@@ -82,4 +100,4 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once '../includes/footer.php'; ?>
