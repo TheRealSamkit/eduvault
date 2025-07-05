@@ -59,11 +59,9 @@ if ($test) {
 <div class="container-md p-0 card mb-3">
     <?php if (mysqli_num_rows($result) > 0): ?>
         <?php $user = mysqli_fetch_assoc($result); ?>
-        <?php $avatar = !empty($user['avatar_path']) ? "../" . $user['avatar_path'] : '../uploads/avatars/default.png'; ?>
-
         <div class="card-header d-flex align-items-center gap-3">
-            <img src="<?php echo htmlspecialchars($avatar); ?>" class="rounded-circle img-thumbnail bg-dark" width="80"
-                alt="User Avatar" data-bs-toggle="modal" data-bs-target="#avatarModal">
+            <img src="<?php echo htmlspecialchars($_SESSION['avatar']); ?>" class="rounded-circle img-thumbnail bg-dark"
+                width="80" alt="User Avatar" data-bs-toggle="modal" data-bs-target="#avatarModal">
             <div>
                 <h2 class="mb-0 h3"><?php echo htmlspecialchars($user['name']); ?>'s Profile</h2>
                 <p class="text-start text-muted m-0 my-1">
@@ -80,7 +78,7 @@ if ($test) {
                         <i class="fas fa-flag me-1"></i> Report User
                     </button>
                 <?php elseif ($viewer_type): ?>
-                    <button class="btn btn-info btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                    <button class="btn btn-primary btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                         <i class="fas fa-user-edit me-1"></i> Edit Profile
                     </button>
                     <a href="/eduvault/pages/change_password.php" class="btn btn-outline-secondary btn-sm mt-1"><i

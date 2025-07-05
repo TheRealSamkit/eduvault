@@ -73,7 +73,7 @@ require_once '../includes/header.php';
 require_once '../modals/reportmodal.php';
 ?>
 
-<div class="container-fluid">
+<!-- <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card shadow-sm">
@@ -124,7 +124,7 @@ require_once '../modals/reportmodal.php';
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <div class="container-md">
     <div class="row">

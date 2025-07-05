@@ -28,13 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 unset($_SESSION['referred']);
 
                 $redirect = (str_contains($_SESSION['referred'], 'index.php') || str_contains($_SESSION['referred'], 'login.php'))
-                    ? 'dashboard/dashboard.php'
+                    ? '../dashboard/dashboard.php'
                     : $_SESSION['referred'];
 
                 unset($_SESSION['referred']);
                 redirect($redirect);
             } else {
-                redirect('dashboard/dashboard.php');
+                redirect('../dashboard/dashboard.php');
             }
         }
     }
@@ -69,11 +69,12 @@ include '../includes/header.php';
                             </button>
                         </div>
                     </div>
+                    <p>Don't have an account?<a href="/eduvault/auth/register.php"> Sign up</a></p>
                     <button type="submit" class="btn btn-primary w-100 mb-1">
                         <i class="fas fa-sign-in-alt me-2"></i>Login
                     </button>
                 </form>
-                <div class="text-center mb-3">
+                <div class="text-center">
                     <p class="text-muted mb-2">or</p>
                     <div id="g_id_onload"
                         data-client_id="982609216899-e94n99lb6b4mi9n1gdbs395at8lrt6hc.apps.googleusercontent.com"
@@ -86,15 +87,6 @@ include '../includes/header.php';
                 </div>
 
                 <script src="https://accounts.google.com/gsi/client" async defer></script>
-
-                <div class="d-flex justify-content-between gap-2">
-                    <a href="/eduvault/index.php" class="btn btn-outline-secondary w-50 rounded-pill">
-                        <i class="fas fa-home me-2"></i>Home
-                    </a>
-                    <a href="/eduvault/register.php" class="btn btn-outline-info w-50 rounded-pill">
-                        <i class="fas fa-user-plus me-2"></i>Register
-                    </a>
-                </div>
             </div>
         </div>
     </div>

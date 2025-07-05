@@ -15,9 +15,7 @@ $avg_feedback = round(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT AVG(ratin
 
 // Recent uploads
 $activity_query = "
-    SELECT 'book' as type, id, title, created_at as date FROM book_listings WHERE user_id = $user_id
-    UNION
-    SELECT 'file' as type, id, title, upload_date as date FROM digital_files WHERE user_id = $user_id
+    SELECT 'file' as type, id, title, file_type, upload_date as date FROM digital_files WHERE user_id = $user_id
     ORDER BY date DESC LIMIT 3";
 $activity_result = mysqli_query($mysqli, $activity_query);
 
@@ -97,8 +95,7 @@ require_once '../modals/editProfileModal.php';
                                 <?php while ($activity = mysqli_fetch_assoc($activity_result)): ?>
                                     <div class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
-                                            <i
-                                                class="fas fa-<?php echo $activity['type'] == 'book' ? 'book' : 'file-alt'; ?> me-2"></i>
+                                            <i class="fas fa-file-<?php echo getFileIcon($activity['file_type']) ?> me-2"></i>
                                             <?php echo htmlspecialchars($activity['title']); ?>
                                         </div>
                                         <small

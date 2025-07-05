@@ -17,7 +17,35 @@
 	height: 100%;
 	padding: 10px;
 	cursor: pointer;
-} /* Force Google button to full width */
+}
+
+.rating {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: flex-end;
+}
+
+.rating input {
+	display: none;
+}
+
+.rating label {
+	cursor: pointer;
+	font-size: 1.5rem;
+	color: #ddd;
+	padding: 0 0.1em;
+}
+
+.rating input:checked ~ label,
+.rating label:hover,
+.rating label:hover ~ label {
+	color: #ffd700;
+}
+
+.rating label:hover i:before,
+.rating label:hover ~ label i:before {
+	content: "\f005";
+}
 
 @media (max-width: 991.98px) {
 	.dashboard-sidebar {

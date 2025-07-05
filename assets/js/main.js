@@ -55,6 +55,21 @@ document.addEventListener("DOMContentLoaded", function () {
 		toast.show();
 	});
 });
+// Scroll to top button functionality
+const btn = document.getElementById("scrollToTopBtn");
+window.addEventListener("scroll", () => {
+	const nearBottom =
+		window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
+	btn.classList.toggle("d-none", !nearBottom);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+	document.querySelectorAll("img").forEach(function (img) {
+		img.addEventListener("error", function () {
+			img.src = "../uploads/avatars/default.png";
+		});
+	});
+});
 
 const sidebar = document.getElementById("dashboardSidebar");
 const toggleBtn = document.getElementById("sidebarToggle");

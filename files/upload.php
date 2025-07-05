@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             finfo_close($finfo);
 
             if ($detected_mime !== $allowed_mime_types[$ext]) {
-                $error = "File MIME type does not match the file extension.";
+                $error = "File MIME type does not match the file extension." . $detected_mime;
             } else {
                 $file_size = round($_FILES['file']['size'] / 1000000, 1);
                 $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
@@ -135,7 +135,7 @@ require_once '../includes/header.php';
 
                             <div class="mb-3">
                                 <label class="form-label">File</label>
-                                <input type="file" name="file" class="form-control bg-dark-body" required
+                                <input type="file" name="file" class="form-control" required
                                     accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>">
                                 <div class="form-text">Max size: 10MB. Allowed formats:
                                     <?php echo strtoupper(implode(", ", $allowed_ext)) ?>
