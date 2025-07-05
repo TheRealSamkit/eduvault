@@ -151,6 +151,10 @@ $books_enabled = false;
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                                 <li><a class="dropdown-item"
                                         href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>">Profile</a></li>
+                                <li><a class="dropdown-item" href="/eduvault/dashboard/dashboard.php">Dashboard</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li><button type="button" class="dropdown-item d-flex align-items-center"
                                         data-theme-value="light">Light
                                     </button></li>

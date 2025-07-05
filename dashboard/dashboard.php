@@ -46,56 +46,6 @@ require_once '../modals/editProfileModal.php';
             <h1 class="my-2">Welcome, <?php echo htmlspecialchars($user['name']); ?>!
             </h1>
             <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
-                            <div class="d-grid gap-2">
-                                <?php if ($books_enabled): ?>
-                                    <a href="../books/add.php" class="btn btn-outline-primary"><i
-                                            class="fas fa-book me-2"></i>Add
-                                        New Book</a>
-                                <?php endif; ?>
-                                <a href="../files/upload.php" class="btn btn-outline-success"><i
-                                        class="fas fa-upload me-2"></i>Upload File</a>
-                                <?php if ($books_enabled): ?>
-                                    <a href="my_books.php" class="btn btn-outline-secondary"><i
-                                            class="fas fa-folder-open me-2"></i>Manage My Books</a>
-                                <?php endif; ?>
-                                <a href="my_uploads.php" class="btn btn-outline-secondary"><i
-                                        class="fas fa-folder-open me-2"></i>Manage My Files</a>
-                                <a href="../pages/change_password.php" class="btn btn-outline-primary mb-3"><i
-                                        class="fas fa-key me-2"></i>Change Password</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
-                            <div class="list-group list-group-flush small rounded">
-                                <?php if (mysqli_num_rows($activity_result) > 0): ?>
-                                    <?php while ($activity = mysqli_fetch_assoc($activity_result)): ?>
-                                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <i
-                                                    class="fas fa-<?php echo $activity['type'] == 'book' ? 'book' : 'file-alt'; ?> me-2"></i>
-                                                <?php echo htmlspecialchars($activity['title']); ?>
-                                            </div>
-                                            <small
-                                                class="text-muted"><?php echo date("M j, Y", strtotime($activity['date'])); ?></small>
-                                        </div>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <div class="list-group-item text-muted">No recent activity.</div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row g-3 mb-4">
                 <?php if ($books_enabled): ?>
                     <div class="col-md-3">
                         <div class="card bg-primary text-white shadow-sm text-center p-2">
@@ -108,7 +58,7 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 <?php endif; ?>
                 <div class="col-md-3">
-                    <div class="card bg-primary text-white shadow-sm text-center p-2">
+                    <div class="card bg-primary text-white shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-eye fa-2x mb-2"></i>
                             <h2><?php echo 5; ?></h2>
@@ -117,7 +67,7 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-success text-white shadow-sm text-center p-2">
+                    <div class="card bg-success text-white shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-file-alt fa-2x mb-2"></i>
                             <h2><?php echo $files_count; ?></h2>
@@ -126,7 +76,7 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-info text-white shadow-sm text-center p-2">
+                    <div class="card bg-info text-white shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-download fa-2x mb-2"></i>
                             <h2><?php echo $downloads_count; ?></h2>
@@ -135,11 +85,61 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-warning text-white shadow-sm text-center p-2">
+                    <div class="card bg-warning text-white shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-star fa-2x mb-2"></i>
-                            <h2><?php echo $avg_feedback > 0 ? $avg_feedback : 'N/A'; ?></h2>
+                            <h2><?php echo $avg_feedback > 0 ? $avg_feedback : 'No Feedbacks'; ?></h2>
                             <p class="mb-0">Avg Feedback</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-md-6 g-3 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+                        <div class="list-group list-group-flush small rounded">
+                            <?php if (mysqli_num_rows($activity_result) > 0): ?>
+                                <?php while ($activity = mysqli_fetch_assoc($activity_result)): ?>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i
+                                                class="fas fa-<?php echo $activity['type'] == 'book' ? 'book' : 'file-alt'; ?> me-2"></i>
+                                            <?php echo htmlspecialchars($activity['title']); ?>
+                                        </div>
+                                        <small
+                                            class="text-muted"><?php echo date("M j, Y", strtotime($activity['date'])); ?></small>
+                                    </div>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <div class="list-group-item text-muted">No recent activity.</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-md-6 g-3 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                        <div class="row gap-2 ms-1">
+                            <?php if ($books_enabled): ?>
+                                <a href="../books/add.php" class="btn btn-outline-primary col-md-2"><i
+                                        class="fas fa-book me-2"></i>Add
+                                    New Book</a>
+                            <?php endif; ?>
+                            <a href="../files/upload.php" class="btn btn-outline-success col-md-2"><i
+                                    class="fas fa-upload me-2"></i>Upload File</a>
+                            <?php if ($books_enabled): ?>
+                                <a href="my_books.php" class="btn btn-outline-secondary col-md-2"><i
+                                        class="fas fa-folder-open me-2"></i>Manage My Books</a>
+                            <?php endif; ?>
+                            <a href="my_uploads.php" class="btn btn-outline-secondary col-md-2"><i
+                                    class="fas fa-folder-open me-2"></i>Manage My Files</a>
+                            <a href="../pages/change_password.php" class="btn btn-outline-primary col-md-2"><i
+                                    class="fas fa-key me-2"></i>Change Password</a>
                         </div>
                     </div>
                 </div>

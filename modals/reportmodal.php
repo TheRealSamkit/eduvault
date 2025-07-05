@@ -5,8 +5,8 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="reportModalLabel">Report
                     </h5>
-                    <button type="button" class="btn fs-3 color" data-bs-dismiss="modal" aria-label="Close"><i
-                            class="fas fa-times"></i></button>
+                    <button type="button" class="btn fs-2 p-0 px-2 fa-color" data-bs-dismiss="modal"
+                        aria-label="Close"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
