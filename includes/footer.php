@@ -2,21 +2,22 @@
     <?php if (isLoggedIn()): ?>
         <nav class="navbar fixed-bottom d-md-none mobile-nav">
             <div class="container-fluid d-flex justify-content-around text-center py-1">
-                <a href="/eduvault/dashboard/dashboard.php" class="text-decoration-none nav-link p-0">
+                <a href="/eduvault/dashboard/dashboard.php" class="text-decoration-none nav-link p-1">
                     <i class="fas fa-home fa-lg d-block"></i>
                 </a>
-                <a href="/eduvault/files/list.php" class="text-decoration-none nav-link p-0">
+                <a href="/eduvault/files/list.php" class="text-decoration-none nav-link p-1">
                     <i class="fas fa-file fa-lg d-block"></i>
                 </a>
-                <a href="/eduvault/files/upload.php" class="text-decoration-none nav-link p-0">
+                <a href="/eduvault/files/upload.php" class="text-decoration-none nav-link p-1">
                     <i class="fas fa-plus-circle fa-lg d-block"></i>
                 </a>
-                <a href="" class="text-decoration-none nav-link p-0 position-relative ">
+                <a href="" class="text-decoration-none nav-link p-1 position-relative ">
                     <i class="fas fa-bell fa-lg d-block"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                        style="font-size:0.6em;">0</span>
+                    <span
+                        class="position-absolute top-0 start-100 translate-middle badge border border-1 border-light rounded-circle bg-danger p-1"><span
+                            class="visually-hidden">unread messages</span></span>
                 </a>
-                <a href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>" class="text-decoration-none nav-link p-0">
+                <a href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>" class="text-decoration-none nav-link p-1">
                     <i class="fas fa-user fa-lg d-block"></i>
                 </a>
             </div>
@@ -166,8 +167,9 @@
                 </div>
             </div>
 
-            <button id="scrollToTopBtn" class="btn btn-primary position-fixed bottom-0 end-0 m-3 rounded-circle d-none"
-                onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="width: 50px; height: 50px; z-index: 1000;">
+            <button id="scrollToTopBtn" class="btn btn-primary position-fixed end-0 m-3 rounded-circle d-none"
+                onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+                style="width: 50px; height: 50px; z-index: 1000;bottom:40px;">
                 <i class="fas fa-arrow-up"></i>
             </button>
 

@@ -4,7 +4,7 @@ require_once '../includes/session.php';
 require_once '../includes/functions.php';
 
 if (!isLoggedIn()) {
-    redirect("../login.php");
+    redirect("../auth/login.php");
     exit();
 }
 

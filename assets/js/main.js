@@ -71,6 +71,63 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 });
 
+let googleClient;
+
+window.onload = function () {
+	if (typeof google === "undefined" || !google.accounts) {
+		return;
+	}
+	googleClient = google.accounts.id.initialize({
+		client_id:
+			"982609216899-e94n99lb6b4mi9n1gdbs395at8lrt6hc.apps.googleusercontent.com",
+		callback: handleGoogleResponse,
+		ux_mode: "popup",
+	});
+
+	document
+		.getElementById("google-login-btn")
+		.addEventListener("click", function () {
+			google.accounts.id.prompt((notification) => {
+				if (
+					notification.isNotDisplayed() ||
+					notification.isSkippedMoment()
+				) {
+					console.warn(
+						"Popup Sign-In failed or was skipped, falling back to redirect mode"
+					);
+
+					google.accounts.id.initialize({
+						client_id:
+							"982609216899-e94n99lb6b4mi9n1gdbs395at8lrt6hc.apps.googleusercontent.com",
+						callback: handleGoogleResponse,
+						ux_mode: "redirect",
+						login_uri:
+							"http://localhost/eduvault/auth/google-callback.php",
+					});
+
+					google.accounts.id.prompt();
+				}
+			});
+		});
+};
+
+function handleGoogleResponse(response) {
+	const token = response.credential;
+
+	const form = document.createElement("form");
+	form.method = "POST";
+	form.action = "google-callback.php";
+
+	const input = document.createElement("input");
+	input.type = "hidden";
+	input.name = "credential";
+	input.value = token;
+
+	form.appendChild(input);
+	document.body.appendChild(form);
+	form.submit();
+}
+
 const sidebar = document.getElementById("dashboardSidebar");
 const toggleBtn = document.getElementById("sidebarToggle");
 const backdrop = document.getElementById("sidebarBackdrop");

@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             finfo_close($finfo);
 
             if ($detected_mime !== $allowed_mime_types[$ext]) {
-                $error = "File MIME type does not match the file extension." . $detected_mime;
+                $error = "File MIME type does not match the file extension.";
             } else {
                 $file_size = round($_FILES['file']['size'] / 1000000, 1);
                 $file_path = '../uploads/files/' . uniqid() . '.' . $ext;

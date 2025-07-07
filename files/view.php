@@ -159,7 +159,7 @@ require_once '../includes/header.php';
                             <i class="fas fa-download me-2"></i>Download File
                         </a>
                     <?php else: ?>
-                        <a href="../login.php" class="btn btn-warning">
+                        <a href="../auth/login.php" class="btn btn-warning">
                             <i class="fas fa-lock me-2"></i>Login to Download
                         </a>
                     <?php endif; ?>
@@ -284,7 +284,7 @@ require_once '../includes/header.php';
                             </button>
                         </form>
                     <?php else: ?>
-                        <p class="text-muted">Please <a href="../login.php">login</a> to report this file.</p>
+                        <p class="text-muted">Please <a href="../auth/login.php">login</a> to report this file.</p>
                     <?php endif; ?>
                 </div>
             </div>

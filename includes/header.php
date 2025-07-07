@@ -137,11 +137,11 @@ if (isLoggedIn()) {
             ?>
             <nav class="navbar navbar-expand-lg mb-2 bg-dark-body">
                 <div class="container-fluid px-2">
-                    <!-- <?php if (!empty($sidebar)): ?>
+                    <?php if (!empty($sidebar)): ?>
                         <button class="btn fs-2 d-lg-none me-2 fa-color" id="sidebarToggle" type="button">
                             <i class="fas fa-bars"></i>
                         </button>
-                    <?php endif; ?> -->
+                    <?php endif; ?>
                     <a class="navbar-brand d-none d-sm-block fw-bold" href="/eduvault/dashboard/dashboard.php">EduVault</a>
                     <a class="navbar-brand d-block d-sm-none fw-bold" href="/eduvault/dashboard/dashboard.php">EV</a>
                     <div class="d-flex align-items-center ms-auto gap-2">
@@ -152,7 +152,7 @@ if (isLoggedIn()) {
                         </button>
                         <form class="d-none d-md-flex" method="GET" action="/eduvault/files/list.php">
                             <input type="text" name="search" class="form-control input-dark text-white border-0 me-2"
-                                style="min-width:300px; max-width:500px;" placeholder="Search...">
+                                style="min-width:300px; max-width:500px;" placeholder="Search..." autocomplete="off">
                             <button class="btn fa-color" type="submit"><i class="fas fa-search"></i></button>
                         </form>
                         <button class="btn position-relative fa-color d-none d-sm-block" title="Notifications">
@@ -193,7 +193,7 @@ if (isLoggedIn()) {
                 <div class="collapse d-md-none mt-2 px-3 w-100" id="mobileSearchBar">
                     <form class="d-flex" method="GET" action="/eduvault/files/list.php">
                         <input type="text" name="search" class="form-control input-dark border-0 me-2"
-                            style="min-width:200px; max-width:100%;" placeholder="Search...">
+                            style="min-width:200px; max-width:100%;" placeholder="Search..." autocomplete="off">
                         <button class="btn fa-color" type="submit"><i class="fas fa-search"></i></button>
                     </form>
                 </div>

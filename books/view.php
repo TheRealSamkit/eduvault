@@ -119,7 +119,7 @@ require_once '../includes/header.php';
                             <?php else: ?>
                                 <div class="alert alert-warning">
                                     <i class="fas fa-lock me-2"></i>
-                                    Please <a href="../login.php">login</a> to view contact details
+                                    Please <a href="../auth/login.php">login</a> to view contact details
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -153,7 +153,7 @@ require_once '../includes/header.php';
                         </form>
                     <?php else: ?>
                         <p class="text-muted">Please <a
-                                href="../login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">login</a> to
+                                href="../auth/login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">login</a> to
                             report this file.</p>
                     <?php endif; ?>
                 </div>

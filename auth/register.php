@@ -77,9 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <div class="text-center">
                     <p class="text-muted mb-2">or</p>
-                    <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
-                        data-text="signup_with" data-size="large" data-logo_alignment="center" data-width="395">
-                    </div>
+                    <button id="google-login-btn" class="btn w-100">
+                        Continue with Google
+                    </button>
                 </div>
             </div>
         </div>
