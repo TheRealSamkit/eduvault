@@ -54,7 +54,95 @@
 	background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
 }
 
+.file-card {
+	transition: all 0.3s ease;
+	border: none;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	min-height: 260px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.file-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.file-icon {
+	font-size: 1.2rem;
+	margin-right: 0.5rem;
+}
+
+.stats-badge {
+	border-radius: 20px;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.85rem;
+	font-weight: 500;
+}
+
+.filter-toggle {
+	display: none;
+}
+
+@media (max-width: 768px) {
+	.filter-toggle {
+		display: block;
+	}
+
+	.filters-collapse {
+		display: none;
+	}
+
+	.filters-collapse.show {
+		display: block;
+	}
+
+	.file-card {
+		margin-bottom: 1rem;
+	}
+
+	.stats-row {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.stats-badge {
+		font-size: 0.75rem;
+		padding: 0.2rem 0.6rem;
+	}
+}
+
+.no-results {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: #6c757d;
+}
+
+.no-results img {
+	max-width: 200px;
+	opacity: 0.7;
+	margin-bottom: 1rem;
+}
+
+.pagination-wrapper {
+	background: var(--bg-subtle);
+	border-radius: 10px;
+	padding: 1rem;
+	margin-top: 2rem;
+}
+
+.sidebar-filters {
+	top: 90px;
+	z-index: 2;
+}
+
 @media (max-width: 991.98px) {
+	.sidebar-filters {
+		position: static !important;
+	}
 	.dashboard-sidebar {
 		position: fixed;
 		top: 0;

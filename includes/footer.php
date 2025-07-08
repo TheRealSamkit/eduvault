@@ -1,5 +1,6 @@
 <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')): ?>
     <?php if (isLoggedIn()): ?>
+        <div class="mt-sm-5 mt-lg-0"></div>
         <nav class="navbar fixed-bottom d-md-none mobile-nav">
             <div class="container-fluid d-flex justify-content-around text-center py-1">
                 <a href="/eduvault/dashboard/dashboard.php" class="text-decoration-none nav-link p-1">
@@ -23,7 +24,7 @@
             </div>
         </nav>
     <?php endif; ?>
-    <footer class="bg-dark text-light py-5 mt-auto">
+    <footer class="bg-dark text-light py-5 mt-auto d-none d-md-block">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">

@@ -138,7 +138,7 @@ require_once '../includes/header.php';
                     <div class="mb-2">
                         <small class="text-muted">
                             <i class="fas fa-file me-1"></i>
-                            <?php echo formatFileSizeMB($file['file_size']); ?>
+                            <?php echo formatFileSize($file['file_size']); ?>
                         </small>
                     </div>
 

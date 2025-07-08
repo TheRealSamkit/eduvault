@@ -18,6 +18,8 @@ if ($books_enabled) {
     $books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];
     $recent_books = mysqli_query($mysqli, "SELECT b.*,u.name as author FROM book_listings b join users u on b.user_id=u.id WHERE b.status = 'Available' ORDER BY created_at DESC LIMIT 6");
 }
+
+$host = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
 ?>
 <div class="hero-section">
     <div class="container hero-content">
@@ -228,6 +230,25 @@ if ($books_enabled) {
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted"><?php echo htmlspecialchars($file['file_type']) ?>
                                 </small>
+                                <?php if (isLoggedIn() && strtolower($file['file_type']) === 'pdf'): ?>
+                                    <a href="/eduvault/pdfjs/web/viewer.html?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?id=' . $file['id']); ?>"
+                                        target="_blank" class="btn btn-outline-secondary btn-sm" title="Full Page PDF Preview">
+                                        <i class="fas fa-eye me-1"></i>Full Preview
+                                    </a>
+                                <?php elseif (isLoggedIn() && in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
+                                    <a href="files/txt_preview.php?id=<?php echo $file['id']; ?>" target="_blank"
+                                        class="btn btn-outline-secondary btn-sm" title="Full Page Text Preview">
+                                        <i class="fas fa-eye me-1"></i>Full Preview
+                                    </a>
+                                <?php elseif (isLoggedIn()): ?>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm btn-preview-file"
+                                        data-file-id="<?php echo $file['id']; ?>"
+                                        data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>"
+                                        data-file-path="<?php echo str_replace('..', '/eduvault', $file['file_path']); ?>">
+                                        <i class="fas fa-eye me-1"></i>Preview
+                                    </button>
+                                <?php endif; ?>
                                 <?php if (isLoggedIn()): ?>
                                     <a href="files/download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm">
                                         <i class="fas fa-download me-1"></i>Download

@@ -29,6 +29,9 @@ if (isset($_POST['delete_file'])) {
 
 $files_query = "SELECT f.*, s.name as subject, c.name as course, y.year as year, (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count, (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id) as report_count FROM digital_files f LEFT JOIN subjects s ON f.subject_id = s.id LEFT JOIN courses c ON f.course_id = c.id LEFT JOIN years y ON f.year_id = y.id WHERE f.user_id = $user_id ORDER BY f.upload_date DESC";
 $files_result = mysqli_query($mysqli, $files_query);
+
+$host = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+
 require_once '../includes/header.php';
 ?>
 
@@ -54,7 +57,14 @@ require_once '../includes/header.php';
                                         <th>Subject</th>
                                         <th>Course</th>
                                         <th>Year</th>
+                                        <th>Tags</th>
+                                        <th>Status</th>
+                                        <th>Visibility</th>
+                                        <th>Verified</th>
                                         <th>File Size</th>
+                                        <th>Avg. Rating</th>
+                                        <th>Hash</th>
+                                        <th>Keywords</th>
                                         <th>Reports</th>
                                         <th>Downloads</th>
                                         <th>Upload Date</th>
@@ -75,7 +85,52 @@ require_once '../includes/header.php';
                                             <td><?php echo htmlspecialchars($file['subject']); ?></td>
                                             <td><?php echo htmlspecialchars($file['course']); ?></td>
                                             <td><?php echo $file['year']; ?></td>
-                                            <td><?php echo formatFileSizeMB($file['file_size']); ?></td>
+                                            <td>
+                                                <?php if (!empty($file['tags'])): ?>
+                                                    <?php foreach (array_slice(explode(',', $file['tags']), 0, 3) as $tag): ?>
+                                                        <span
+                                                            class="badge bg-light text-dark me-1"><?php echo htmlspecialchars(trim($tag)); ?></span>
+                                                    <?php endforeach; ?>
+                                                    <?php if (count(explode(',', $file['tags'])) > 3): ?>
+                                                        <span class="text-muted">+<?php echo count(explode(',', $file['tags'])) - 3; ?>
+                                                            more</span>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-<?php echo $file['status'] === 'active' ? 'success' : 'secondary'; ?>">
+                                                    <?php echo ucfirst($file['status'] ?? 'N/A'); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-<?php echo $file['visibility'] === 'public' ? 'info' : 'secondary'; ?>">
+                                                    <?php echo ucfirst($file['visibility'] ?? 'N/A'); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?>">
+                                                    <?php echo $file['verified'] ? 'Yes' : 'No'; ?>
+                                                </span>
+                                            </td>
+                                            <td><?php echo formatFileSize($file['file_size']); ?></td>
+                                            <td>
+                                                <span class="badge bg-warning text-dark">
+                                                    <i
+                                                        class="fas fa-star me-1"></i><?php echo number_format($file['average_rating'] ?? 0, 1); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span title="<?php echo htmlspecialchars($file['content_hash']); ?>">
+                                                    <?php echo htmlspecialchars(substr($file['content_hash'], 0, 8)); ?>...
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span title="<?php echo htmlspecialchars($file['keywords']); ?>">
+                                                    <?php echo htmlspecialchars(substr($file['keywords'], 0, 16)); ?>...
+                                                </span>
+                                            </td>
                                             <td>
                                                 <span class="badge bg-danger">
                                                     <i class="fas fa-times-circle me-1"></i><?php echo $file['report_count']; ?>
@@ -88,6 +143,29 @@ require_once '../includes/header.php';
                                             </td>
                                             <td><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></td>
                                             <td>
+                                                <?php if (strtolower($file['file_type']) === 'pdf'): ?>
+                                                    <a href="/eduvault/pdfjs/web/viewer.html?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?id=' . $file['id']); ?>"
+                                                        target="_blank" class="btn btn-sm btn-outline-secondary me-1"
+                                                        title="Full Page PDF Preview">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
+                                                    <a href="../files/txt_preview.php?id=<?php echo $file['id']; ?>" target="_blank"
+                                                        class="btn btn-sm btn-outline-secondary me-1"
+                                                        title="Full Page Text Preview">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                <?php else: ?>
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary btn-preview-file me-1"
+                                                        data-file-id="<?php echo $file['id']; ?>"
+                                                        data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>"
+                                                        data-file-path="<?php echo str_replace('..', '/eduvault', $file['file_path']); ?>"
+                                                        title="Preview">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                <?php endif; ?>
                                                 <a href="../files/view.php?id=<?php echo $file['id']; ?>"
                                                     class="btn btn-sm btn-outline-info me-1" title="View Details">
                                                     <i class="fas fa-eye"></i>
@@ -125,3 +203,4 @@ require_once '../includes/header.php';
     </div>
 </div>
 <?php require_once '../includes/footer.php'; ?>
+<?php require_once '../modals/filePreviewModal.php'; ?>

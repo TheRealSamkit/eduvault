@@ -164,7 +164,7 @@ if (isLoggedIn()) {
                             <button class="btn bg-dark-body dropdown-toggle p-0" type="button" id="profileDropdown"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="<?= htmlspecialchars($_SESSION['avatar']) ?>" alt="Avatar" class="rounded-circle"
-                                    width="36" height="36">
+                                    width="36" height="36" style="background-color: #000;">
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                                 <li><a class="dropdown-item"
