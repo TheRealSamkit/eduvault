@@ -195,7 +195,9 @@ document.addEventListener("DOMContentLoaded", function () {
       var fileId = btn.getAttribute("data-file-id");
       fetch("/eduvault/files/bookmark.php", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
         body: "file_id=" + encodeURIComponent(fileId),
       })
         .then((response) => response.json())
@@ -216,6 +218,27 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         })
         .catch(() => alert("Failed to update bookmark."));
+    });
+  });
+
+  // Tab switching functionality
+  const tabLinks = document.querySelectorAll(".tab-link");
+  const tabContents = document.querySelectorAll(".tab-content");
+  if (tabLinks.length === 0 || tabContents.length === 0) return;
+  tabLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      // Remove active class from all tabs
+      tabLinks.forEach((l) => l.classList.remove("active"));
+      tabContents.forEach((c) => (c.style.display = "none"));
+
+      // Add active class to clicked tab
+      this.classList.add("active");
+
+      // Show corresponding content
+      const targetId = this.getAttribute("data-tab");
+      document.getElementById(targetId).style.display = "block";
     });
   });
 });

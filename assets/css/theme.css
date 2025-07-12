@@ -25,6 +25,13 @@
 
 	--bs-shadow: rgba(0, 0, 0, 0.1);
 	--bs-inverse-color: #555555;
+
+	/* Add sidebar-specific theme variables for better control */
+	--sidebar-bg: var(--bg-body-tertiary);
+	--sidebar-link: var(--bs-inverse-color);
+	--sidebar-link-active: var(--primary-color);
+	--sidebar-link-hover: var(--primary-color);
+	--sidebar-border: var(--bs-border-color);
 }
 
 /* Dark Mode */
@@ -38,6 +45,13 @@
 	--bs-hover-color: #ffffff;
 
 	--bs-shadow: rgba(255, 255, 255, 0.05);
+
+	/* Add sidebar-specific theme variables for better control */
+	--sidebar-bg: var(--bg-body-tertiary);
+	--sidebar-link: var(--bs-inverse-color);
+	--sidebar-link-active: var(--primary-color);
+	--sidebar-link-hover: var(--primary-color);
+	--sidebar-border: var(--bs-border-color);
 }
 
 /* Common Styling */
@@ -254,10 +268,4 @@ body,
 
 .dashboard-sidebar .nav-link {
 	color: var(--bs-inverse-color) !important;
-}
-
-.dashboard-sidebar .nav-link.active,
-.dashboard-sidebar .nav-link:hover {
-	background: var(--bs-hover-color) !important;
-	color: var(--bs-border-color) !important;
 }

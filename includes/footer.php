@@ -1,6 +1,6 @@
 <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')): ?>
     <?php if (isLoggedIn()): ?>
-        <div class="mt-sm-5 mt-lg-0"></div>
+        <div class="breaker"></div>
         <nav class="navbar fixed-bottom d-md-none mobile-nav">
             <div class="container-fluid d-flex justify-content-around text-center py-1">
                 <a href="/eduvault/dashboard/dashboard.php" class="text-decoration-none nav-link p-1">
@@ -15,7 +15,7 @@
                 <a href="" class="text-decoration-none nav-link p-1 position-relative ">
                     <i class="fas fa-bell fa-lg d-block"></i>
                     <span
-                        class="position-absolute top-0 start-100 translate-middle badge border border-1 border-light rounded-circle bg-danger p-1"><span
+                        class="position-absolute top-0 start-100 translate-middle badge border border-1 border-dark rounded-circle bg-danger p-1"><span
                             class="visually-hidden">unread messages</span></span>
                 </a>
                 <a href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>" class="text-decoration-none nav-link p-1">

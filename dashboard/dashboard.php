@@ -52,7 +52,7 @@ require_once '../modals/editProfileModal.php';
                     <div class="card bg-primary text-white shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-eye fa-2x mb-2"></i>
-                            <h2><?php echo 5; ?></h2>
+                            <h2><?php echo htmlspecialchars($user['tokens']); ?></h2>
                             <p class="mb-0">Remaining Tokens</p>
                         </div>
                     </div>

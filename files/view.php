@@ -127,81 +127,107 @@ require_once '../includes/header.php';
         <div class="col-12 col-md-8 mb-4 mb-md-0">
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <div class="mb-3">
-                        <h3 class="mb-2 d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <h3 class="mb-0 d-flex align-items-center gap-2">
                             <i
                                 class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
                             <?php echo htmlspecialchars($file['title']); ?>
-                            <?php if (isLoggedIn()): ?>
-                                <?php $bookmarked = isFileBookmarked($_SESSION['user_id'], $file['id'], $mysqli); ?>
-                                <button class="btn btn-sm btn-outline-warning btn-bookmark-file"
+                        </h3>
+
+                        <?php if (isLoggedIn()): ?>
+                            <?php $bookmarked = isFileBookmarked($_SESSION['user_id'], $file['id'], $mysqli); ?>
+                            <div class="ms-auto">
+                                <button class="btn btn-md btn-outline-warning btn-bookmark-file"
                                     data-file-id="<?php echo $file['id']; ?>"
                                     title="<?php echo $bookmarked ? 'Remove Bookmark' : 'Add Bookmark'; ?>">
-                                    <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-star"></i>
+                                    <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-bookmark"></i>
                                 </button>
-                            <?php endif; ?>
-                        </h3>
-                        <p class="mb-2 text-body"><?php echo nl2br(htmlspecialchars($file['description'])); ?></p>
-                        <div class="mb-2">
-                            <span class="badge bg-primary me-1"><?php echo htmlspecialchars($file['subject']); ?></span>
-                            <span
-                                class="badge bg-secondary me-1"><?php echo htmlspecialchars($file['course']); ?></span>
-                            <span class="badge bg-success me-1"><?php echo $file['year']; ?></span>
-                            <?php $all_tags = array_filter(array_map('trim', explode(',', $file['tags']))); ?>
-                            <?php if (!empty($all_tags)): ?>
-                                <span class="badge bg-body-secondary text-body me-1" data-bs-toggle="tooltip"
-                                    title="<?php echo htmlspecialchars(implode(', ', $all_tags)); ?>">
-                                    <i
-                                        class="fas fa-tags me-1"></i><?php echo htmlspecialchars($all_tags[0]); ?><?php if (count($all_tags) > 1): ?>
-                                        +<?php echo count($all_tags) - 1; ?><?php endif; ?>
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="mb-2 d-flex flex-wrap gap-2">
-                            <span
-                                class="badge bg-<?php echo $file['status'] === 'active' ? 'success' : 'secondary'; ?> text-body">Status:
-                                <?php echo ucfirst($file['status'] ?? 'N/A'); ?></span>
-                            <span
-                                class="badge bg-<?php echo $file['visibility'] === 'public' ? 'info' : 'secondary'; ?> text-body">Visibility:
-                                <?php echo ucfirst($file['visibility'] ?? 'N/A'); ?></span>
-                            <span
-                                class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?> text-body">Verified:
-                                <?php echo $file['verified'] ? 'Yes' : 'No'; ?></span>
-                        </div>
-                        <div class="mb-2 d-flex flex-wrap gap-3">
-                            <span class="text-muted"><i
-                                    class="fas fa-file me-1"></i><?php echo strtoupper($file['file_type']); ?></span>
-                            <span class="text-muted"><i class="fas fa-hashtag me-1"></i><span data-bs-toggle="tooltip"
-                                    title="<?php echo htmlspecialchars($file['content_hash']); ?>"><?php echo htmlspecialchars(substr($file['content_hash'], 0, 8)); ?>...</span></span>
-                            <span class="text-muted"><i class="fas fa-key me-1"></i><span data-bs-toggle="tooltip"
-                                    title="<?php echo htmlspecialchars($file['keywords']); ?>"><?php echo htmlspecialchars(substr($file['keywords'], 0, 16)); ?>...</span></span>
-                            <span class="text-muted"><i
-                                    class="fas fa-database me-1"></i><?php echo formatFileSize($file['file_size']); ?></span>
-                        </div>
-                        <div class="mb-2 text-body">
-                            <i class="fas fa-user me-1"></i>
-                            <?php echo htmlspecialchars($file['uploader_name']); ?>
-                            <?php if (!empty($owner_type)): ?>
-                                <span class="badge bg-body-secondary text-body ms-1"><?php echo $owner_type; ?></span>
-                            <?php endif; ?>
-                            <span class="ms-2"><i
-                                    class="fas fa-calendar-alt me-1"></i><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></span>
-                        </div>
-                        <div class="mb-2 d-flex flex-wrap gap-2">
-                            <span class="text-info"><i
-                                    class="fas fa-download me-1"></i><?php echo $file['download_count']; ?></span>
-                            <span class="text-warning"><i
-                                    class="fas fa-star me-1"></i><?php echo number_format($file['avg_rating'], 1); ?></span>
-                            <span class="text-danger"><i
-                                    class="fas fa-flag me-1"></i><?php echo $file['report_count']; ?></span>
-                        </div>
-                        <?php if (isLoggedIn()): ?>
-                            <a href="download.php?slug=<?php echo urlencode($file['slug']); ?>"
-                                class="btn btn-success mt-2">
-                                <i class="fas fa-download me-2"></i>Download File
-                            </a>
+                            </div>
                         <?php endif; ?>
                     </div>
+                    <p class="mb-2 text-body"><?php echo nl2br(htmlspecialchars($file['description'])); ?></p>
+                    <div class="mb-2">
+                        <span class="badge bg-primary me-1"><?php echo htmlspecialchars($file['subject']); ?></span>
+                        <span class="badge bg-secondary me-1"><?php echo htmlspecialchars($file['course']); ?></span>
+                        <span class="badge bg-success me-1"><?php echo $file['year']; ?></span>
+                        <?php $all_tags = array_filter(array_map('trim', explode(',', $file['tags']))); ?>
+                        <?php if (!empty($all_tags)): ?>
+                            <span class="badge bg-body-secondary text-body me-1" data-bs-toggle="tooltip"
+                                title="<?php echo htmlspecialchars(implode(', ', $all_tags)); ?>">
+                                <i
+                                    class="fas fa-tags me-1"></i><?php echo htmlspecialchars($all_tags[0]); ?><?php if (count($all_tags) > 1): ?>
+                                    +<?php echo count($all_tags) - 1; ?><?php endif; ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="mb-2 d-flex flex-wrap gap-2">
+                        <span
+                            class="badge bg-<?php echo $file['status'] === 'active' ? 'success' : 'secondary'; ?> text-body">Status:
+                            <?php echo ucfirst($file['status'] ?? 'N/A'); ?></span>
+                        <span
+                            class="badge bg-<?php echo $file['visibility'] === 'public' ? 'info' : 'secondary'; ?> text-body">Visibility:
+                            <?php echo ucfirst($file['visibility'] ?? 'N/A'); ?></span>
+                        <span
+                            class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?> text-body">Verified:
+                            <?php echo $file['verified'] ? 'Yes' : 'No'; ?></span>
+                    </div>
+                    <div class="mb-2 d-flex flex-wrap gap-3">
+                        <span class="text-muted"><i
+                                class="fas fa-file me-1"></i><?php echo strtoupper($file['file_type']); ?></span>
+                        <span class="text-muted"><i class="fas fa-hashtag me-1"></i><span data-bs-toggle="tooltip"
+                                title="<?php echo htmlspecialchars($file['content_hash']); ?>"><?php echo htmlspecialchars(substr($file['content_hash'], 0, 8)); ?>...</span></span>
+                        <span class="text-muted"><i class="fas fa-key me-1"></i><span data-bs-toggle="tooltip"
+                                title="<?php echo htmlspecialchars($file['keywords']); ?>"><?php echo htmlspecialchars(substr($file['keywords'], 0, 16)); ?>...</span></span>
+                        <span class="text-muted"><i
+                                class="fas fa-database me-1"></i><?php echo formatFileSize($file['file_size']); ?></span>
+                    </div>
+                    <div class="mb-2 text-body">
+                        <i class="fas fa-user me-1"></i>
+                        <?php echo htmlspecialchars($file['uploader_name']); ?>
+                        <?php if (!empty($owner_type)): ?>
+                            <span class="badge bg-body-secondary text-body ms-1"><?php echo $owner_type; ?></span>
+                        <?php endif; ?>
+                        <span class="ms-2"><i
+                                class="fas fa-calendar-alt me-1"></i><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></span>
+                    </div>
+                    <div class="mb-2 d-flex flex-wrap gap-2">
+                        <span class="text-info"><i
+                                class="fas fa-download me-1"></i><?php echo $file['download_count']; ?></span>
+                        <span class="text-warning"><i
+                                class="fas fa-star me-1"></i><?php echo number_format($file['avg_rating'], 1); ?></span>
+                        <span class="text-danger"><i
+                                class="fas fa-flag me-1"></i><?php echo $file['report_count']; ?></span>
+                    </div>
+                    <?php if (isLoggedIn()): ?>
+                        <a href="download.php?slug=<?php echo urlencode($file['slug']); ?>" class="btn btn-success mt-2">
+                            <i class="fas fa-download me-2"></i>Download File
+                        </a>
+                        <?php if (strtolower($file['file_type']) === 'pdf'): ?>
+                            <a href="/eduvault/pdfjs/web/viewer.php?slug=<?php echo urlencode($file['slug']); ?>"
+                                target="_blank" class="btn btn-outline-secondary mt-2 ms-2" title="Full Page PDF Preview">
+                                <i class="fas fa-eye me-1"></i>Preview
+                            </a>
+                        <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
+                            <a href="txt_preview.php?slug=<?php echo urlencode($file['slug']); ?>" target="_blank"
+                                class="btn btn-outline-secondary mt-2 ms-2" title="Full Page Text Preview">
+                                <i class="fas fa-eye me-1"></i>Preview
+                            </a>
+                        <?php elseif (in_array(strtolower($file['file_type']), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                            <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
+                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>" data-preview-type="image">
+                                <i class="fas fa-eye me-1"></i>Preview
+                            </button>
+                        <?php else: ?>
+                            <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
+                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
+                                <i class="fas fa-eye me-1"></i>Preview
+                            </button>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="card shadow-sm">
@@ -272,8 +298,8 @@ require_once '../includes/header.php';
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm mt-4 mt-md-0">
+        <div class="col-12 col-md-4 mb-2">
+            <div class="card shadow-sm mt-md-0 mt-lg-4">
                 <div class="card-header ">
                     <h5 class="mb-0"><i class="fas fa-times-circle me-2"></i>Report File</h5>
                 </div>

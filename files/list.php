@@ -131,7 +131,6 @@ require_once '../modals/reportmodal.php';
                 </form>
             </div>
         </nav>
-        <!-- Offcanvas Filters (Mobile) -->
         <div class="d-lg-none mb-3">
             <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#mobileFilters" aria-controls="mobileFilters">
@@ -291,6 +290,16 @@ require_once '../modals/reportmodal.php';
                                                             <i class="fas fa-download me-2" aria-hidden="true"></i>Download
                                                         </a></li>
                                                     <li>
+                                                        <button
+                                                            class="btn btn-sm btn-outline-warning btn-bookmark-file dropdown-item"
+                                                            data-file-id="<?php echo $file['id']; ?>"
+                                                            title="<?php echo $bookmarked ? 'Remove Bookmark' : 'Add Bookmark'; ?>">
+                                                            <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-bookmark me-2"
+                                                                aria-hidden="true"></i>
+                                                            Bookmark
+                                                        </button>
+                                                    </li>
+                                                    <li>
                                                         <hr class="dropdown-divider">
                                                     </li>
                                                     <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal"
@@ -378,14 +387,14 @@ require_once '../modals/reportmodal.php';
                                         </small>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-transparent border-top-0 d-flex flex-column flex-md-row gap-2">
+                                <div class="card-footer bg-transparent border-top-0 d-flex gap-2">
                                     <?php if (isLoggedIn()): ?>
                                         <?php $bookmarked = isFileBookmarked($_SESSION['user_id'], $file['id'], $mysqli); ?>
-                                        <button class="btn btn-sm btn-outline-warning btn-bookmark-file"
-                                            data-file-id="<?php echo $file['id']; ?>"
-                                            title="<?php echo $bookmarked ? 'Remove Bookmark' : 'Add Bookmark'; ?>">
-                                            <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-star"></i>
-                                        </button>
+                                        <a href="download.php?slug=<?php echo urlencode($file['slug']); ?>"
+                                            class="btn btn-success btn-sm flex-fill"
+                                            aria-label="Download <?php echo htmlspecialchars($file['title']); ?>">
+                                            <i class="fas fa-download me-1" aria-hidden="true"></i>Download
+                                        </a>
                                         <?php if (strtolower($file['file_type']) === 'pdf'): ?>
                                             <a href="/eduvault/pdfjs/web/viewer.php?slug=<?php echo urlencode($file['slug']); ?>"
                                                 target="_blank" class="btn btn-outline-secondary btn-sm flex-fill"
@@ -413,16 +422,17 @@ require_once '../modals/reportmodal.php';
                                                 <i class="fas fa-eye me-1"></i>Preview
                                             </button>
                                         <?php endif; ?>
-                                        <a href="download.php?slug=<?php echo urlencode($file['slug']); ?>"
-                                            class="btn btn-success btn-sm flex-fill"
-                                            aria-label="Download <?php echo htmlspecialchars($file['title']); ?>">
-                                            <i class="fas fa-download me-1" aria-hidden="true"></i>Download
-                                        </a>
-                                        <a href="view.php?slug=<?php echo urlencode($file['slug']); ?>"
+                                        <button class="btn btn-sm btn-outline-warning btn-bookmark-file"
+                                            data-file-id="<?php echo $file['id']; ?>"
+                                            title="<?php echo $bookmarked ? 'Remove Bookmark' : 'Add Bookmark'; ?>">
+                                            <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-bookmark"></i>
+                                        </button>
+
+                                        <!-- <a href="view.php?slug=<?php echo urlencode($file['slug']); ?>"
                                             class="btn btn-outline-primary btn-sm flex-fill"
                                             aria-label="View details for <?php echo htmlspecialchars($file['title']); ?>">
                                             <i class="fas fa-eye" aria-hidden="true"></i>
-                                        </a>
+                                        </a> -->
                                     <?php else: ?>
                                         <a href="../auth/login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"
                                             class="btn btn-warning btn-sm w-100"

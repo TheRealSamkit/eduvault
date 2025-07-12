@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $query = "INSERT INTO digital_files (user_id, slug, title, description, subject_id, course_id, year_id, file_path, file_type, file_size, tags, content_hash, keywords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                     $stmt = mysqli_prepare($mysqli, $query);
-                    mysqli_stmt_bind_param($stmt, "issiiisssssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash, $keywords);
+                    mysqli_stmt_bind_param($stmt, "isssiiissssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash, $keywords);
 
                     if (mysqli_stmt_execute($stmt)) {
                         flash('success', 'File uploaded successfully!');

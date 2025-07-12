@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 08, 2025 at 03:05 PM
+-- Generation Time: Jul 12, 2025 at 05:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -246,6 +246,7 @@ INSERT INTO `courses` (`id`, `name`) VALUES
 
 CREATE TABLE `digital_files` (
   `id` int(11) NOT NULL,
+  `slug` varchar(255) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
@@ -271,8 +272,11 @@ CREATE TABLE `digital_files` (
 -- Dumping data for table `digital_files`
 --
 
-INSERT INTO `digital_files` (`id`, `user_id`, `title`, `description`, `file_path`, `verified`, `file_type`, `file_size`, `upload_date`, `subject_id`, `course_id`, `year_id`, `tags`, `content_hash`, `download_count`, `average_rating`, `status`, `visibility`, `keywords`, `last_updated`) VALUES
-(1, 1, 'Test ', 'Test', '../uploads/files/68694d6a68cae.pdf', 1, 'pdf', 0, '2025-07-07 14:12:57', 1, 19, 2, 'text', NULL, 1, 5.00, 'active', 'public', 'test', '2025-07-07 14:54:02');
+INSERT INTO `digital_files` (`id`, `slug`, `user_id`, `title`, `description`, `file_path`, `verified`, `file_type`, `file_size`, `upload_date`, `subject_id`, `course_id`, `year_id`, `tags`, `content_hash`, `download_count`, `average_rating`, `status`, `visibility`, `keywords`, `last_updated`) VALUES
+(4, 'test-pythonupload-by-me', 2, 'Test-pythonupload by me', 'hrllo', '../uploads/files/686d46c1c828d.txt', 1, 'txt', 1010, '2025-07-08 16:26:41', 4, 9, 14, 'text, tag,my', '25ebad24e36c2f93e4c578818ee99520acb4a692e5ad58362a28f416ecfbc621', 4, NULL, 'active', 'public', 'test, pythonupload, me', '2025-07-10 13:19:35'),
+(5, 'test-file-access-control', 1, 'Test File access control', '0', '../uploads/files/686e6fe8b4a6e.jpg', 1, 'jpg', 129268, '2025-07-09 13:34:32', 3, 9, 14, 'Test', 'bd65112e569f8f62a848425d139e6a4601964561874b793ca72b6f0a3ace26af', 1, NULL, 'active', 'public', 'test, file, access, control', '2025-07-10 12:53:39'),
+(6, 'test-pdf-', 1, 'test pdf ', '0', '../uploads/files/686e6ffabe8cd.pdf', 1, 'pdf', 2296724, '2025-07-09 13:34:50', 4, 9, 14, 'text', '753082440fa5ffaa1548f9d50c18253c44235fb9db2f0b756dd8ae7ccb0f12c0', 0, NULL, 'active', 'public', 'test, pdf, text', '2025-07-09 13:34:50'),
+(7, 'testing-upload', 1, 'Testing UPload', 'This just a test for the upload so i can ensure everything is working properly', '../uploads/files/68724cc00d0da.jpg', 1, 'jpg', 3883089, '2025-07-12 11:53:36', 4, 9, 14, 'text,duplicate,non,comprihensive', '1a7ba188e69a07f526fbd6c879023a5aeb5135b1d8590db74bcc3f970d5c1bb3', 0, NULL, 'active', 'public', 'upload, testing, just, test, so, i, ensure, everything, working, properly', '2025-07-12 11:53:36');
 
 -- --------------------------------------------------------
 
@@ -292,7 +296,11 @@ CREATE TABLE `downloads` (
 --
 
 INSERT INTO `downloads` (`id`, `file_id`, `user_id`, `downloaded_at`) VALUES
-(1, 1, 1, '2025-07-07 14:54:02');
+(2, 4, 2, '2025-07-08 16:26:52'),
+(3, 4, 1, '2025-07-09 13:22:47'),
+(4, 5, 1, '2025-07-10 12:53:39'),
+(5, 4, 1, '2025-07-10 13:19:27'),
+(6, 4, 1, '2025-07-10 13:19:35');
 
 --
 -- Triggers `downloads`
@@ -309,6 +317,40 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `file_bookmarks`
+--
+
+CREATE TABLE `file_bookmarks` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `file_id` int(11) NOT NULL,
+  `bookmarked_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `file_bookmarks`
+--
+
+INSERT INTO `file_bookmarks` (`id`, `user_id`, `file_id`, `bookmarked_at`) VALUES
+(1, 1, 5, '2025-07-10 19:08:39'),
+(2, 1, 6, '2025-07-10 19:09:09');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `file_downloads`
+--
+
+CREATE TABLE `file_downloads` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `file_id` int(11) NOT NULL,
+  `downloaded_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `file_feedback`
 --
 
@@ -320,13 +362,6 @@ CREATE TABLE `file_feedback` (
   `comment` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `file_feedback`
---
-
-INSERT INTO `file_feedback` (`id`, `file_id`, `user_id`, `rating`, `comment`, `created_at`) VALUES
-(1, 1, 1, 5, 'test', '2025-07-07 14:16:10');
 
 --
 -- Triggers `file_feedback`
@@ -557,15 +592,39 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `last_active` timestamp NULL DEFAULT current_timestamp(),
   `latitude` decimal(10,8) DEFAULT NULL,
-  `longitude` decimal(11,8) DEFAULT NULL
+  `longitude` decimal(11,8) DEFAULT NULL,
+  `tokens` int(11) NOT NULL DEFAULT 15
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `avatar_path`, `password`, `location`, `phone`, `status`, `created_at`, `last_active`, `latitude`, `longitude`) VALUES
-(1, 'Samkit Jain', 'samkitjain2809@gmail.com', 'https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c', '$2y$10$NymwfhWeo9Tdo3FkWjjyp.JXJzURehF/fFM..NaBq1mHUfRp/Vmla', NULL, NULL, 'active', '2025-07-07 14:11:16', '2025-07-07 14:11:16', NULL, NULL);
+INSERT INTO `users` (`id`, `name`, `email`, `avatar_path`, `password`, `location`, `phone`, `status`, `created_at`, `last_active`, `latitude`, `longitude`, `tokens`) VALUES
+(1, 'Samkit Jain', 'samkitjain2809@gmail.com', 'https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c', '$2y$10$NymwfhWeo9Tdo3FkWjjyp.JXJzURehF/fFM..NaBq1mHUfRp/Vmla', NULL, NULL, 'active', '2025-07-07 14:11:16', '2025-07-07 14:11:16', NULL, NULL, 1),
+(2, 'user1', 'user@mail.com', 'uploads/avatars/default.png', '$2y$10$Wi6YQ0vr9BXvdB2r2lv.IOHfOBo.9FubT7IfWzkVyCCm0geMhoEPO', NULL, NULL, 'active', '2025-07-08 16:00:18', '2025-07-08 16:00:27', NULL, NULL, 15);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_file_access`
+--
+
+CREATE TABLE `user_file_access` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `file_id` int(11) NOT NULL,
+  `accessed_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_file_access`
+--
+
+INSERT INTO `user_file_access` (`id`, `user_id`, `file_id`, `accessed_at`) VALUES
+(1, 1, 5, '2025-07-09 16:11:01'),
+(2, 1, 4, '2025-07-10 13:19:27'),
+(3, 1, 6, '2025-07-10 13:45:34');
 
 -- --------------------------------------------------------
 
@@ -733,6 +792,7 @@ ALTER TABLE `courses`
 --
 ALTER TABLE `digital_files`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `fk_digital_files_subject` (`subject_id`),
   ADD KEY `fk_digital_files_course` (`course_id`),
@@ -754,6 +814,21 @@ ALTER TABLE `downloads`
   ADD KEY `user_id` (`user_id`),
   ADD KEY `idx_downloads_file_date` (`file_id`,`downloaded_at`),
   ADD KEY `idx_downloads_user_date` (`user_id`,`downloaded_at`);
+
+--
+-- Indexes for table `file_bookmarks`
+--
+ALTER TABLE `file_bookmarks`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_bookmark` (`user_id`,`file_id`),
+  ADD KEY `file_id` (`file_id`);
+
+--
+-- Indexes for table `file_downloads`
+--
+ALTER TABLE `file_downloads`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`,`file_id`,`downloaded_at`);
 
 --
 -- Indexes for table `file_feedback`
@@ -823,6 +898,14 @@ ALTER TABLE `users`
   ADD KEY `idx_users_active_status` (`status`,`last_active`);
 
 --
+-- Indexes for table `user_file_access`
+--
+ALTER TABLE `user_file_access`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`,`file_id`),
+  ADD KEY `file_id` (`file_id`);
+
+--
 -- Indexes for table `years`
 --
 ALTER TABLE `years`
@@ -867,13 +950,25 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `digital_files`
 --
 ALTER TABLE `digital_files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `downloads`
 --
 ALTER TABLE `downloads`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `file_bookmarks`
+--
+ALTER TABLE `file_bookmarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `file_downloads`
+--
+ALTER TABLE `file_downloads`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `file_feedback`
@@ -921,7 +1016,13 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `user_file_access`
+--
+ALTER TABLE `user_file_access`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `years`
@@ -965,6 +1066,13 @@ ALTER TABLE `downloads`
   ADD CONSTRAINT `downloads_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `file_bookmarks`
+--
+ALTER TABLE `file_bookmarks`
+  ADD CONSTRAINT `file_bookmarks_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `file_bookmarks_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `digital_files` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `file_feedback`
 --
 ALTER TABLE `file_feedback`
@@ -990,6 +1098,34 @@ ALTER TABLE `search_analytics`
 --
 ALTER TABLE `system_settings`
   ADD CONSTRAINT `system_settings_ibfk_1` FOREIGN KEY (`updated_by`) REFERENCES `admin_users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `user_file_access`
+--
+ALTER TABLE `user_file_access`
+  ADD CONSTRAINT `user_file_access_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_file_access_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `digital_files` (`id`) ON DELETE CASCADE;
+
+-- Notification preferences
+ALTER TABLE `users`
+  ADD COLUMN `notify_downloads` TINYINT(1) NOT NULL DEFAULT 1 AFTER `download_confirm`,
+  ADD COLUMN `notify_downloads_threshold` INT DEFAULT 10 AFTER `notify_downloads`,
+  ADD COLUMN `notify_feedback` TINYINT(1) NOT NULL DEFAULT 1 AFTER `notify_downloads_threshold`,
+  ADD COLUMN `notify_tokens` TINYINT(1) NOT NULL DEFAULT 1 AFTER `notify_feedback`,
+  ADD COLUMN `newsletter` TINYINT(1) NOT NULL DEFAULT 1 AFTER `notify_tokens`,
+  ADD COLUMN `allow_feedback` TINYINT(1) NOT NULL DEFAULT 1 AFTER `newsletter`;
+
+-- User activity history
+CREATE TABLE IF NOT EXISTS `user_activity` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL,
+  `activity_type` ENUM('search','view','preview','download') NOT NULL,
+  `file_id` INT DEFAULT NULL,
+  `search_query` VARCHAR(255) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`file_id`) REFERENCES `digital_files`(`id`) ON DELETE SET NULL
+);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
