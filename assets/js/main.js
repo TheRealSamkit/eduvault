@@ -48,13 +48,6 @@ window.addEventListener("load", () => {
       }
     });
 })();
-document.addEventListener("DOMContentLoaded", function () {
-  const toastElements = document.querySelectorAll(".toast");
-  toastElements.forEach(function (toastEl) {
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
-  });
-});
 // Scroll to top button functionality
 const btn = document.getElementById("scrollToTopBtn");
 window.addEventListener("scroll", () => {
@@ -66,7 +59,7 @@ window.addEventListener("scroll", () => {
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("img").forEach(function (img) {
     img.addEventListener("error", function () {
-      img.src = "../uploads/avatars/default.png";
+      img.src = "/eduvault/uploads/avatars/default.png";
     });
   });
   const sortSelect = document.querySelector('select[name="sort"]');
@@ -75,7 +68,27 @@ document.addEventListener("DOMContentLoaded", function () {
       this.form.submit();
     });
   }
-
+  const toastElements = document.querySelectorAll(".toast");
+  toastElements.forEach(function (toastEl) {
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+  });
+  const toggleViewBtn = document.getElementById("toggleViewBtn");
+  if (toggleViewBtn) {
+    toggleViewBtn.addEventListener("click", function () {
+      var grid = document.getElementById("bookmarksGrid");
+      var table = document.getElementById("bookmarksTable");
+      if (grid.classList.contains("d-none")) {
+        grid.classList.remove("d-none");
+        table.classList.add("d-none");
+        this.innerHTML = '<i class="fas fa-th"></i> Toggle View';
+      } else {
+        grid.classList.add("d-none");
+        table.classList.remove("d-none");
+        this.innerHTML = '<i class="fas fa-list"></i> Toggle View';
+      }
+    });
+  }
   // Mobile filter toggle
   const filterToggle = document.querySelector(".filter-toggle");
   const filtersCollapse = document.querySelector(".filters-collapse");
@@ -90,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".btn-preview-file").forEach(function (btn) {
     btn.addEventListener("click", function (e) {
       e.preventDefault();
-      var fileId = btn.getAttribute("data-file-id");
+      var fileSlug = btn.getAttribute("data-file-slug");
       var fileType = btn.getAttribute("data-file-type");
       var fileTitle = btn.getAttribute("data-file-title");
       var filePath = btn.getAttribute("data-file-path");
@@ -117,6 +130,30 @@ document.addEventListener("DOMContentLoaded", function () {
             renderPDF(filePath, "pdfViewer");
           }
         } else if (
+          ["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(fileType)
+        ) {
+          // Images: Use slug if available
+          if (fileSlug) {
+            modalBody.innerHTML =
+              '<img src="/eduvault/files/image_proxy.php?slug=' +
+              encodeURIComponent(fileSlug) +
+              '" class="img-fluid rounded mx-auto d-block" style="max-height:70vh;" alt="Image Preview">';
+          } else if (filePath) {
+            modalBody.innerHTML =
+              '<img src="' +
+              filePath +
+              '" class="img-fluid rounded mx-auto d-block" style="max-height:70vh;" alt="Image Preview">';
+          } else {
+            modalBody.innerHTML =
+              '<div class="text-center text-danger py-5">Image preview not available.</div>';
+          }
+        } else if (["txt", "csv", "md"].includes(fileType)) {
+          // Text: Use iframe for raw file
+          modalBody.innerHTML =
+            '<iframe src="' +
+            filePath +
+            '" style="width:100%;height:70vh;border:none;"></iframe>';
+        } else if (
           ["doc", "docx", "ppt", "pptx", "xls", "xlsx"].includes(fileType)
         ) {
           // MS Office: Use iframe with Google Docs Viewer
@@ -128,20 +165,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 filePath.replace(/^\.\./, "eduvault")
             ) +
             '&embedded=true" style="width:100%;height:70vh;border:none;"></iframe>';
-        } else if (
-          ["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(fileType)
-        ) {
-          // Images
-          modalBody.innerHTML =
-            '<img src="' +
-            filePath +
-            '" class="img-fluid rounded mx-auto d-block" style="max-height:70vh;" alt="Image Preview">';
-        } else if (["txt", "csv", "md"].includes(fileType)) {
-          // Text: Use iframe for raw file
-          modalBody.innerHTML =
-            '<iframe src="' +
-            filePath +
-            '" style="width:100%;height:70vh;border:none;"></iframe>';
         } else {
           modalBody.innerHTML =
             '<div class="text-center text-muted py-5">Preview not available for this file type.</div>';
@@ -151,6 +174,48 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("filePreviewModal")
       );
       modal.show();
+      // Accessibility: Move focus back to the triggering button when modal closes
+      var filePreviewModal = document.getElementById("filePreviewModal");
+      if (filePreviewModal) {
+        filePreviewModal.addEventListener(
+          "hidden.bs.modal",
+          function handler() {
+            btn.focus();
+            filePreviewModal.removeEventListener("hidden.bs.modal", handler);
+          }
+        );
+      }
+    });
+  });
+
+  // Bookmark button logic
+  document.querySelectorAll(".btn-bookmark-file").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      var fileId = btn.getAttribute("data-file-id");
+      fetch("/eduvault/files/bookmark.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "file_id=" + encodeURIComponent(fileId),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            var icon = btn.querySelector("i");
+            if (data.bookmarked) {
+              icon.classList.remove("far");
+              icon.classList.add("fas");
+              btn.title = "Remove Bookmark";
+            } else {
+              icon.classList.remove("fas");
+              icon.classList.add("far");
+              btn.title = "Add Bookmark";
+            }
+          } else if (data.error) {
+            alert(data.error);
+          }
+        })
+        .catch(() => alert("Failed to update bookmark."));
     });
   });
 });

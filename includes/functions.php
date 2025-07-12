@@ -19,6 +19,16 @@ function getFileIcon($file_type)
             return "invoice";
     }
 }
+function generateSlug($title, $mysqli)
+{
+    $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+    $baseSlug = $slug;
+    $i = 1;
+    while (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM digital_files WHERE slug = '$slug'")) > 0) {
+        $slug = $baseSlug . '-' . $i++;
+    }
+    return $slug;
+}
 
 function formatFileSize($bytes)
 {
@@ -446,6 +456,72 @@ function redirect(string $url): void
 {
     header("Location: $url");
     exit();
+}
+
+// Token-based file access control
+function checkAndConsumeToken($user_id, $file_id, $mysqli)
+{
+    // Check if user already accessed this file
+    $check_query = "SELECT id FROM user_file_access WHERE user_id = ? AND file_id = ?";
+    $stmt = mysqli_prepare($mysqli, $check_query);
+    mysqli_stmt_bind_param($stmt, 'ii', $user_id, $file_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
+
+    if (mysqli_stmt_num_rows($stmt) > 0) {
+        // Already accessed, no token needed
+        mysqli_stmt_close($stmt);
+        return true;
+    }
+    mysqli_stmt_close($stmt);
+
+    // Check token balance
+    $token_query = "SELECT tokens FROM users WHERE id = ?";
+    $stmt = mysqli_prepare($mysqli, $token_query);
+    mysqli_stmt_bind_param($stmt, 'i', $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    $tokens = $row['tokens'] ?? 0;
+    mysqli_stmt_close($stmt);
+
+    if ($tokens < 1) {
+        return false;
+    }
+
+    // Deduct token and record access (transactional)
+    $mysqli->begin_transaction();
+    try {
+        $update_query = "UPDATE users SET tokens = tokens - 1 WHERE id = ? AND tokens > 0";
+        $stmt = mysqli_prepare($mysqli, $update_query);
+        mysqli_stmt_bind_param($stmt, 'i', $user_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+
+        $insert_query = "INSERT INTO user_file_access (user_id, file_id) VALUES (?, ?)";
+        $stmt = mysqli_prepare($mysqli, $insert_query);
+        mysqli_stmt_bind_param($stmt, 'ii', $user_id, $file_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+
+        $mysqli->commit();
+        return true;
+    } catch (Exception $e) {
+        $mysqli->rollback();
+        return false;
+    }
+}
+
+function isFileBookmarked($user_id, $file_id, $mysqli)
+{
+    $query = "SELECT 1 FROM file_bookmarks WHERE user_id = ? AND file_id = ? LIMIT 1";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'ii', $user_id, $file_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $bookmarked = mysqli_fetch_assoc($result) ? true : false;
+    mysqli_stmt_close($stmt);
+    return $bookmarked;
 }
 
 ?>

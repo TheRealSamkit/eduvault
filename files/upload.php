@@ -47,11 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
                     $content_hash = generateContentHash($file_path);
                     $keywords = extractKeywords($title . ' ' . $description);
+                    $slug = generateSlug($title, $mysqli);
 
-                    $query = "INSERT INTO digital_files (user_id, title, description, subject_id, course_id, year_id, file_path, file_type, file_size, tags, content_hash, keywords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $query = "INSERT INTO digital_files (user_id, slug, title, description, subject_id, course_id, year_id, file_path, file_type, file_size, tags, content_hash, keywords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                     $stmt = mysqli_prepare($mysqli, $query);
-                    mysqli_stmt_bind_param($stmt, "issiiissssss", $user_id, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash, $keywords);
+                    mysqli_stmt_bind_param($stmt, "issiiisssssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash, $keywords);
 
                     if (mysqli_stmt_execute($stmt)) {
                         flash('success', 'File uploaded successfully!');
@@ -156,7 +157,8 @@ require_once '../includes/header.php';
                                 <input type="file" name="file" class="form-control" required
                                     accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>">
                                 <div class="form-text">Max size: 10MB. Allowed formats:
-                                    <?php echo strtoupper(implode(", ", $allowed_ext)) ?></div>
+                                    <?php echo strtoupper(implode(", ", $allowed_ext)) ?>
+                                </div>
                             </div>
 
                             <div class="d-grid gap-2">

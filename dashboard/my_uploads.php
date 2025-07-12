@@ -50,24 +50,20 @@ require_once '../includes/header.php';
                 <div class="card-body">
                     <?php if (mysqli_num_rows($files_result) > 0): ?>
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table uploads-table align-middle table-hover">
                                 <thead>
                                     <tr>
                                         <th>Title</th>
                                         <th>Subject</th>
                                         <th>Course</th>
                                         <th>Year</th>
-                                        <th>Tags</th>
+                                        <th>Tag</th>
                                         <th>Status</th>
-                                        <th>Visibility</th>
-                                        <th>Verified</th>
-                                        <th>File Size</th>
-                                        <th>Avg. Rating</th>
+                                        <th>Size</th>
+                                        <th>Stats</th>
                                         <th>Hash</th>
                                         <th>Keywords</th>
-                                        <th>Reports</th>
-                                        <th>Downloads</th>
-                                        <th>Upload Date</th>
+                                        <th>Date</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -78,107 +74,104 @@ require_once '../includes/header.php';
                                                 <i
                                                     class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
                                                 <a href="../files/view.php?id=<?php echo $file['id']; ?>"
-                                                    class="text-decoration-none">
+                                                    class="text-decoration-none fw-semibold text-body">
                                                     <?php echo htmlspecialchars($file['title']); ?>
                                                 </a>
                                             </td>
-                                            <td><?php echo htmlspecialchars($file['subject']); ?></td>
-                                            <td><?php echo htmlspecialchars($file['course']); ?></td>
-                                            <td><?php echo $file['year']; ?></td>
+                                            <td class="text-body"><?php echo htmlspecialchars($file['subject']); ?></td>
+                                            <td class="text-body"><?php echo htmlspecialchars($file['course']); ?></td>
+                                            <td class="text-body"><?php echo $file['year']; ?></td>
                                             <td>
-                                                <?php if (!empty($file['tags'])): ?>
-                                                    <?php foreach (array_slice(explode(',', $file['tags']), 0, 3) as $tag): ?>
-                                                        <span
-                                                            class="badge bg-light text-dark me-1"><?php echo htmlspecialchars(trim($tag)); ?></span>
-                                                    <?php endforeach; ?>
-                                                    <?php if (count(explode(',', $file['tags'])) > 3): ?>
-                                                        <span class="text-muted">+<?php echo count(explode(',', $file['tags'])) - 3; ?>
-                                                            more</span>
-                                                    <?php endif; ?>
+                                                <?php $all_tags = array_filter(array_map('trim', explode(',', $file['tags']))); ?>
+                                                <?php if (!empty($all_tags)): ?>
+                                                    <span class="badge bg-body-secondary text-body" data-bs-toggle="tooltip"
+                                                        title="<?php echo htmlspecialchars(implode(', ', $all_tags)); ?>">
+                                                        <?php echo htmlspecialchars($all_tags[0]); ?>
+                                                        <?php if (count($all_tags) > 1): ?>
+                                                            +<?php echo count($all_tags) - 1; ?><?php endif; ?>
+                                                    </span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <span
-                                                    class="badge bg-<?php echo $file['status'] === 'active' ? 'success' : 'secondary'; ?>">
-                                                    <?php echo ucfirst($file['status'] ?? 'N/A'); ?>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <span
+                                                        class="badge bg-<?php echo $file['status'] === 'active' ? 'success' : 'secondary'; ?> text-body">
+                                                        <?php echo ucfirst($file['status'] ?? 'N/A'); ?> </span>
+                                                    <span
+                                                        class="badge bg-<?php echo $file['visibility'] === 'public' ? 'info' : 'secondary'; ?> text-body">
+                                                        <?php echo ucfirst($file['visibility'] ?? 'N/A'); ?> </span>
+                                                    <span
+                                                        class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?> text-body">
+                                                        <?php echo $file['verified'] ? 'Verified' : 'Unverified'; ?> </span>
+                                                </div>
+                                            </td>
+                                            <td class="text-body"><?php echo formatFileSize($file['file_size']); ?></td>
+                                            <td>
+                                                <span class="me-2 text-body" data-bs-toggle="tooltip" title="Downloads">
+                                                    <i class="fas fa-download text-info"></i>
+                                                    <?php echo $file['download_count']; ?>
+                                                </span>
+                                                <span class="me-2 text-body" data-bs-toggle="tooltip" title="Reports">
+                                                    <i class="fas fa-flag text-danger"></i> <?php echo $file['report_count']; ?>
+                                                </span>
+                                                <span class="text-body" data-bs-toggle="tooltip" title="Rating">
+                                                    <i class="fas fa-star text-warning"></i>
+                                                    <?php echo number_format($file['average_rating'] ?? 0, 1); ?>
                                                 </span>
                                             </td>
                                             <td>
-                                                <span
-                                                    class="badge bg-<?php echo $file['visibility'] === 'public' ? 'info' : 'secondary'; ?>">
-                                                    <?php echo ucfirst($file['visibility'] ?? 'N/A'); ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?>">
-                                                    <?php echo $file['verified'] ? 'Yes' : 'No'; ?>
-                                                </span>
-                                            </td>
-                                            <td><?php echo formatFileSize($file['file_size']); ?></td>
-                                            <td>
-                                                <span class="badge bg-warning text-dark">
-                                                    <i
-                                                        class="fas fa-star me-1"></i><?php echo number_format($file['average_rating'] ?? 0, 1); ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span title="<?php echo htmlspecialchars($file['content_hash']); ?>">
+                                                <span class="text-body" data-bs-toggle="tooltip"
+                                                    title="<?php echo htmlspecialchars($file['content_hash']); ?>">
                                                     <?php echo htmlspecialchars(substr($file['content_hash'], 0, 8)); ?>...
                                                 </span>
                                             </td>
                                             <td>
-                                                <span title="<?php echo htmlspecialchars($file['keywords']); ?>">
+                                                <span class="text-body" data-bs-toggle="tooltip"
+                                                    title="<?php echo htmlspecialchars($file['keywords']); ?>">
                                                     <?php echo htmlspecialchars(substr($file['keywords'], 0, 16)); ?>...
                                                 </span>
                                             </td>
-                                            <td>
-                                                <span class="badge bg-danger">
-                                                    <i class="fas fa-times-circle me-1"></i><?php echo $file['report_count']; ?>
-                                                </span>
+                                            <td class="text-body"><?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
                                             </td>
-                                            <td>
-                                                <span class="badge bg-info">
-                                                    <i class="fas fa-download me-1"></i><?php echo $file['download_count']; ?>
-                                                </span>
-                                            </td>
-                                            <td><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></td>
-                                            <td>
+                                            <td class="d-flex gap-1">
                                                 <?php if (strtolower($file['file_type']) === 'pdf'): ?>
                                                     <a href="/eduvault/pdfjs/web/viewer.html?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?id=' . $file['id']); ?>"
-                                                        target="_blank" class="btn btn-sm btn-outline-secondary me-1"
-                                                        title="Full Page PDF Preview">
+                                                        target="_blank" class="btn btn-outline-secondary action-btn"
+                                                        data-bs-toggle="tooltip" title="Full PDF Preview">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
                                                     <a href="../files/txt_preview.php?id=<?php echo $file['id']; ?>" target="_blank"
-                                                        class="btn btn-sm btn-outline-secondary me-1"
-                                                        title="Full Page Text Preview">
+                                                        class="btn btn-outline-secondary action-btn" data-bs-toggle="tooltip"
+                                                        title="Full Text Preview">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 <?php else: ?>
                                                     <button type="button"
-                                                        class="btn btn-sm btn-outline-secondary btn-preview-file me-1"
-                                                        data-file-id="<?php echo $file['id']; ?>"
+                                                        class="btn btn-outline-secondary action-btn btn-preview-file"
+                                                        data-bs-toggle="tooltip" title="Preview"
+                                                        data-file-slug="<?php echo urlencode($file['slug']); ?>"
                                                         data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>"
-                                                        data-file-path="<?php echo str_replace('..', '/eduvault', $file['file_path']); ?>"
-                                                        title="Preview">
+                                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 <?php endif; ?>
-                                                <a href="../files/view.php?id=<?php echo $file['id']; ?>"
-                                                    class="btn btn-sm btn-outline-info me-1" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
                                                 <a href="../files/download.php?id=<?php echo $file['id']; ?>"
-                                                    class="btn btn-sm btn-outline-primary me-1" title="Download">
+                                                    class="btn btn-outline-primary action-btn" data-bs-toggle="tooltip"
+                                                    title="Download">
                                                     <i class="fas fa-download"></i>
+                                                </a>
+                                                <a href="../files/view.php?id=<?php echo $file['id']; ?>"
+                                                    class="btn btn-outline-info action-btn" data-bs-toggle="tooltip"
+                                                    title="View Details">
+                                                    <i class="fas fa-info-circle"></i>
                                                 </a>
                                                 <form method="POST" class="d-inline"
                                                     onsubmit="return confirm('Are you sure you want to delete this file?');">
                                                     <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
                                                     <button type="submit" name="delete_file"
-                                                        class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        class="btn btn-outline-danger action-btn" data-bs-toggle="tooltip"
+                                                        title="Delete">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -187,6 +180,12 @@ require_once '../includes/header.php';
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
+                            <script>
+                                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                                    new bootstrap.Tooltip(tooltipTriggerEl);
+                                });
+                            </script>
                         </div>
                     <?php else: ?>
                         <div class="text-center py-4">

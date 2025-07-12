@@ -1,5 +1,7 @@
 <?php
 require_once 'session.php';
+require_once 'db_connect.php';
+require_once 'functions.php';
 $currentPage = $_SERVER['PHP_SELF'];
 $books_enabled = false;
 if (isLoggedIn()) {
@@ -206,10 +208,10 @@ if (isLoggedIn()) {
                     <div class="toast align-items-center text-white bg-<?= toastBgClass($toast['type']) ?> border-0 mb-2"
                         role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
                         <div class="d-flex">
-                            <div class="toast-body">
+                            <div class="toast-body w-100">
                                 <?= htmlspecialchars($toast['message']) ?>
                             </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto p-2" data-bs-dismiss="toast"
                                 aria-label="Close"></button>
                         </div>
                     </div>

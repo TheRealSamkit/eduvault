@@ -242,10 +242,9 @@ $host = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "htt
                                     </a>
                                 <?php elseif (isLoggedIn()): ?>
                                     <button type="button" class="btn btn-outline-secondary btn-sm btn-preview-file"
-                                        data-file-id="<?php echo $file['id']; ?>"
+                                        data-file-slug="<?php echo urlencode($file['slug']); ?>"
                                         data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>"
-                                        data-file-path="<?php echo str_replace('..', '/eduvault', $file['file_path']); ?>">
+                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
                                         <i class="fas fa-eye me-1"></i>Preview
                                     </button>
                                 <?php endif; ?>
@@ -261,93 +260,95 @@ $host = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "htt
                             </div>
                         </div>
                     </div>
-                </div>
-            <?php endwhile; ?>
-        </div>
-    </div>
-</div>
-
-<div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-12 text-center">
-            <h2 class="display-5 mb-3">What Students Say</h2>
-            <p class="lead text-muted">Real experiences from our community members</p>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4 col-md-6">
-            <div class="testimonial-card">
-                <div class="testimonial-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <p class="mb-3">"EduVault helped me find rare engineering books at no cost. The community is amazing and
-                    always ready to help!"</p>
-                <h6 class="text-primary">Priya Sharma</h6>
-                <small class="text-muted">Engineering Student, Mumbai</small>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="testimonial-card">
-                <div class="testimonial-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <p class="mb-3">"I've shared over 50 books through EduVault. It's satisfying to know they're helping
-                    other students succeed."</p>
-                <h6 class="text-primary">Rajesh Kumar</h6>
-                <small class="text-muted">Medical Student, Delhi</small>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="testimonial-card">
-                <div class="testimonial-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <p class="mb-3">"The digital resources section is a goldmine for competitive exam preparation. Highly
-                    recommended!"</p>
-                <h6 class="text-primary">Anjali Patel</h6>
-                <small class="text-muted">UPSC Aspirant, Ahmedabad</small>
+                <?php endwhile; ?>
             </div>
         </div>
     </div>
-</div>
 
-<div class="cta-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="display-5 mb-4">Ready to Transform Your Learning?</h2>
-                <p class="lead mb-5">Join thousands of students who are already sharing knowledge and growing together
-                </p>
-                <?php if (!isLoggedIn()): ?>
-                    <a href="register.php" class="btn btn-light btn-lg px-5 py-3 me-3">
-                        <i class="fas fa-rocket me-2"></i>Join EduVault Today
-                    </a>
-                    <a href="files/list.php" class="btn btn-outline-light btn-lg px-5 py-3">
-                        <i class="fas fa-search me-2"></i>Browse Resources
-                    </a>
-                <?php else: ?>
-                    <div class="row justify-content-center">
-                        <div class="col-md-4 mb-3">
-                            <a href="books/list.php" class="btn btn-light btn-lg w-100 py-3">
-                                <i class="fas fa-book me-2"></i>Browse Books
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="files/list.php" class="btn btn-outline-light btn-lg w-100 py-3">
-                                <i class="fas fa-file-alt me-2"></i>Study Materials
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="dashboard/dashboard.php" class="btn btn-light btn-lg w-100 py-3">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                            </a>
-                        </div>
+    <div class="container py-5">
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h2 class="display-5 mb-3">What Students Say</h2>
+                <p class="lead text-muted">Real experiences from our community members</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">
+                        <i class="fas fa-user"></i>
                     </div>
-                <?php endif; ?>
+                    <p class="mb-3">"EduVault helped me find rare engineering books at no cost. The community is amazing
+                        and
+                        always ready to help!"</p>
+                    <h6 class="text-primary">Priya Sharma</h6>
+                    <small class="text-muted">Engineering Student, Mumbai</small>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <p class="mb-3">"I've shared over 50 books through EduVault. It's satisfying to know they're helping
+                        other students succeed."</p>
+                    <h6 class="text-primary">Rajesh Kumar</h6>
+                    <small class="text-muted">Medical Student, Delhi</small>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <p class="mb-3">"The digital resources section is a goldmine for competitive exam preparation.
+                        Highly
+                        recommended!"</p>
+                    <h6 class="text-primary">Anjali Patel</h6>
+                    <small class="text-muted">UPSC Aspirant, Ahmedabad</small>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<?php require_once 'includes/footer.php'; ?>
+    <div class="cta-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="display-5 mb-4">Ready to Transform Your Learning?</h2>
+                    <p class="lead mb-5">Join thousands of students who are already sharing knowledge and growing
+                        together
+                    </p>
+                    <?php if (!isLoggedIn()): ?>
+                        <a href="register.php" class="btn btn-light btn-lg px-5 py-3 me-3">
+                            <i class="fas fa-rocket me-2"></i>Join EduVault Today
+                        </a>
+                        <a href="files/list.php" class="btn btn-outline-light btn-lg px-5 py-3">
+                            <i class="fas fa-search me-2"></i>Browse Resources
+                        </a>
+                    <?php else: ?>
+                        <div class="row justify-content-center">
+                            <div class="col-md-4 mb-3">
+                                <a href="books/list.php" class="btn btn-light btn-lg w-100 py-3">
+                                    <i class="fas fa-book me-2"></i>Browse Books
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="files/list.php" class="btn btn-outline-light btn-lg w-100 py-3">
+                                    <i class="fas fa-file-alt me-2"></i>Study Materials
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="dashboard/dashboard.php" class="btn btn-light btn-lg w-100 py-3">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php require_once 'includes/footer.php'; ?>

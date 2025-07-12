@@ -222,6 +222,20 @@ require_once '../modals/reportmodal.php';
                     <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Search</button>
                 </div>
             </form>
+            <?php if (isLoggedIn()): ?>
+                <?php
+                $user_id = $_SESSION['user_id'];
+                $token_query = "SELECT tokens FROM users WHERE id = ?";
+                $stmt = mysqli_prepare($mysqli, $token_query);
+                mysqli_stmt_bind_param($stmt, 'i', $user_id);
+                mysqli_stmt_execute($stmt);
+                $result_token = mysqli_stmt_get_result($stmt);
+                $row_token = mysqli_fetch_assoc($result_token);
+                $tokens = $row_token['tokens'] ?? 0;
+                mysqli_stmt_close($stmt);
+                ?>
+                <div class="alert alert-info mb-3">Your tokens: <strong><?php echo $tokens; ?></strong></div>
+            <?php endif; ?>
             <div class="bg-subtle rounded-3 p-3 mb-4 border">
                 <div class="d-flex justify-content-between align-items-center flex-wrap">
                     <div>
@@ -250,7 +264,7 @@ require_once '../modals/reportmodal.php';
                                 <div class="card-body d-flex flex-column justify-content-between">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <h6 class="card-title mb-0 text-truncate">
-                                            <a href="view.php?id=<?php echo $file['id']; ?>"
+                                            <a href="view.php?slug=<?php echo urlencode($file['slug']); ?>"
                                                 class="text-decoration-none color fs-4"
                                                 aria-label="View details for <?php echo htmlspecialchars($file['title']); ?>">
                                                 <i class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> file-icon text-primary"
@@ -265,12 +279,14 @@ require_once '../modals/reportmodal.php';
                                                 <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="view.php?id=<?php echo $file['id']; ?>"
+                                                <li><a class="dropdown-item"
+                                                        href="view.php?slug=<?php echo urlencode($file['slug']); ?>"
                                                         aria-label="View details for <?php echo htmlspecialchars($file['title']); ?>">
                                                         <i class="fas fa-eye me-2" aria-hidden="true"></i>View Details
                                                     </a></li>
                                                 <?php if (isLoggedIn()): ?>
-                                                    <li><a class="dropdown-item" href="download.php?id=<?php echo $file['id']; ?>"
+                                                    <li><a class="dropdown-item"
+                                                            href="download.php?slug=<?php echo urlencode($file['slug']); ?>"
                                                             aria-label="Download <?php echo htmlspecialchars($file['title']); ?>">
                                                             <i class="fas fa-download me-2" aria-hidden="true"></i>Download
                                                         </a></li>
@@ -364,32 +380,45 @@ require_once '../modals/reportmodal.php';
                                 </div>
                                 <div class="card-footer bg-transparent border-top-0 d-flex flex-column flex-md-row gap-2">
                                     <?php if (isLoggedIn()): ?>
+                                        <?php $bookmarked = isFileBookmarked($_SESSION['user_id'], $file['id'], $mysqli); ?>
+                                        <button class="btn btn-sm btn-outline-warning btn-bookmark-file"
+                                            data-file-id="<?php echo $file['id']; ?>"
+                                            title="<?php echo $bookmarked ? 'Remove Bookmark' : 'Add Bookmark'; ?>">
+                                            <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-star"></i>
+                                        </button>
                                         <?php if (strtolower($file['file_type']) === 'pdf'): ?>
-                                            <a href="/eduvault/pdfjs/web/viewer.html?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?id=' . $file['id']); ?>"
+                                            <a href="/eduvault/pdfjs/web/viewer.php?slug=<?php echo urlencode($file['slug']); ?>"
                                                 target="_blank" class="btn btn-outline-secondary btn-sm flex-fill"
                                                 title="Full Page PDF Preview">
                                                 <i class="fas fa-eye me-1"></i>Full Preview
                                             </a>
                                         <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
-                                            <a href="txt_preview.php?id=<?php echo $file['id']; ?>" target="_blank"
+                                            <a href="txt_preview.php?slug=<?php echo urlencode($file['slug']); ?>" target="_blank"
                                                 class="btn btn-outline-secondary btn-sm flex-fill" title="Full Page Text Preview">
                                                 <i class="fas fa-eye me-1"></i>Full Preview
                                             </a>
-                                        <?php else: ?>
+                                        <?php elseif (in_array(strtolower($file['file_type']), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
                                             <button type="button" class="btn btn-outline-secondary btn-sm flex-fill btn-preview-file"
-                                                data-file-id="<?php echo $file['id']; ?>"
+                                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
                                                 data-file-type="<?php echo strtolower($file['file_type']); ?>"
                                                 data-file-title="<?php echo htmlspecialchars($file['title']); ?>"
-                                                data-file-path="<?php echo str_replace('..', '/eduvault', $file['file_path']); ?>">
+                                                data-preview-type="image">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm flex-fill btn-preview-file"
+                                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
                                                 <i class="fas fa-eye me-1"></i>Preview
                                             </button>
                                         <?php endif; ?>
-                                        <a href="download.php?id=<?php echo $file['id']; ?>"
+                                        <a href="download.php?slug=<?php echo urlencode($file['slug']); ?>"
                                             class="btn btn-success btn-sm flex-fill"
                                             aria-label="Download <?php echo htmlspecialchars($file['title']); ?>">
                                             <i class="fas fa-download me-1" aria-hidden="true"></i>Download
                                         </a>
-                                        <a href="view.php?id=<?php echo $file['id']; ?>"
+                                        <a href="view.php?slug=<?php echo urlencode($file['slug']); ?>"
                                             class="btn btn-outline-primary btn-sm flex-fill"
                                             aria-label="View details for <?php echo htmlspecialchars($file['title']); ?>">
                                             <i class="fas fa-eye" aria-hidden="true"></i>
@@ -475,3 +504,5 @@ require_once '../modals/reportmodal.php';
 
 <?php require_once '../modals/filePreviewModal.php'; ?>
 <?php require_once '../includes/footer.php'; ?>
+<script>
+</script>

@@ -99,7 +99,7 @@ require_once '../includes/admin_header.php';
                                                 <?php echo htmlspecialchars($file['uploader_name']); ?>
                                             </span>
                                         </td>
-                                        <td><?php echo htmlspecialchars(formatFileSizeMB($file['file_size'])); ?></td>
+                                        <td><?php echo htmlspecialchars(formatFileSize($file['file_size'])); ?></td>
                                         <td><?php echo $file['download_count']; ?></td>
                                         <td>
                                             <span class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?>">

@@ -6,12 +6,14 @@ require_once '../includes/functions.php';
 requireLogin();
 
 if (!isset($_GET['file'])) {
+    flash('error', 'No file specified.');
     die('<div class="alert alert-danger m-4">No file specified.</div>');
 }
 $file_path = $_GET['file'];
 $file_path = str_replace('..', '/eduvault', $file_path); // Sanitize
 $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
 if ($ext !== 'pdf') {
+    flash('error', 'Only PDF files can be previewed here.');
     die('<div class="alert alert-danger m-4">Only PDF files can be previewed here.</div>');
 }
 // Optionally, check if file exists on server (if using local files)
@@ -20,6 +22,26 @@ if ($ext !== 'pdf') {
 //     die('<div class="alert alert-danger m-4">File not found.</div>');
 // }
 require_once '../includes/header.php';
+$slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
+if (!empty($slug)) {
+    // Fetch file id for token check
+    $query = "SELECT id FROM digital_files WHERE slug = ? LIMIT 1";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 's', $slug);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $file = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+
+    if ($file && isLoggedIn()) {
+        $user_id = $_SESSION['user_id'];
+        if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
+            flash('error', 'You do not have enough tokens to preview this file. Upload files to earn more tokens!');
+            redirect('../dashboard/dashboard.php');
+            exit();
+        }
+    }
+}
 ?>
 <div class="container py-4">
     <h3 class="mb-4"><i class="fas fa-file-pdf text-danger me-2"></i>PDF Preview</h3>
