@@ -24,11 +24,35 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
         redirect("" . $_SERVER['PHP_SELF']);
         exit();
     } elseif ($action === 'verify') {
+        // Get file info before updating
+        $file_query = mysqli_query($mysqli, "SELECT title, user_id FROM digital_files WHERE id = $file_id");
+        $file_data = mysqli_fetch_assoc($file_query);
+
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 1 WHERE id = $file_id");
+
+        // Send notification to file owner
+        if ($file_data) {
+            $title = "File Approved";
+            $message = "Your file \"{$file_data['title']}\" has been approved and is now public.";
+            createNotification($file_data['user_id'], 'file_approved', $title, $message, $file_id, null, $mysqli);
+        }
+
         redirect("" . $_SERVER['PHP_SELF']);
         exit();
     } elseif ($action === 'ban') {
+        // Get file info before updating
+        $file_query = mysqli_query($mysqli, "SELECT title, user_id FROM digital_files WHERE id = $file_id");
+        $file_data = mysqli_fetch_assoc($file_query);
+
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 0 WHERE id = $file_id");
+
+        // Send notification to file owner
+        if ($file_data) {
+            $title = "File Rejected";
+            $message = "Your file \"{$file_data['title']}\" was rejected. Please review the guidelines.";
+            createNotification($file_data['user_id'], 'file_rejected', $title, $message, $file_id, null, $mysqli);
+        }
+
         redirect("" . $_SERVER['PHP_SELF']);
         exit();
     }

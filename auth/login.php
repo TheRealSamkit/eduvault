@@ -3,11 +3,16 @@ require_once '../includes/db_connect.php';
 require_once '../includes/functions.php';
 $error = '';
 session_start();
+if (isset($_SESSION['user_id'])) {
+    redirect('../dashboard/dashboard.php');
+    exit();
+}
 if (isset($_GET['redirect'])) {
     $_SESSION['referred'] = mysqli_real_escape_string($mysqli, $_GET['redirect']);
 } elseif (isset($_SESSION['user_id'])) {
     redirect('dashboard/dashboard.php');
 }
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -25,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             mysqli_stmt_close($update_stmt);
             $_SESSION['user_id'] = $user['id'];
             if (isset($_SESSION['referred'])) {
-                unset($_SESSION['referred']);
 
                 $redirect = (str_contains($_SESSION['referred'], 'index.php') || str_contains($_SESSION['referred'], 'login.php'))
                     ? '../dashboard/dashboard.php'

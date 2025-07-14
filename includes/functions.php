@@ -505,6 +505,15 @@ function checkAndConsumeToken($user_id, $file_id, $mysqli)
         mysqli_stmt_close($stmt);
 
         $mysqli->commit();
+
+        // Send token notification if user wants token notifications
+        if (getUserPreference($user_id, 'notify_tokens', '1', $mysqli) == '1') {
+            $new_balance = $tokens - 1;
+            $title = "Token Used";
+            $message = "You used 1 token to access a file. New balance: {$new_balance} tokens.";
+            createNotification($user_id, 'token', $title, $message, $file_id, null, $mysqli);
+        }
+
         return true;
     } catch (Exception $e) {
         $mysqli->rollback();
@@ -522,6 +531,192 @@ function isFileBookmarked($user_id, $file_id, $mysqli)
     $bookmarked = mysqli_fetch_assoc($result) ? true : false;
     mysqli_stmt_close($stmt);
     return $bookmarked;
+}
+
+/**
+ * Create a notification for a user
+ * @param int $user_id The user ID to notify
+ * @param string $type The notification type (download, feedback, system, token, file_approved, file_rejected, bookmark, report_resolved)
+ * @param string $title The notification title
+ * @param string $message The notification message
+ * @param int|null $related_file_id Related file ID (optional)
+ * @param int|null $related_user_id Related user ID (optional)
+ * @param mysqli $mysqli Database connection
+ * @return bool Success status
+ */
+function createNotification($user_id, $type, $title, $message, $related_file_id = null, $related_user_id = null, $mysqli)
+{
+    $query = "INSERT INTO notifications (user_id, type, title, message, related_file_id, related_user_id) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'isssii', $user_id, $type, $title, $message, $related_file_id, $related_user_id);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+/**
+ * Get unread notification count for a user
+ * @param int $user_id The user ID
+ * @param mysqli $mysqli Database connection
+ * @return int Unread count
+ */
+function getUnreadNotificationCount($user_id, $mysqli)
+{
+    $query = "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'i', $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $count = mysqli_fetch_assoc($result)['count'];
+    mysqli_stmt_close($stmt);
+    return $count;
+}
+
+/**
+ * Mark a notification as read
+ * @param int $notification_id The notification ID
+ * @param int $user_id The user ID (for security)
+ * @param mysqli $mysqli Database connection
+ * @return bool Success status
+ */
+function markNotificationAsRead($notification_id, $user_id, $mysqli)
+{
+    $query = "UPDATE notifications SET is_read = 1, read_at = NOW() WHERE id = ? AND user_id = ?";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'ii', $notification_id, $user_id);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+/**
+ * Mark all notifications as read for a user
+ * @param int $user_id The user ID
+ * @param mysqli $mysqli Database connection
+ * @return bool Success status
+ */
+function markAllNotificationsAsRead($user_id, $mysqli)
+{
+    $query = "UPDATE notifications SET is_read = 1, read_at = NOW() WHERE user_id = ? AND is_read = 0";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'i', $user_id);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+/**
+ * Get a user preference value
+ * @param int $user_id The user ID
+ * @param string $preference_key The preference key
+ * @param mixed $default_value Default value if preference not found
+ * @param mysqli $mysqli Database connection
+ * @return mixed The preference value or default value
+ */
+function getUserPreference($user_id, $preference_key, $default_value = null, $mysqli)
+{
+    $query = "SELECT preference_value FROM user_preferences WHERE user_id = ? AND preference_key = ?";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'is', $user_id, $preference_key);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+
+    return $row ? $row['preference_value'] : $default_value;
+}
+
+/**
+ * Set a user preference value
+ * @param int $user_id The user ID
+ * @param string $preference_key The preference key
+ * @param mixed $preference_value The preference value
+ * @param mysqli $mysqli Database connection
+ * @return bool Success status
+ */
+function setUserPreference($user_id, $preference_key, $preference_value, $mysqli)
+{
+    $query = "INSERT INTO user_preferences (user_id, preference_key, preference_value) 
+              VALUES (?, ?, ?) 
+              ON DUPLICATE KEY UPDATE preference_value = ?, updated_at = NOW()";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'isss', $user_id, $preference_key, $preference_value, $preference_value);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+/**
+ * Get all user preferences as an associative array
+ * @param int $user_id The user ID
+ * @param mysqli $mysqli Database connection
+ * @return array Associative array of preferences
+ */
+function getAllUserPreferences($user_id, $mysqli)
+{
+    $query = "SELECT preference_key, preference_value FROM user_preferences WHERE user_id = ?";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'i', $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $preferences = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $preferences[$row['preference_key']] = $row['preference_value'];
+    }
+    mysqli_stmt_close($stmt);
+
+    return $preferences;
+}
+
+/**
+ * Delete a user preference
+ * @param int $user_id The user ID
+ * @param string $preference_key The preference key
+ * @param mysqli $mysqli Database connection
+ * @return bool Success status
+ */
+function deleteUserPreference($user_id, $preference_key, $mysqli)
+{
+    $query = "DELETE FROM user_preferences WHERE user_id = ? AND preference_key = ?";
+    $stmt = mysqli_prepare($mysqli, $query);
+    mysqli_stmt_bind_param($stmt, 'is', $user_id, $preference_key);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+/**
+ * Set default preferences for a new user
+ * @param int $user_id The user ID
+ * @param mysqli $mysqli Database connection
+ * @return bool Success status
+ */
+function setDefaultUserPreferences($user_id, $mysqli)
+{
+    $default_preferences = [
+        'notify_downloads' => '1',
+        'notify_downloads_threshold' => '10',
+        'notify_feedback' => '1',
+        'notify_tokens' => '1',
+        'newsletter' => '1',
+        'allow_feedback' => '1',
+        'theme' => 'auto',
+        'email_notifications' => '1',
+        'push_notifications' => '1',
+        'privacy_level' => 'public',
+        'search_history' => '1',
+        'activity_visibility' => 'public'
+    ];
+
+    $success = true;
+    foreach ($default_preferences as $key => $value) {
+        if (!setUserPreference($user_id, $key, $value, $mysqli)) {
+            $success = false;
+        }
+    }
+
+    return $success;
 }
 
 ?>

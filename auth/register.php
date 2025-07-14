@@ -20,7 +20,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $insert_stmt = mysqli_prepare($mysqli, $query);
         mysqli_stmt_bind_param($insert_stmt, 'sss', $name, $email, $password);
         if (mysqli_stmt_execute($insert_stmt)) {
-            $success = "Registration successful! Please login.";
+            $user_id = mysqli_insert_id($mysqli);
+
+            // Set default preferences for the new user
+            require_once '../includes/functions.php';
+            if (setDefaultUserPreferences($user_id, $mysqli)) {
+                // Send welcome notification
+                $title = "Welcome to EduVault";
+                $message = "Thank you for joining EduVault! Start sharing your educational resources.";
+                createNotification($user_id, 'system', $title, $message, null, null, $mysqli);
+
+                $success = "Registration successful! Please login.";
+            } else {
+                $success = "Registration successful! Please login. (Some preferences may not have been set)";
+            }
         } else {
             $error = "Registration failed: " . mysqli_error($mysqli);
         }

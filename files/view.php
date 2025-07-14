@@ -74,6 +74,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isLoggedIn() && isset($_POST['submit
 
     if (mysqli_stmt_execute($insert_stmt)) {
         flash('success', 'Thank you for your feedback!');
+
+        // Send notification to file owner if different user and owner wants feedback notifications
+        if ($file['uploader_id'] != $user_id) {
+            if (getUserPreference($file['uploader_id'], 'notify_feedback', '1', $mysqli) == '1') {
+                $title = "New Feedback Received";
+                $message = "You received a {$rating}-star rating on your file \"{$file['title']}\".";
+                createNotification($file['uploader_id'], 'feedback', $title, $message, $file['id'], $user_id, $mysqli);
+            }
+        }
     } else {
         flash('error', 'Failed to submit feedback. Please try again later.');
     }

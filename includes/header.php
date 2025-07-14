@@ -157,11 +157,20 @@ if (isLoggedIn()) {
                                 style="min-width:300px; max-width:500px;" placeholder="Search..." autocomplete="off">
                             <button class="btn fa-color" type="submit"><i class="fas fa-search"></i></button>
                         </form>
-                        <button class="btn position-relative fa-color d-none d-sm-block" title="Notifications">
+                        <?php
+                        $unread_count = 0;
+                        if (isLoggedIn() && isset($_SESSION['user_id'])) {
+                            $unread_count = getUnreadNotificationCount($_SESSION['user_id'], $mysqli);
+                        }
+                        ?>
+                        <a href="/eduvault/dashboard/notifications.php"
+                            class="btn position-relative fa-color d-none d-sm-block" title="Notifications">
                             <i class="fas fa-bell fa-lg"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                style="font-size:0.6em;">0</span>
-                        </button>
+                            <?php if ($unread_count > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                    style="font-size:0.6em;"><?php echo $unread_count; ?></span>
+                            <?php endif; ?>
+                        </a>
                         <div class="dropdown">
                             <button class="btn bg-dark-body dropdown-toggle p-0" type="button" id="profileDropdown"
                                 data-bs-toggle="dropdown" aria-expanded="false">
@@ -172,6 +181,12 @@ if (isLoggedIn()) {
                                 <li><a class="dropdown-item"
                                         href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>">Profile</a></li>
                                 <li><a class="dropdown-item" href="/eduvault/dashboard/dashboard.php">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="/eduvault/dashboard/notifications.php">
+                                    Notifications
+                                    <?php if ($unread_count > 0): ?>
+                                        <span class="badge bg-danger ms-2"><?php echo $unread_count; ?></span>
+                                    <?php endif; ?>
+                                </a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>

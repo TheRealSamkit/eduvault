@@ -55,7 +55,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     mysqli_stmt_bind_param($stmt, "isssiiissssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash, $keywords);
 
                     if (mysqli_stmt_execute($stmt)) {
-                        flash('success', 'File uploaded successfully!');
+                        // Award tokens for successful upload (e.g., 5 tokens per upload)
+                        $tokens_to_award = 5;
+                        mysqli_query($mysqli, "UPDATE users SET tokens = tokens + $tokens_to_award WHERE id = $user_id");
+
+                        // Send token notification if user wants token notifications
+                        if (getUserPreference($user_id, 'notify_tokens', '1', $mysqli) == '1') {
+                            $title = "Tokens Earned";
+                            $message = "You earned {$tokens_to_award} tokens for uploading \"{$title}\"!";
+                            createNotification($user_id, 'token', $title, $message, null, null, $mysqli);
+                        }
+
+                        flash('success', 'File uploaded successfully! You earned ' . $tokens_to_award . ' tokens.');
                         redirect("" . $_SERVER['PHP_SELF']);
                         exit();
                     } else {

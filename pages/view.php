@@ -21,14 +21,24 @@ $stmt = mysqli_prepare($mysqli, $query);
 mysqli_stmt_bind_param($stmt, 'i', $get_user_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
-$user = mysqli_fetch_assoc($result);
+$viewUser = mysqli_fetch_assoc($result);
 
-if (!$viewer_type && $user['profile_visibility'] == 'private') {
+if (!empty($viewUser['avatar_path'])) {
+    if (!str_starts_with($viewUser['avatar_path'], 'http') && !str_starts_with($viewUser['avatar_path'], 'https')) {
+        $viewUser['avatar'] = '../' . $viewUser['avatar_path'];
+    } else {
+        $viewUser['avatar'] = $viewUser['avatar_path'];
+    }
+} else {
+    $viewUser['avatar'] = '../uploads/avatars/default.png';
+}
+// Fetch privacy preferences
+$profile_visibility = getUserPreference($get_user_id, 'privacy_level', $viewUser['privacy_level'] ?? 'public', $mysqli);
+if (!$viewer_type && $profile_visibility == 'private') {
     flash('error', 'This profile is private.');
     redirect('/eduvault/dashboard/dashboard.php');
     exit();
 }
-
 
 // Get user stats
 $files_count = getCount($mysqli, 'digital_files', 'file_count', $get_user_id);
@@ -97,12 +107,12 @@ if ($test) {
         <div class="container-md">
             <?php if (mysqli_num_rows($result) > 0): ?>
                 <div class="profile-header">
-                    <img src="<?php echo htmlspecialchars($user['avatar_path']); ?>" class="profile-avatar"
-                        alt="<?php echo htmlspecialchars($user['name']); ?>" data-bs-toggle="modal"
+                    <img src="<?php echo htmlspecialchars($viewUser['avatar_path']); ?>" class="profile-avatar"
+                        alt="<?php echo htmlspecialchars($viewUser['name']); ?>" data-bs-toggle="modal"
                         data-bs-target="#avatarModal">
 
                     <div class="profile-info">
-                        <h1 class="profile-username"><?php echo htmlspecialchars($user['name']); ?></h1>
+                        <h1 class="profile-username"><?php echo htmlspecialchars($viewUser['name']); ?></h1>
 
                         <div class="profile-stats">
                             <div class="stat-item">
@@ -126,19 +136,15 @@ if ($test) {
 
                         <div class="profile-bio">
                             <?php if ($viewer_type): ?>
-                                <div><i class="fas fa-envelope me-2"></i><?php echo htmlspecialchars($user['email']); ?></div>
-                            <?php endif; ?>
-                            <?php if ($user['location']): ?>
-                                <div><i
-                                        class="fas fa-map-marker-alt me-2"></i><?php echo htmlspecialchars($user['location']); ?>
+                                <div><i class="fas fa-envelope me-2"></i><?php echo htmlspecialchars($viewUser['email']); ?>
                                 </div>
                             <?php endif; ?>
                             <div><i class="fas fa-calendar me-2"></i>Member since
-                                <?php echo date("F Y", strtotime($user['created_at'])); ?>
+                                <?php echo date("F Y", strtotime($viewUser['created_at'])); ?>
                             </div>
-                            <?php if ($user['last_active']): ?>
+                            <?php if ($viewUser['last_active']): ?>
                                 <div><i class="fas fa-clock me-2"></i>Last active
-                                    <?php echo date("M j, Y", strtotime($user['last_active'])); ?>
+                                    <?php echo date("M j, Y", strtotime($viewUser['last_active'])); ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -147,8 +153,8 @@ if ($test) {
                             <?php if (!$viewer_type): ?>
                                 <button class="btn-profile btn-danger-profile" data-bs-toggle="modal"
                                     data-bs-target="#exampleModal" data-content-type="user"
-                                    data-report-id="<?php echo $user['id']; ?>"
-                                    data-report-title="<?php echo htmlspecialchars($user['name']); ?>">
+                                    data-report-id="<?php echo $viewUser['id']; ?>"
+                                    data-report-title="<?php echo htmlspecialchars($viewUser['name']); ?>">
                                     <i class="fas fa-flag"></i> Report
                                 </button>
                             <?php else: ?>

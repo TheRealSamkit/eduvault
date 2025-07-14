@@ -38,18 +38,22 @@ require_once '../includes/header.php';
 <div class="d-flex align-items-start">
     <?php include '../includes/sidebar.php'; ?>
     <div class="flex-grow-1 main-content">
-        <div class="container-md mb-5 pb-4">
+        <div class="container-md">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-file-alt me-2"></i>My Uploads</h2>
-                <a href="../files/upload.php" class="btn btn-success">
-                    <i class="fas fa-upload me-2"></i>Upload New File
-                </a>
+                <div>
+                    <button id="toggleViewBtn" class="btn btn-outline-secondary me-2"><i class="fas fa-th"></i>
+                        View</button>
+                    <a href="../files/upload.php" class="btn btn-success">
+                        <i class="fas fa-upload me-2"></i>Upload New File
+                    </a>
+                </div>
             </div>
 
             <div class="card shadow-sm">
                 <div class="card-body">
                     <?php if (mysqli_num_rows($files_result) > 0): ?>
-                        <div class="table-responsive">
+                        <div id="uploadsTable" class="table-responsive">
                             <table class="table uploads-table align-middle table-hover">
                                 <thead>
                                     <tr>
@@ -68,12 +72,13 @@ require_once '../includes/header.php';
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while ($file = mysqli_fetch_assoc($files_result)): ?>
+                                    <?php mysqli_data_seek($files_result, 0);
+                                    while ($file = mysqli_fetch_assoc($files_result)): ?>
                                         <tr>
                                             <td>
                                                 <i
                                                     class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
-                                                <a href="../files/view.php?id=<?php echo $file['id']; ?>"
+                                                <a href="../files/view.php?slug=<?php echo $file['slug']; ?>"
                                                     class="text-decoration-none fw-semibold text-body">
                                                     <?php echo htmlspecialchars($file['title']); ?>
                                                 </a>
@@ -135,15 +140,15 @@ require_once '../includes/header.php';
                                             </td>
                                             <td class="d-flex gap-1">
                                                 <?php if (strtolower($file['file_type']) === 'pdf'): ?>
-                                                    <a href="/eduvault/pdfjs/web/viewer.html?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?id=' . $file['id']); ?>"
+                                                    <a href="/eduvault/pdfjs/web/viewer.php?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?slug=' . $file['slug']); ?>"
                                                         target="_blank" class="btn btn-outline-secondary action-btn"
                                                         data-bs-toggle="tooltip" title="Full PDF Preview">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
-                                                    <a href="../files/txt_preview.php?id=<?php echo $file['id']; ?>" target="_blank"
-                                                        class="btn btn-outline-secondary action-btn" data-bs-toggle="tooltip"
-                                                        title="Full Text Preview">
+                                                    <a href="../files/txt_preview.php?slug=<?php echo $file['slug']; ?>"
+                                                        target="_blank" class="btn btn-outline-secondary action-btn"
+                                                        data-bs-toggle="tooltip" title="Full Text Preview">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 <?php else: ?>
@@ -156,12 +161,12 @@ require_once '../includes/header.php';
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 <?php endif; ?>
-                                                <a href="../files/download.php?id=<?php echo $file['id']; ?>"
+                                                <a href="../files/download.php?slug=<?php echo $file['slug']; ?>"
                                                     class="btn btn-outline-primary action-btn" data-bs-toggle="tooltip"
                                                     title="Download">
                                                     <i class="fas fa-download"></i>
                                                 </a>
-                                                <a href="../files/view.php?id=<?php echo $file['id']; ?>"
+                                                <a href="../files/view.php?slug=<?php echo $file['slug']; ?>"
                                                     class="btn btn-outline-info action-btn" data-bs-toggle="tooltip"
                                                     title="View Details">
                                                     <i class="fas fa-info-circle"></i>
@@ -180,12 +185,64 @@ require_once '../includes/header.php';
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
-                            <script>
-                                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-                                    new bootstrap.Tooltip(tooltipTriggerEl);
-                                });
-                            </script>
+                        </div>
+                        <div id="uploadsGrid" class="row g-4">
+                            <?php mysqli_data_seek($files_result, 0);
+                            while ($file = mysqli_fetch_assoc($files_result)): ?>
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="card h-100">
+                                        <div class="card-body d-flex flex-column justify-content-between">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="card-title mb-0 text-truncate">
+                                                    <a href="../files/view.php?slug=<?php echo $file['slug']; ?>"
+                                                        class="text-decoration-none fw-semibold text-body">
+                                                        <i
+                                                            class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> me-2 text-primary"></i>
+                                                        <?php echo htmlspecialchars($file['title']); ?>
+                                                    </a>
+                                                </h6>
+                                            </div>
+                                            <div class="mb-2 small text-muted">
+                                                <?php echo htmlspecialchars($file['subject']); ?> |
+                                                <?php echo htmlspecialchars($file['course']); ?> | <?php echo $file['year']; ?>
+                                            </div>
+                                            <div class="mb-2">
+                                                <?php $all_tags = array_filter(array_map('trim', explode(',', $file['tags']))); ?>
+                                                <?php if (!empty($all_tags)): ?>
+                                                    <span class="badge bg-body-secondary text-body" data-bs-toggle="tooltip"
+                                                        title="<?php echo htmlspecialchars(implode(', ', $all_tags)); ?>">
+                                                        <?php echo htmlspecialchars($all_tags[0]); ?>
+                                                        <?php if (count($all_tags) > 1): ?>+<?php echo count($all_tags) - 1; ?><?php endif; ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="d-flex gap-2 mb-2 flex-wrap">
+                                                <span class="badge bg-info"><i
+                                                        class="fas fa-download me-1"></i><?php echo $file['download_count']; ?></span>
+                                                <span class="badge bg-warning"><i
+                                                        class="fas fa-star me-1"></i><?php echo number_format($file['average_rating'] ?? 0, 1); ?></span>
+                                                <span class="badge bg-light text-dark"><i
+                                                        class="fas fa-hdd me-1"></i><?php echo formatFileSize($file['file_size']); ?></span>
+                                            </div>
+                                            <div class="d-flex gap-1 mt-auto">
+                                                <a href="../files/view.php?slug=<?php echo $file['slug']; ?>"
+                                                    class="btn btn-outline-info btn-sm flex-fill" title="View Details"><i
+                                                        class="fas fa-info-circle"></i></a>
+                                                <a href="../files/download.php?slug=<?php echo $file['slug']; ?>"
+                                                    class="btn btn-outline-primary btn-sm flex-fill" title="Download"><i
+                                                        class="fas fa-download"></i></a>
+                                                <form method="POST" class="d-inline"
+                                                    onsubmit="return confirm('Are you sure you want to delete this file?');">
+                                                    <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
+                                                    <button type="submit" name="delete_file"
+                                                        class="btn btn-outline-danger btn-sm flex-fill" title="Delete"><i
+                                                            class="fas fa-trash"></i></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endwhile; ?>
                         </div>
                     <?php else: ?>
                         <div class="text-center py-4">
