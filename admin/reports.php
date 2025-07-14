@@ -16,6 +16,14 @@ if (isset($_POST['action'], $_POST['report_id'])) {
     $admin_id = $_SESSION['admin_id'];
 
     if (in_array($action, ['resolved', 'dismissed'])) {
+        // Get report info before updating
+        $report_query = mysqli_query($mysqli, "
+            SELECT reporter_id, content_type, content_id 
+            FROM reported_content 
+            WHERE id = $report_id
+        ");
+        $report_data = mysqli_fetch_assoc($report_query);
+
         mysqli_query($mysqli, "
             UPDATE reported_content 
             SET status = '$action', admin_id = $admin_id, resolution_notes = '$resolution_notes', resolved_at = NOW()
@@ -25,6 +33,14 @@ if (isset($_POST['action'], $_POST['report_id'])) {
             INSERT INTO activity_logs (admin_id, action, ip_address) 
             VALUES ($admin_id, 'Report $action ID: $report_id', '{$_SERVER['REMOTE_ADDR']}')
         ");
+
+        // Send notification to reporter if they have an account
+        if ($report_data && $report_data['reporter_id']) {
+            $title = "Report Resolved";
+            $message = "Your report on {$report_data['content_type']} (ID: {$report_data['content_id']}) has been marked as {$action}.";
+            createNotification($report_data['reporter_id'], 'report_resolved', $title, $message, null, null, $mysqli);
+        }
+
         redirect("" . $_SERVER['PHP_SELF']);
         exit();
     }

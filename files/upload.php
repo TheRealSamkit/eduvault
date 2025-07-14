@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $subject_id = (int) $_POST['subject_id'];
     $course_id = (int) $_POST['course_id'];
     $year_id = (int) $_POST['year_id'];
+    $tags = isset($_POST['tags']) ? mysqli_real_escape_string($mysqli, $_POST['tags']) : '';
 
     if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
         $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
@@ -40,17 +41,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($detected_mime !== $allowed_mime_types[$ext]) {
                 $error = "File MIME type does not match the file extension.";
             } else {
-                $file_size = round($_FILES['file']['size'] / 1000000, 1);
+                $file_size = $_FILES['file']['size']; // in bytes
                 $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
 
                 if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
-                    $query = "INSERT INTO digital_files (user_id, title, description, subject_id, course_id, year_id, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $content_hash = generateContentHash($file_path);
+                    $keywords = extractKeywords($title . ' ' . $description);
+                    $slug = generateSlug($title, $mysqli);
+
+                    $query = "INSERT INTO digital_files (user_id, slug, title, description, subject_id, course_id, year_id, file_path, file_type, file_size, tags, content_hash, keywords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                     $stmt = mysqli_prepare($mysqli, $query);
-                    mysqli_stmt_bind_param($stmt, "issiiisss", $user_id, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size);
+                    mysqli_stmt_bind_param($stmt, "isssiiissssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash, $keywords);
 
                     if (mysqli_stmt_execute($stmt)) {
-                        flash('success', 'File uploaded successfully!');
+                        // Award tokens for successful upload (e.g., 5 tokens per upload)
+                        $tokens_to_award = 5;
+                        mysqli_query($mysqli, "UPDATE users SET tokens = tokens + $tokens_to_award WHERE id = $user_id");
+
+                        // Send token notification if user wants token notifications
+                        if (getUserPreference($user_id, 'notify_tokens', '1', $mysqli) == '1') {
+                            $title = "Tokens Earned";
+                            $message = "You earned {$tokens_to_award} tokens for uploading \"{$title}\"!";
+                            createNotification($user_id, 'token', $title, $message, null, null, $mysqli);
+                        }
+
+                        flash('success', 'File uploaded successfully! You earned ' . $tokens_to_award . ' tokens.');
                         redirect("" . $_SERVER['PHP_SELF']);
                         exit();
                     } else {
@@ -76,8 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 require_once '../includes/header.php';
 ?>
 
-
-
 <div class="d-flex align-items-start">
     <?php include '../includes/sidebar.php'; ?>
     <div class="flex-grow-1 main-content">
@@ -88,54 +102,70 @@ require_once '../includes/header.php';
                         <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Study Material</h4>
                     </div>
                     <div class="card-body">
-                        <form method="POST" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" name="title" class="form-control bg-dark-body" required>
+                        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            <div class="form-floating mb-3">
+                                <input type="text" name="title" class="form-control bg-dark-body" id="floatingTitle"
+                                    placeholder="Title" required>
+                                <label for="floatingTitle">Title</label>
+                                <div class="invalid-feedback">Please enter a title.</div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Description</label>
-                                <textarea name="description" class="form-control bg-dark-body" rows="3"
-                                    required></textarea>
+                            <div class="form-floating mb-3">
+                                <textarea name="description" class="form-control bg-dark-body" id="floatingDescription"
+                                    placeholder="Description" style="height: 100px" required></textarea>
+                                <label for="floatingDescription">Description</label>
+                                <div class="invalid-feedback">Please enter a description.</div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Subject</label>
-                                <select name="subject_id" class="form-select input-dark" required>
+                            <div class="form-floating mb-3">
+                                <select name="subject_id" class="form-select input-dark" id="floatingSubject" required>
                                     <option value="">Select Subject</option>
-                                    <?php while ($s = mysqli_fetch_assoc($subjects)): ?>
+                                    <?php mysqli_data_seek($subjects, 0);
+                                    while ($s = mysqli_fetch_assoc($subjects)): ?>
                                         <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?>
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
+                                <label for="floatingSubject">Subject</label>
+                                <div class="invalid-feedback">Please select a subject.</div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Course</label>
-                                <select name="course_id" class="form-select input-dark" required>
+                            <div class="form-floating mb-3">
+                                <select name="course_id" class="form-select input-dark" id="floatingCourse" required>
                                     <option value="">Select Course</option>
-                                    <?php while ($c = mysqli_fetch_assoc($courses)): ?>
+                                    <?php mysqli_data_seek($courses, 0);
+                                    while ($c = mysqli_fetch_assoc($courses)): ?>
                                         <option value="<?php echo $c['id']; ?>"><?php echo htmlspecialchars($c['name']); ?>
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
+                                <label for="floatingCourse">Course</label>
+                                <div class="invalid-feedback">Please select a course.</div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Year</label>
-                                <select name="year_id" class="form-select input-dark" required>
+                            <div class="form-floating mb-3">
+                                <select name="year_id" class="form-select input-dark" id="floatingYear" required>
                                     <option value="">Select Year</option>
-                                    <?php while ($y = mysqli_fetch_assoc($years)): ?>
+                                    <?php mysqli_data_seek($years, 0);
+                                    while ($y = mysqli_fetch_assoc($years)): ?>
                                         <option value="<?php echo $y['id']; ?>"><?php echo htmlspecialchars($y['year']); ?>
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
+                                <label for="floatingYear">Year</label>
+                                <div class="invalid-feedback">Please select a year.</div>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" name="tags" class="form-control bg-dark-body" id="floatingTags"
+                                    placeholder="Comma-separated tags">
+                                <label for="floatingTags">Tags (comma-separated, e.g. notes, exam, 2025)</label>
+                                <div class="form-text">Optional. Helps others find your file.</div>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">File</label>
-                                <input type="file" name="file" class="form-control bg-dark-body" required
+                                <input type="file" name="file" class="form-control" required
                                     accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>">
                                 <div class="form-text">Max size: 10MB. Allowed formats:
                                     <?php echo strtoupper(implode(", ", $allowed_ext)) ?>

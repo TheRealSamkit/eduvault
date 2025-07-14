@@ -24,11 +24,35 @@ if (isset($_POST['action']) && isset($_POST['file_id'])) {
         redirect("" . $_SERVER['PHP_SELF']);
         exit();
     } elseif ($action === 'verify') {
+        // Get file info before updating
+        $file_query = mysqli_query($mysqli, "SELECT title, user_id FROM digital_files WHERE id = $file_id");
+        $file_data = mysqli_fetch_assoc($file_query);
+
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 1 WHERE id = $file_id");
+
+        // Send notification to file owner
+        if ($file_data) {
+            $title = "File Approved";
+            $message = "Your file \"{$file_data['title']}\" has been approved and is now public.";
+            createNotification($file_data['user_id'], 'file_approved', $title, $message, $file_id, null, $mysqli);
+        }
+
         redirect("" . $_SERVER['PHP_SELF']);
         exit();
     } elseif ($action === 'ban') {
+        // Get file info before updating
+        $file_query = mysqli_query($mysqli, "SELECT title, user_id FROM digital_files WHERE id = $file_id");
+        $file_data = mysqli_fetch_assoc($file_query);
+
         mysqli_query($mysqli, "UPDATE digital_files SET verified = 0 WHERE id = $file_id");
+
+        // Send notification to file owner
+        if ($file_data) {
+            $title = "File Rejected";
+            $message = "Your file \"{$file_data['title']}\" was rejected. Please review the guidelines.";
+            createNotification($file_data['user_id'], 'file_rejected', $title, $message, $file_id, null, $mysqli);
+        }
+
         redirect("" . $_SERVER['PHP_SELF']);
         exit();
     }
@@ -99,7 +123,7 @@ require_once '../includes/admin_header.php';
                                                 <?php echo htmlspecialchars($file['uploader_name']); ?>
                                             </span>
                                         </td>
-                                        <td><?php echo htmlspecialchars(formatFileSizeMB($file['file_size'])); ?></td>
+                                        <td><?php echo htmlspecialchars(formatFileSize($file['file_size'])); ?></td>
                                         <td><?php echo $file['download_count']; ?></td>
                                         <td>
                                             <span class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?>">
@@ -149,7 +173,6 @@ require_once '../includes/admin_header.php';
             pageLength: 10
         });
 
-        // Initialize tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -186,6 +209,6 @@ require_once '../includes/admin_header.php';
     }
 
     function exportFiles(format) {
-        window.location.href = `exports/export.php?format=${format}&type=files`;
+        window.location.href = `export.php?format=${format}&type=files`;
     }
 </script>

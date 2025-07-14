@@ -1,6 +1,27 @@
 <?php
 require_once 'session.php';
+require_once 'db_connect.php';
+require_once 'functions.php';
 $currentPage = $_SERVER['PHP_SELF'];
+$books_enabled = false;
+if (isLoggedIn()) {
+    if (!isset($_SESSION['user_id'])) {
+        return;
+    }
+    $user_id = $_SESSION['user_id'];
+    $user_query = "SELECT * FROM users WHERE id = $user_id";
+    $user_result = mysqli_query($mysqli, $user_query);
+    $user = mysqli_fetch_assoc($user_result);
+    if (!empty($user['avatar_path'])) {
+        if (!str_starts_with($user['avatar_path'], 'http') && !str_starts_with($user['avatar_path'], 'https')) {
+            $_SESSION['avatar'] = '../' . $user['avatar_path'];
+        } else {
+            $_SESSION['avatar'] = $user['avatar_path'];
+        }
+    } else {
+        $_SESSION['avatar'] = '../uploads/avatars/default.png';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
@@ -55,11 +76,13 @@ $currentPage = $_SERVER['PHP_SELF'];
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav ms-auto">
-                                <li class="nav-item">
-                                    <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'books') ? 'active' : ''; ?>"
-                                        href="/eduvault/books/list.php">Books
-                                    </a>
-                                </li>
+                                <?php if ($books_enabled): ?>
+                                    <li class="nav-item">
+                                        <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'books') ? 'active' : ''; ?>"
+                                            href="/eduvault/books/list.php">Books
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
                                 <li class="nav-item">
                                     <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'files') ? 'active' : ''; ?>"
                                         href="/eduvault/files/list.php">Study Materials
@@ -72,16 +95,16 @@ $currentPage = $_SERVER['PHP_SELF'];
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/logout.php">Logout
+                                        <a class="nav-link" href="/eduvault/auth/logout.php">Logout
                                         </a>
                                     </li>
                                 <?php else: ?>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/login.php">Login
+                                        <a class="nav-link" href="/eduvault/auth/login.php">Login
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/register.php">Register
+                                        <a class="nav-link" href="/eduvault/auth/register.php">Register
                                         </a>
                                     </li>
                                 <?php endif; ?>
@@ -131,23 +154,42 @@ $currentPage = $_SERVER['PHP_SELF'];
                         </button>
                         <form class="d-none d-md-flex" method="GET" action="/eduvault/files/list.php">
                             <input type="text" name="search" class="form-control input-dark text-white border-0 me-2"
-                                style="min-width:300px; max-width:500px;" placeholder="Search...">
+                                style="min-width:300px; max-width:500px;" placeholder="Search..." autocomplete="off">
                             <button class="btn fa-color" type="submit"><i class="fas fa-search"></i></button>
                         </form>
-                        <button class="btn position-relative fa-color" title="Notifications">
+                        <?php
+                        $unread_count = 0;
+                        if (isLoggedIn() && isset($_SESSION['user_id'])) {
+                            $unread_count = getUnreadNotificationCount($_SESSION['user_id'], $mysqli);
+                        }
+                        ?>
+                        <a href="/eduvault/dashboard/notifications.php"
+                            class="btn position-relative fa-color d-none d-sm-block" title="Notifications">
                             <i class="fas fa-bell fa-lg"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                style="font-size:0.6em;">0</span>
-                        </button>
+                            <?php if ($unread_count > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                    style="font-size:0.6em;"><?php echo $unread_count; ?></span>
+                            <?php endif; ?>
+                        </a>
                         <div class="dropdown">
                             <button class="btn bg-dark-body dropdown-toggle p-0" type="button" id="profileDropdown"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="<?= htmlspecialchars($_SESSION['avatar']) ?>" alt="Avatar" class="rounded-circle"
-                                    width="36" height="36">
+                                    width="36" height="36" style="background-color: #000;">
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                                 <li><a class="dropdown-item"
                                         href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>">Profile</a></li>
+                                <li><a class="dropdown-item" href="/eduvault/dashboard/dashboard.php">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="/eduvault/dashboard/notifications.php">
+                                    Notifications
+                                    <?php if ($unread_count > 0): ?>
+                                        <span class="badge bg-danger ms-2"><?php echo $unread_count; ?></span>
+                                    <?php endif; ?>
+                                </a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li><button type="button" class="dropdown-item d-flex align-items-center"
                                         data-theme-value="light">Light
                                     </button></li>
@@ -160,7 +202,7 @@ $currentPage = $_SERVER['PHP_SELF'];
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item text-danger" href="/eduvault/logout.php">Logout</a></li>
+                                <li><a class="dropdown-item text-danger" href="/eduvault/auth/logout.php">Logout</a></li>
                             </ul>
                         </div>
                     </div>
@@ -168,8 +210,8 @@ $currentPage = $_SERVER['PHP_SELF'];
                 <div class="collapse d-md-none mt-2 px-3 w-100" id="mobileSearchBar">
                     <form class="d-flex" method="GET" action="/eduvault/files/list.php">
                         <input type="text" name="search" class="form-control input-dark border-0 me-2"
-                            style="min-width:200px; max-width:100%;" placeholder="Search...">
-                        <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+                            style="min-width:200px; max-width:100%;" placeholder="Search..." autocomplete="off">
+                        <button class="btn fa-color" type="submit"><i class="fas fa-search"></i></button>
                     </form>
                 </div>
             </nav>
@@ -181,10 +223,10 @@ $currentPage = $_SERVER['PHP_SELF'];
                     <div class="toast align-items-center text-white bg-<?= toastBgClass($toast['type']) ?> border-0 mb-2"
                         role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
                         <div class="d-flex">
-                            <div class="toast-body">
+                            <div class="toast-body w-100">
                                 <?= htmlspecialchars($toast['message']) ?>
                             </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto p-2" data-bs-dismiss="toast"
                                 aria-label="Close"></button>
                         </div>
                     </div>

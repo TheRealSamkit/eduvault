@@ -21,11 +21,11 @@
     }
 </style>
 <?php
-
+$books_enabled = false;
 $current_page = basename($_SERVER['PHP_SELF']);
 $stats = [
     'users' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM users"))['count'],
-    'books' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings"))['count'],
+    // 'books' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings"))['count'],
     'files' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM digital_files"))['count'],
     'reports' => mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM reported_content WHERE status = 'pending'"))['count']
 ];
@@ -42,9 +42,11 @@ $stats = [
         <a href="users.php" class="nav-link <?php echo ($current_page == 'users.php') ? 'active' : ''; ?>">
             <i class="fas fa-users me-2"></i>Users
         </a>
-        <a href="books.php" class="nav-link <?php echo ($current_page == 'books.php') ? 'active' : ''; ?>">
-            <i class="fas fa-book me-2"></i>Books
-        </a>
+        <?php if ($books_enabled): ?>
+            <a href="books.php" class="nav-link <?php echo ($current_page == 'books.php') ? 'active' : ''; ?>">
+                <i class="fas fa-book me-2"></i>Books
+            </a>
+        <?php endif; ?>
         <a href="educational_metadata.php"
             class="nav-link <?php echo ($current_page == 'educational_metadata.php') ? 'active' : ''; ?>">
             <i class="fas fa-book me-2"></i>Educational Metadata

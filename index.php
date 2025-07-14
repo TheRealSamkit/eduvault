@@ -10,12 +10,16 @@ if (isLoggedIn()) {
 include 'includes/header.php';
 
 $downloads_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM downloads"))['count'];
-$books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];
 $files_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM digital_files"))['count'];
 $users_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM users where last_active >= now() - Interval 1 hour"))['count'];
 
-$recent_books = mysqli_query($mysqli, "SELECT b.*,u.name as author FROM book_listings b join users u on b.user_id=u.id WHERE b.status = 'Available' ORDER BY created_at DESC LIMIT 6");
 $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY upload_date DESC LIMIT 6");
+if ($books_enabled) {
+    $books_count = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) as count FROM book_listings WHERE status = 'Available'"))['count'];
+    $recent_books = mysqli_query($mysqli, "SELECT b.*,u.name as author FROM book_listings b join users u on b.user_id=u.id WHERE b.status = 'Available' ORDER BY created_at DESC LIMIT 6");
+}
+
+$host = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
 ?>
 <div class="hero-section">
     <div class="container hero-content">
@@ -45,14 +49,16 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
 </div>
 
 <div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="stat-card">
-                <div class="stat-number" data-target="<?php echo $books_count; ?>">0</div>
-                <div class="text-muted fs-5">Available Books</div>
-                <small class="text-success"><i class="fas fa-arrow-up"></i> Growing daily</small>
+    <div class="row mb-5 justify-content-center">
+        <?php if ($books_enabled): ?>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card">
+                    <div class="stat-number" data-target="<?php echo $books_count; ?>">0</div>
+                    <div class="text-muted fs-5">Available Books</div>
+                    <small class="text-success"><i class="fas fa-arrow-up"></i> Growing daily</small>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="stat-card">
                 <div class="stat-number" data-target="<?php echo $files_count; ?>">0</div>
@@ -86,19 +92,21 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
         </div>
 
         <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card feature-card h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon">
-                            <i class="fas fa-book fa-2x"></i>
+            <?php if ($books_enabled): ?>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-book fa-2x"></i>
+                            </div>
+                            <h4 class="mb-3">Book Sharing</h4>
+                            <p class="text-muted">Share and borrow books with students in your area. Save money and help
+                                others learn while building a sustainable education ecosystem.</p>
+                            <a href="books/list.php" class="btn btn-outline-primary mt-3">Explore Books</a>
                         </div>
-                        <h4 class="mb-3">Book Sharing</h4>
-                        <p class="text-muted">Share and borrow books with students in your area. Save money and help
-                            others learn while building a sustainable education ecosystem.</p>
-                        <a href="books/list.php" class="btn btn-outline-primary mt-3">Explore Books</a>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card feature-card h-100">
                     <div class="card-body text-center p-4">
@@ -179,29 +187,31 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
         </div>
 
         <div class="row mb-5">
-            <div class="col-12">
-                <h4 class="mb-4"><i class="fas fa-book text-primary me-2"></i>Latest Books</h4>
-            </div>
-            <?php while ($book = mysqli_fetch_assoc($recent_books)): ?>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card resource-card">
-                        <img class="card-img-top" src="<?php echo htmlspecialchars($book['image_path']) ?>" alt="book cover"
-                            style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h6 class="card-title"><?php echo htmlspecialchars($book['title']); ?>
-                                <span
-                                    class="category-badge bg-success text-white m-2"><?php echo htmlspecialchars($book['status'] ?? 'General'); ?></span>
-                            </h6>
-                            <p class="text-muted small">by <?php echo htmlspecialchars($book['author']); ?></p>
-                            <p class="text-muted small"><i class="fas fa-map-marker-alt"></i>
-                                <?php echo htmlspecialchars($book['location']); ?></p>
+            <?php if ($books_enabled): ?>
+                <div class="col-12">
+                    <h4 class="mb-4"><i class="fas fa-book text-primary me-2"></i>Latest Books</h4>
+                </div>
+                <?php while ($book = mysqli_fetch_assoc($recent_books)): ?>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card resource-card">
+                            <img class="card-img-top" src="<?php echo htmlspecialchars($book['image_path']) ?>" alt="book cover"
+                                style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h6 class="card-title"><?php echo htmlspecialchars($book['title']); ?>
+                                    <span
+                                        class="category-badge bg-success text-white m-2"><?php echo htmlspecialchars($book['status'] ?? 'General'); ?></span>
+                                </h6>
+                                <p class="text-muted small">by <?php echo htmlspecialchars($book['author']); ?></p>
+                                <p class="text-muted small"><i class="fas fa-map-marker-alt"></i>
+                                    <?php echo htmlspecialchars($book['location']); ?></p>
 
-                            <a href="books/view.php?id=<?php echo $book['id']; ?>" class="btn btn-sm btn-primary">View
-                                Details</a>
+                                <a href="books/view.php?id=<?php echo $book['id']; ?>" class="btn btn-sm btn-primary">View
+                                    Details</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php endwhile; ?>
+                <?php endwhile;
+            endif; ?>
         </div>
 
         <div class="row">
@@ -220,6 +230,24 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted"><?php echo htmlspecialchars($file['file_type']) ?>
                                 </small>
+                                <?php if (isLoggedIn() && strtolower($file['file_type']) === 'pdf'): ?>
+                                    <a href="/eduvault/pdfjs/web/viewer.html?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?id=' . $file['id']); ?>"
+                                        target="_blank" class="btn btn-outline-secondary btn-sm" title="Full Page PDF Preview">
+                                        <i class="fas fa-eye me-1"></i>Full Preview
+                                    </a>
+                                <?php elseif (isLoggedIn() && in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
+                                    <a href="files/txt_preview.php?id=<?php echo $file['id']; ?>" target="_blank"
+                                        class="btn btn-outline-secondary btn-sm" title="Full Page Text Preview">
+                                        <i class="fas fa-eye me-1"></i>Full Preview
+                                    </a>
+                                <?php elseif (isLoggedIn()): ?>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm btn-preview-file"
+                                        data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                        data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
+                                        <i class="fas fa-eye me-1"></i>Preview
+                                    </button>
+                                <?php endif; ?>
                                 <?php if (isLoggedIn()): ?>
                                     <a href="files/download.php?id=<?php echo $file['id']; ?>" class="btn btn-success btn-sm">
                                         <i class="fas fa-download me-1"></i>Download
@@ -232,93 +260,95 @@ $recent_files = mysqli_query($mysqli, "SELECT * FROM digital_files ORDER BY uplo
                             </div>
                         </div>
                     </div>
-                </div>
-            <?php endwhile; ?>
-        </div>
-    </div>
-</div>
-
-<div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-12 text-center">
-            <h2 class="display-5 mb-3">What Students Say</h2>
-            <p class="lead text-muted">Real experiences from our community members</p>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4 col-md-6">
-            <div class="testimonial-card">
-                <div class="testimonial-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <p class="mb-3">"EduVault helped me find rare engineering books at no cost. The community is amazing and
-                    always ready to help!"</p>
-                <h6 class="text-primary">Priya Sharma</h6>
-                <small class="text-muted">Engineering Student, Mumbai</small>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="testimonial-card">
-                <div class="testimonial-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <p class="mb-3">"I've shared over 50 books through EduVault. It's satisfying to know they're helping
-                    other students succeed."</p>
-                <h6 class="text-primary">Rajesh Kumar</h6>
-                <small class="text-muted">Medical Student, Delhi</small>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="testimonial-card">
-                <div class="testimonial-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <p class="mb-3">"The digital resources section is a goldmine for competitive exam preparation. Highly
-                    recommended!"</p>
-                <h6 class="text-primary">Anjali Patel</h6>
-                <small class="text-muted">UPSC Aspirant, Ahmedabad</small>
+                <?php endwhile; ?>
             </div>
         </div>
     </div>
-</div>
 
-<div class="cta-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="display-5 mb-4">Ready to Transform Your Learning?</h2>
-                <p class="lead mb-5">Join thousands of students who are already sharing knowledge and growing together
-                </p>
-                <?php if (!isLoggedIn()): ?>
-                    <a href="register.php" class="btn btn-light btn-lg px-5 py-3 me-3">
-                        <i class="fas fa-rocket me-2"></i>Join EduVault Today
-                    </a>
-                    <a href="books/list.php" class="btn btn-outline-light btn-lg px-5 py-3">
-                        <i class="fas fa-search me-2"></i>Browse Resources
-                    </a>
-                <?php else: ?>
-                    <div class="row justify-content-center">
-                        <div class="col-md-4 mb-3">
-                            <a href="books/list.php" class="btn btn-light btn-lg w-100 py-3">
-                                <i class="fas fa-book me-2"></i>Browse Books
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="files/list.php" class="btn btn-outline-light btn-lg w-100 py-3">
-                                <i class="fas fa-file-alt me-2"></i>Study Materials
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="dashboard/dashboard.php" class="btn btn-light btn-lg w-100 py-3">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                            </a>
-                        </div>
+    <div class="container py-5">
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h2 class="display-5 mb-3">What Students Say</h2>
+                <p class="lead text-muted">Real experiences from our community members</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">
+                        <i class="fas fa-user"></i>
                     </div>
-                <?php endif; ?>
+                    <p class="mb-3">"EduVault helped me find rare engineering books at no cost. The community is amazing
+                        and
+                        always ready to help!"</p>
+                    <h6 class="text-primary">Priya Sharma</h6>
+                    <small class="text-muted">Engineering Student, Mumbai</small>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <p class="mb-3">"I've shared over 50 books through EduVault. It's satisfying to know they're helping
+                        other students succeed."</p>
+                    <h6 class="text-primary">Rajesh Kumar</h6>
+                    <small class="text-muted">Medical Student, Delhi</small>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <p class="mb-3">"The digital resources section is a goldmine for competitive exam preparation.
+                        Highly
+                        recommended!"</p>
+                    <h6 class="text-primary">Anjali Patel</h6>
+                    <small class="text-muted">UPSC Aspirant, Ahmedabad</small>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<?php require_once 'includes/footer.php'; ?>
+    <div class="cta-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="display-5 mb-4">Ready to Transform Your Learning?</h2>
+                    <p class="lead mb-5">Join thousands of students who are already sharing knowledge and growing
+                        together
+                    </p>
+                    <?php if (!isLoggedIn()): ?>
+                        <a href="register.php" class="btn btn-light btn-lg px-5 py-3 me-3">
+                            <i class="fas fa-rocket me-2"></i>Join EduVault Today
+                        </a>
+                        <a href="files/list.php" class="btn btn-outline-light btn-lg px-5 py-3">
+                            <i class="fas fa-search me-2"></i>Browse Resources
+                        </a>
+                    <?php else: ?>
+                        <div class="row justify-content-center">
+                            <div class="col-md-4 mb-3">
+                                <a href="books/list.php" class="btn btn-light btn-lg w-100 py-3">
+                                    <i class="fas fa-book me-2"></i>Browse Books
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="files/list.php" class="btn btn-outline-light btn-lg w-100 py-3">
+                                    <i class="fas fa-file-alt me-2"></i>Study Materials
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="dashboard/dashboard.php" class="btn btn-light btn-lg w-100 py-3">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php require_once 'includes/footer.php'; ?>

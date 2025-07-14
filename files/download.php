@@ -4,22 +4,24 @@ require_once '../includes/session.php';
 require_once '../includes/functions.php';
 
 if (!isLoggedIn()) {
-    redirect("../login.php");
+    flash('error', 'You must be logged in to download files.');
+    redirect("../auth/login.php");
     exit();
 }
 
-if (!isset($_GET['id'])) {
+if (!isset($_GET['slug'])) {
+    flash('error', 'No file specified.');
     redirect("list.php");
     exit();
 }
 
-$file_id = $_GET['id'];
+$slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
 $user_id = $_SESSION['user_id'];
 
 // Get file information
-$query = "SELECT * FROM digital_files WHERE id = ?";
+$query = "SELECT * FROM digital_files WHERE slug = ?";
 $stmt = mysqli_prepare($mysqli, $query);
-mysqli_stmt_bind_param($stmt, 'i', $file_id);
+mysqli_stmt_bind_param($stmt, 's', $slug);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $file = mysqli_fetch_assoc($result);
@@ -31,12 +33,69 @@ if (!$file || !file_exists($file['file_path'])) {
     exit();
 }
 
-// Record the download
-$download_query = "INSERT INTO downloads (user_id, file_id, downloaded_at) VALUES (?, ?, NOW())";
-$download_stmt = mysqli_prepare($mysqli, $download_query);
-mysqli_stmt_bind_param($download_stmt, 'ii', $user_id, $file_id);
-mysqli_stmt_execute($download_stmt);
-mysqli_stmt_close($download_stmt);
+if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
+    flash('error', 'You do not have enough tokens to download this file. Upload files to earn more tokens !');
+    redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
+    exit();
+}
+
+// Unique download count logic (24-hour interval)
+$file_id = $file['id']; // Ensure $file is fetched above
+$interval_hours = 24;
+
+// Check if user downloaded this file within the last 24 hours
+$query = "SELECT downloaded_at FROM downloads WHERE user_id = ? AND file_id = ? ORDER BY downloaded_at DESC LIMIT 1";
+$stmt = mysqli_prepare($mysqli, $query);
+mysqli_stmt_bind_param($stmt, 'ii', $user_id, $file_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$last_download = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
+
+$should_increment = true;
+if ($last_download) {
+    $last_time = strtotime($last_download['downloaded_at']);
+    if (time() - $last_time < $interval_hours * 3600) {
+        $should_increment = false;
+    }
+}
+
+if ($should_increment) {
+    // Increment download count in digital_files
+    $update = "UPDATE digital_files SET download_count = download_count + 1 WHERE id = ?";
+    $stmt = mysqli_prepare($mysqli, $update);
+    mysqli_stmt_bind_param($stmt, 'i', $file_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    // Log this download
+    $now = date('Y-m-d H:i:s');
+    $insert = "INSERT INTO file_downloads (user_id, file_id, downloaded_at) VALUES (?, ?, ?)";
+    $stmt = mysqli_prepare($mysqli, $insert);
+    mysqli_stmt_bind_param($stmt, 'iis', $user_id, $file_id, $now);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+        // Send notification to file owner if different user and owner wants notifications
+    if ($file['user_id'] != $user_id) {
+        if (getUserPreference($file['user_id'], 'notify_downloads', '1', $mysqli) == '1') {
+            // Get the threshold preference (default to 10 if not set)
+            $threshold = (int) getUserPreference($file['user_id'], 'notify_downloads_threshold', '10', $mysqli);
+            
+            // Check if the new download count reaches the threshold
+            $new_download_count = $file['download_count'] + 1;
+            
+            if ($new_download_count % $threshold == 0) {
+                // Send milestone notification only when threshold is reached
+                $title = "Download Milestone Reached";
+                $message = "Your file \"{$file['title']}\" has reached {$new_download_count} downloads!";
+                createNotification($file['user_id'], 'download', $title, $message, $file_id, null, $mysqli);
+            }
+            // Note: If threshold is 1, it will send notification for every download
+            // If threshold is higher, it will only send notifications at milestones
+        }
+    }
+}
 
 // Get file mime type from mimes table
 $ext = strtolower(pathinfo($file['file_path'], PATHINFO_EXTENSION));

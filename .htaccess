@@ -1,0 +1,62 @@
+# ========================
+
+# Security Headers
+
+# ========================
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# ========================
+
+# Deny access to hidden files like .htaccess
+
+# ========================
+
+<FilesMatch "^\.">
+Require all denied
+</FilesMatch>
+
+# ========================
+
+# Deny access to sensitive PHP files
+
+# ========================
+
+<FilesMatch "^(db_connect|functions|session)\.php$">
+Require all denied
+</FilesMatch>
+
+# ========================
+
+# Deny access to /books/ folder and anything inside
+
+# ========================
+
+RewriteEngine On
+
+# Deny direct access to any URL starting with /books/
+
+RewriteRule ^books/ - [F,L]
+
+# Optionally block direct access to files named like add_book.php, edit_book.php etc.
+
+RewriteCond %{REQUEST_URI} (add_book|edit_book|book_list|book_view|books)\.php$ [NC]
+RewriteRule ^.\*$ - [F,L]
+
+# Custom pages
+
+ErrorDocument 404 /eduvault/pages/404.php
+ErrorDocument 403 /eduvault/pages/404.php
+ErrorDocument 500 /eduvault/pages/500.php
+
+# ========================
+
+# Optional: Custom 403 Error Page (Make this page yourself)
+
+# ========================
+
+# ErrorDocument 403 /pages/access_denied.php
