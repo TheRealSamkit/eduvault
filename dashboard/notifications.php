@@ -91,7 +91,7 @@ require_once '../includes/header.php';
     <?php include '../includes/sidebar.php'; ?>
     <div class="flex-grow-1 main-content">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1 class="mb-0 page-title">
                     <i class="fas fa-bell me-2"></i>Notifications
                     <?php if ($unread_count > 0): ?>
@@ -116,7 +116,7 @@ require_once '../includes/header.php';
             </div>
 
             <?php if (mysqli_num_rows($notifications_result) > 0): ?>
-                <div class="card shadow-sm">
+                <div class="card shadow-sm mb-4 border-0 p-2">
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
                             <?php while ($notification = mysqli_fetch_assoc($notifications_result)): ?>

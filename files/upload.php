@@ -101,111 +101,109 @@ require_once '../includes/header.php';
 <div class="d-flex align-items-start">
     <?php include '../includes/sidebar.php'; ?>
     <div class="flex-grow-1 main-content">
-        <div class="container-md row justify-content-center gx-1 mb-3">
-            <div class="col-md-8">
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
-                        <i class="fas fa-upload fa-lg me-2"></i>
-                        <h4 class="mb-0">Upload Study Material</h4>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate
-                            id="uploadForm">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label fw-bold">File <span class="text-danger">*</span></label>
-                                    <div class="dropzone dz-clickable rounded-3 border border-2 border-primary bg-e-secondary p-4 mb-3 form-control"
-                                        id="fileDropzone">
-                                        <div class="dz-message text-center text-muted">
-                                            <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i><br>
-                                            <span>Drag & drop your file here, or click to select</span><br>
-                                            <small>Max size: 10MB. Allowed formats:
-                                                <?php echo strtoupper(implode(", ", $allowed_ext)) ?></small>
-                                        </div>
-                                    </div>
-                                    <input type="file" name="file" id="fileInput" class="d-none" required
-                                        accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>">
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" name="title" class="form-control" id="floatingTitle"
-                                            placeholder="Title" required>
-                                        <label for="floatingTitle">Title</label>
-                                        <div class="invalid-feedback">Please enter a title.</div>
+        <div class="container-md">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <i class="fas fa-upload fa-lg text-primary"></i>
+                <h2 class="mb-0">Upload Study Material</h2>
+            </div>
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate
+                        id="uploadForm">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">File <span class="text-danger">*</span></label>
+                                <div class="dropzone dz-clickable rounded-3 border border-2 border-primary bg-e-secondary p-4 mb-3 form-control"
+                                    id="fileDropzone">
+                                    <div class="dz-message text-center text-muted">
+                                        <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i><br>
+                                        <span>Drag & drop your file here, or click to select</span><br>
+                                        <small>Max size: 10MB. Allowed formats:
+                                            <?php echo strtoupper(implode(", ", $allowed_ext)) ?></small>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select name="subject_id" class="form-select" id="floatingSubject" required>
-                                            <option value="">Select Subject</option>
-                                            <?php mysqli_data_seek($subjects, 0);
-                                            while ($s = mysqli_fetch_assoc($subjects)): ?>
-                                                <option value="<?php echo $s['id']; ?>">
-                                                    <?php echo htmlspecialchars($s['name']); ?>
-                                                </option>
-                                            <?php endwhile; ?>
-                                        </select>
-                                        <label for="floatingSubject">Subject</label>
-                                        <div class="invalid-feedback">Please select a subject.</div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select name="course_id" class="form-select" id="floatingCourse" required>
-                                            <option value="">Select Course</option>
-                                            <?php mysqli_data_seek($courses, 0);
-                                            while ($c = mysqli_fetch_assoc($courses)): ?>
-                                                <option value="<?php echo $c['id']; ?>">
-                                                    <?php echo htmlspecialchars($c['name']); ?>
-                                                </option>
-                                            <?php endwhile; ?>
-                                        </select>
-                                        <label for="floatingCourse">Course</label>
-                                        <div class="invalid-feedback">Please select a course.</div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select name="year_id" class="form-select" id="floatingYear" required>
-                                            <option value="">Select Year</option>
-                                            <?php mysqli_data_seek($years, 0);
-                                            while ($y = mysqli_fetch_assoc($years)): ?>
-                                                <option value="<?php echo $y['id']; ?>">
-                                                    <?php echo htmlspecialchars($y['year']); ?>
-                                                </option>
-                                            <?php endwhile; ?>
-                                        </select>
-                                        <label for="floatingYear">Year</label>
-                                        <div class="invalid-feedback">Please select a year.</div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating mb-3">
-                                        <textarea name="description" class="form-control" id="floatingDescription"
-                                            placeholder="Description" style="height: 100px" required></textarea>
-                                        <label for="floatingDescription">Description</label>
-                                        <div class="invalid-feedback">Please enter a description.</div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" name="tags" class="form-control" id="floatingTags"
-                                            placeholder="Comma-separated tags">
-                                        <label for="floatingTags">Tags (comma-separated, e.g. notes, exam, 2025)</label>
-                                        <div class="form-text">Optional. Helps others find your file.</div>
-                                    </div>
+                                <input type="file" name="file" id="fileInput" class="d-none" required
+                                    accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" name="title" class="form-control" id="floatingTitle"
+                                        placeholder="Title" required>
+                                    <label for="floatingTitle">Title</label>
+                                    <div class="invalid-feedback">Please enter a title.</div>
                                 </div>
                             </div>
-                            <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-upload me-2"></i>Upload File
-                                </button>
-                                <a href="../dashboard/my_uploads.php" class="btn btn-outline-secondary">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to My Uploads
-                                </a>
+                            <div class="col-12 col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select name="subject_id" class="form-select" id="floatingSubject" required>
+                                        <option value="">Select Subject</option>
+                                        <?php mysqli_data_seek($subjects, 0);
+                                        while ($s = mysqli_fetch_assoc($subjects)): ?>
+                                            <option value="<?php echo $s['id']; ?>">
+                                                <?php echo htmlspecialchars($s['name']); ?>
+                                            </option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    <label for="floatingSubject">Subject</label>
+                                    <div class="invalid-feedback">Please select a subject.</div>
+                                </div>
                             </div>
-                        </form>
-                    </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select name="course_id" class="form-select" id="floatingCourse" required>
+                                        <option value="">Select Course</option>
+                                        <?php mysqli_data_seek($courses, 0);
+                                        while ($c = mysqli_fetch_assoc($courses)): ?>
+                                            <option value="<?php echo $c['id']; ?>">
+                                                <?php echo htmlspecialchars($c['name']); ?>
+                                            </option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    <label for="floatingCourse">Course</label>
+                                    <div class="invalid-feedback">Please select a course.</div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select name="year_id" class="form-select" id="floatingYear" required>
+                                        <option value="">Select Year</option>
+                                        <?php mysqli_data_seek($years, 0);
+                                        while ($y = mysqli_fetch_assoc($years)): ?>
+                                            <option value="<?php echo $y['id']; ?>">
+                                                <?php echo htmlspecialchars($y['year']); ?>
+                                            </option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                    <label for="floatingYear">Year</label>
+                                    <div class="invalid-feedback">Please select a year.</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating mb-3">
+                                    <textarea name="description" class="form-control" id="floatingDescription"
+                                        placeholder="Description" style="height: 100px" required></textarea>
+                                    <label for="floatingDescription">Description</label>
+                                    <div class="invalid-feedback">Please enter a description.</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating mb-3">
+                                    <input type="text" name="tags" class="form-control" id="floatingTags"
+                                        placeholder="Comma-separated tags">
+                                    <label for="floatingTags">Tags (comma-separated, e.g. notes, exam, 2025)</label>
+                                    <div class="form-text">Optional. Helps others find your file.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-upload me-2"></i>Upload File
+                            </button>
+                            <a href="../dashboard/my_uploads.php" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to My Uploads
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
