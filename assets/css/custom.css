@@ -2,7 +2,8 @@
   min-height: 100vh;
   transition: all 0.3s;
   z-index: 1040;
-  width: 240px;
+  width: clamp(200px, 18vw, 280px);
+  min-width: clamp(180px, 15vw, 240px);
   border-top-right-radius: 10px;
   background: var(--bg-body-tertiary);
   border-right: 1px solid var(--bs-border-color);
