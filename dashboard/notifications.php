@@ -22,6 +22,18 @@ if (isset($_POST['mark_read']) && isset($_POST['notification_id'])) {
     exit();
 }
 
+// Handle delete old notifications action (delete all read notifications older than 30 days)
+if (isset($_POST['delete_old_notifications'])) {
+    $delete_query = "DELETE FROM notifications WHERE user_id = ? AND is_read = 1 AND created_at < (NOW() - INTERVAL 30 DAY)";
+    $stmt = mysqli_prepare($mysqli, $delete_query);
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    // Redirect to prevent form resubmission
+    header("Location: notifications.php");
+    exit();
+}
+
 // Handle mark all as read action
 if (isset($_POST['mark_all_read'])) {
     $update_query = "UPDATE notifications SET is_read = 1, read_at = NOW() WHERE user_id = ? AND is_read = 0";
@@ -86,11 +98,21 @@ require_once '../includes/header.php';
                         <span class="badge bg-danger ms-2"><?php echo $unread_count; ?></span>
                     <?php endif; ?>
                 </h1>
-                <?php if ($unread_count > 0): ?>
-                    <button type="button" class="btn btn-outline-primary btn-sm mark-all-read-btn">
-                        <i class="fas fa-check-double me-1"></i>Mark All as Read
-                    </button>
-                <?php endif; ?>
+                <div class="d-flex gap-2">
+                    <?php if ($unread_count > 0): ?>
+                        <button type="button" class="btn btn-outline-primary btn-sm mark-all-read-btn">
+                            <i class="fas fa-check-double me-1"></i>Mark All as Read
+                        </button>
+                    <?php endif; ?>
+                    <?php if ($total_notifications > 0): ?>
+                        <form method="POST" class="d-inline" id="deleteOldNotificationsForm">
+                            <button type="submit" name="delete_old_notifications" class="btn btn-outline-danger btn-sm"
+                                id="deleteOldNotificationsBtn">
+                                <i class="fas fa-trash me-1"></i>Delete Old Notifications
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <?php if (mysqli_num_rows($notifications_result) > 0): ?>

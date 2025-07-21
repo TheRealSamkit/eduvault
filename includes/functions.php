@@ -428,13 +428,13 @@ function toastBgClass($type)
 {
     switch ($type) {
         case 'success':
-            return 'success';
+            return 'success-subtle border-success';
         case 'error':
-            return 'danger';
+            return 'danger-subtle border-danger';
         case 'warning':
-            return 'warning';
+            return 'warning-subtle border-warning';
         case 'info':
-            return 'info';
+            return 'info-subtle border-info';
         default:
             return 'secondary';
     }
@@ -717,6 +717,33 @@ function setDefaultUserPreferences($user_id, $mysqli)
     }
 
     return $success;
+}
+
+/**
+ * Generate preview type and link for a file row.
+ * @param array $file File row from DB (must include 'slug' and 'file_type')
+ * @return array|null ['type' => 'pdf'|'text'|'image'|'none', 'url' => string] or null if not supported
+ */
+function generateFilePreview($file)
+{
+    $slug = $file['slug'] ?? null;
+    $type = strtolower($file['file_type'] ?? '');
+    if (!$slug || !$type)
+        return null;
+    $host = $_SERVER['HTTP_HOST'];
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    if ($type === 'pdf') {
+        // Use absolute URL for PDF.js viewer
+        $url = "/eduvault/pdfjs/web/viewer.php?file=" . $protocol . '://' . $host . "/eduvault/files/pdf_proxy.php?slug=" . urlencode($slug);
+        return ['type' => 'pdf', 'url' => $url];
+    } elseif (in_array($type, ['txt', 'csv', 'md'])) {
+        $url = "/eduvault/files/txt_preview.php?slug=" . urlencode($slug);
+        return ['type' => 'text', 'url' => $url];
+    } elseif (in_array($type, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+        $url = "/eduvault/files/image_proxy.php?slug=" . urlencode($slug);
+        return ['type' => 'image', 'url' => $url];
+    }
+    return null;
 }
 
 ?>

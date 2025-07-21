@@ -63,16 +63,7 @@ function initializeToggleView(toggleBtnId, tableId, gridId) {
   var toggleBtn = document.getElementById(toggleBtnId);
   var table = document.getElementById(tableId);
   var grid = document.getElementById(gridId);
-  console.log("[ToggleView] Initializing:", {
-    toggleBtnId,
-    tableId,
-    gridId,
-    toggleBtn,
-    table,
-    grid,
-  });
   if (!toggleBtn || !table || !grid) {
-    console.warn("[ToggleView] Missing element:", { toggleBtn, table, grid });
     return;
   }
 
@@ -84,20 +75,12 @@ function initializeToggleView(toggleBtnId, tableId, gridId) {
       table.classList.remove("d-none");
       grid.classList.add("d-none");
     }
-    console.log("[ToggleView] setViewByScreen:", {
-      table: table.className,
-      grid: grid.className,
-    });
   }
 
   setViewByScreen();
   toggleBtn.addEventListener("click", function () {
     table.classList.toggle("d-none");
     grid.classList.toggle("d-none");
-    console.log("[ToggleView] Toggle clicked:", {
-      table: table.className,
-      grid: grid.className,
-    });
   });
   window.addEventListener("resize", setViewByScreen);
 }
@@ -232,6 +215,12 @@ function initializeSidebarToggle(sidebarId, toggleBtnId, backdropId) {
 // DOMContentLoaded: Initialize all features
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Show all toasts rendered in the DOM (e.g., from PHP flash messages)
+  document.querySelectorAll(".toast").forEach(function (toastEl) {
+    var toast = new bootstrap.Toast(toastEl);
+    toast.show();
+  });
+
   initializeTooltips();
   initializeImageFallback();
   initializeSortSelect();
@@ -337,6 +326,20 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector(".mark-all-read-btn")
   ) {
     initializeNotifications();
+  }
+
+  // Confirmation for deleting old notifications
+  var deleteOldForm = document.getElementById("deleteOldNotificationsForm");
+  if (deleteOldForm) {
+    deleteOldForm.addEventListener("submit", function (e) {
+      if (
+        !confirm(
+          "Are you sure you want to delete all read notifications older than 30 days? This action cannot be undone."
+        )
+      ) {
+        e.preventDefault();
+      }
+    });
   }
 });
 
@@ -463,12 +466,14 @@ function initializeNotifications() {
 
             updateUnreadCount();
           } else {
-            alert("Error: " + data.message);
+            showToast("Error: " + data.message, danger);
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
-          alert("An error occurred while marking notification as read.");
+          showToast(
+            "An error occurred while marking notification as read.",
+            danger
+          );
         });
     });
   });
@@ -508,12 +513,14 @@ function initializeNotifications() {
 
             showToast("All notifications marked as read", "success");
           } else {
-            alert("Error: " + data.message);
+            showToast("Error: " + data.message, "danger");
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
-          alert("An error occurred while marking all notifications as read.");
+          showToast(
+            "An error occurred while marking all notifications as read.",
+            "danger"
+          );
         });
     });
   }
@@ -576,37 +583,5 @@ function showToast(message, type = "info") {
 
   toast.addEventListener("hidden.bs.toast", () => {
     document.body.removeChild(toast);
-  });
-}
-
-// Responsive uploads view toggle for my_uploads.php
-function setUploadsViewByScreen() {
-  var table = document.getElementById("uploadsTable");
-  var grid = document.getElementById("uploadsGrid");
-  if (!table || !grid) return;
-  if (window.innerWidth < 768) {
-    table.classList.add("d-none");
-    grid.classList.remove("d-none");
-  } else {
-    table.classList.remove("d-none");
-    grid.classList.add("d-none");
-  }
-}
-if (
-  document.getElementById("uploadsTable") &&
-  document.getElementById("uploadsGrid")
-) {
-  setUploadsViewByScreen();
-  var toggleBti = document.getElementById("toggleUploadsViewBtn");
-  if (toggleBti) {
-    toggleBti.addEventListener("click", function () {
-      var table = document.getElementById("uploadsTable");
-      var grid = document.getElementById("uploadsGrid");
-      table.classList.toggle("d-none");
-      grid.classList.toggle("d-none");
-    });
-  }
-  window.addEventListener("resize", function () {
-    setUploadsViewByScreen();
   });
 }

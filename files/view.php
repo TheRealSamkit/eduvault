@@ -208,33 +208,24 @@ require_once '../includes/header.php';
                                 class="fas fa-flag me-1"></i><?php echo $file['report_count']; ?></span>
                     </div>
                     <?php if (isLoggedIn()): ?>
+                        <?php $preview = generateFilePreview($file); ?>
                         <a href="download.php?slug=<?php echo urlencode($file['slug']); ?>" class="btn btn-success mt-2">
                             <i class="fas fa-download me-2"></i>Download File
                         </a>
-                        <?php if (strtolower($file['file_type']) === 'pdf'): ?>
-                            <a href="/eduvault/pdfjs/web/viewer.php?slug=<?php echo urlencode($file['slug']); ?>"
-                                target="_blank" class="btn btn-outline-secondary mt-2 ms-2" title="Full Page PDF Preview">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </a>
-                        <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
-                            <a href="txt_preview.php?slug=<?php echo urlencode($file['slug']); ?>" target="_blank"
-                                class="btn btn-outline-secondary mt-2 ms-2" title="Full Page Text Preview">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </a>
-                        <?php elseif (in_array(strtolower($file['file_type']), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
-                            <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
-                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
-                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>" data-preview-type="image">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </button>
-                        <?php else: ?>
-                            <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
-                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
-                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </button>
+                        <?php if ($preview): ?>
+                            <?php if ($preview['type'] === 'pdf' || $preview['type'] === 'text'): ?>
+                                <a href="<?php echo $preview['url']; ?>" target="_blank" class="btn btn-outline-secondary mt-2 ms-2"
+                                    title="Full Page Preview">
+                                    <i class="fas fa-eye me-1"></i>Preview
+                                </a>
+                            <?php elseif ($preview['type'] === 'image'): ?>
+                                <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
+                                    data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                    data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                    data-file-title="<?php echo htmlspecialchars($file['title']); ?>" data-preview-type="image">
+                                    <i class="fas fa-eye me-1"></i>Preview
+                                </button>
+                            <?php endif; ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>

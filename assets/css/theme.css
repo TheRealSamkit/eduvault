@@ -5,62 +5,91 @@
 }
 
 :root {
-  /* Primary Colors (Basic) */
-  --primary-color: #00a1e4; /* Blue */
-  --secondary-color: #ff0000; /* Red */
-  --accent-color: #008000; /* Green */
+  /* --- Light Theme - Educational & Modern --- */
 
-  /* Status Colors */
-  --success-color: #008000; /* Green */
-  --warning-color: #ffff00; /* Yellow */
-  --danger-color: #ff0000; /* Red */
+  /* Bootstrap Core Colors */
+  --bs-blue: #4a90e2;
+  --bs-teal: #50e3c2;
+  --bs-orange: #f5a623;
+  --bs-green: #28a745;
+  --bs-red: #dc3545;
+  --bs-gray: #6c757d;
+  --bs-gray-dark: #343a40;
+  --bs-white: #fff;
+  --bs-light: #f8f9fa;
+  --bs-dark: #212529;
+
+  /* Theme Colors */
+  --bs-primary: var(--bs-blue);
+  --bs-secondary: var(--bs-gray);
+  --bs-success: var(--bs-green);
+  --bs-info: var(--bs-teal);
+  --bs-warning: var(--bs-orange);
+  --bs-danger: var(--bs-red);
+  --bs-light: var(--bs-light);
+  --bs-dark: var(--bs-dark);
+
+  /* RGB variables for opacity */
+  --bs-primary-rgb: 74, 144, 226;
+  --bs-secondary-rgb: 108, 117, 125;
+  --bs-success-rgb: 40, 167, 69;
+  --bs-info-rgb: 80, 227, 194;
+  --bs-warning-rgb: 245, 166, 35;
+  --bs-danger-rgb: 220, 53, 69;
+  --bs-light-rgb: 248, 249, 250;
+  --bs-dark-rgb: 33, 37, 41;
 
   /* Background & Text */
-  --bs-body-bg: #ffffff; /* White */
-  --bs-body-color: #000000; /* Black */
-  --bg-subtle: #f0f0f0; /* Light Gray */
-  --bg-body-tertiary: #ffffff; /* White */
-  --bs-border-color: #cccccc; /* Light Gray border */
-  --bs-hover-color: #333333;
+  --bs-body-bg: #ffffff;
+  --bs-body-color: var(--bs-dark);
+  --bs-secondary-bg: var(--bs-light);
+  --bs-tertiary-bg: #ffffff;
+  --bs-border-color: #dee2e6;
+  --bs-inverse-color: #495057;
+  --bs-hover-color: var(--bs-primary);
 
-  --bs-shadow: rgba(0, 0, 0, 0.1);
-  --bs-inverse-color: #555555;
+  /* Shadows */
+  --bs-shadow: rgba(0, 0, 0, 0.075);
 
-  /* Add sidebar-specific theme variables for better control */
-  --sidebar-bg: var(--bg-body-tertiary);
-  --sidebar-link: var(--bs-inverse-color);
-  --sidebar-link-active: var(--primary-color);
-  --sidebar-link-hover: var(--primary-color);
-  --sidebar-border: var(--bs-border-color);
+  /* Custom variables from old theme (for compatibility if used elsewhere) */
+  --primary-color: var(--bs-primary);
+  --secondary-color: var(--bs-secondary);
+  --accent-color: var(--bs-warning);
+  --success-color: var(--bs-success);
+  --warning-color: var(--bs-warning);
+  --danger-color: var(--bs-danger);
+  --bg-subtle: var(--bs-secondary-bg);
+  --bg-body-tertiary: var(--bs-tertiary-bg);
 }
 
 /* Dark Mode */
 [data-bs-theme="dark"] {
-  --bs-body-bg: #121212; /* Darker background */
-  --bs-body-color: #ffffff; /* White */
-  --bg-subtle: #1e1e1e; /* Darker Gray */
-  --bg-body-tertiary: #2d2d2d; /* Dark Gray */
-  --bs-border-color: #404040; /* Dark Border */
-  --bs-inverse-color: #bbbbbb;
+  /* Keep theme colors but adjust body and background colors */
+  --bs-body-bg: #1a1d21;
+  --bs-body-color: #e9ecef;
+  --bs-secondary-bg: #2c3036;
+  --bs-tertiary-bg: #212529;
+  --bs-border-color: #495057;
+  --bs-inverse-color: #adb5bd;
   --bs-hover-color: #ffffff;
+  --bs-shadow: rgba(0, 0, 0, 0.25);
 
-  --bs-shadow: rgba(255, 255, 255, 0.05);
-
-  /* Add sidebar-specific theme variables for better control */
-  --sidebar-bg: var(--bg-body-tertiary);
-  --sidebar-link: var(--bs-inverse-color);
-  --sidebar-link-active: var(--primary-color);
-  --sidebar-link-hover: var(--primary-color);
-  --sidebar-border: var(--bs-border-color);
+  /* Update custom variables for dark mode */
+  --bg-subtle: var(--bs-secondary-bg);
+  --bg-body-tertiary: var(--bs-tertiary-bg);
 }
 
-/* Common Styling */
+/* Common Styling - Most of this can be removed as Bootstrap handles it */
 body,
 .bg-dark-body,
 .list-group-item {
   background-color: var(--bs-body-bg) !important;
   color: var(--bs-body-color) !important;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.bg-e-secondary {
+  background-color: var(--bs-secondary-bg);
 }
 
 .navbar {
@@ -95,15 +124,16 @@ body,
   color: var(--bs-inverse-color) !important;
 }
 
-.dropdown-menu,
-.dropdown-item {
+.dropdown-menu {
   background-color: var(--bg-subtle);
   color: var(--bs-body-color);
-}
-
-.dropdown-menu {
   border: 1px solid var(--bs-border-color);
   box-shadow: 0 0.125rem 0.25rem var(--bs-shadow);
+}
+
+.dropdown-item {
+  background-color: transparent;
+  color: var(--bs-body-color);
 }
 
 .dropdown-item:hover {
@@ -111,17 +141,8 @@ body,
   color: var(--primary-color);
 }
 
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  color: #fff;
-  transition: all 0.3s ease;
-}
-
 .btn-primary:hover,
 .btn-primary:focus {
-  background-color: #0087c1;
-  border-color: #00a1e4;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px var(--bs-shadow);
 }
@@ -147,12 +168,6 @@ body,
 .offcanvas-header {
   background-color: var(--bg-subtle);
   border-bottom: 1px solid var(--bs-border-color);
-}
-
-.table,
-.list-group-item {
-  color: var(--bs-body-color);
-  background-color: var(--bg-body-tertiary);
 }
 
 .table thead th {
@@ -194,20 +209,20 @@ body,
   background-color: var(--bg-subtle) !important;
   color: var(--bs-body-color) !important;
   border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(0, 161, 228, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.15);
 }
 
 .mobile-nav {
   border-top: 1px solid var(--bs-border-color);
-  box-shadow: 0 -2px 0.2rem rgba(0, 161, 228, 0.15);
+  box-shadow: 0 -2px 0.2rem rgba(var(--bs-primary-rgb), 0.15);
 }
 
 .form-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23000' stroke='%23000' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 1 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
 }
 
 [data-bs-theme="dark"] .form-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23fff' stroke='%23fff' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 1 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23E9ECEF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
 }
 
 .pagination .page-link {
@@ -269,7 +284,6 @@ body,
 .dashboard-sidebar .nav-link {
   color: var(--bs-inverse-color) !important;
 }
-
 /* Sidebar scrollable content */
 .sidebar-scroll {
   overflow-y: auto;

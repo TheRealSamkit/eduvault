@@ -42,7 +42,7 @@ require_once '../includes/header.php';
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-file-alt me-2"></i>My Uploads</h2>
                 <div>
-                    <button id="toggleViewBtn" class="btn btn-outline-secondary me-2"><i class="fas fa-th"></i>
+                    <button id="toggleUploadsViewBtn" class="btn btn-outline-secondary me-2"><i class="fas fa-th"></i>
                         View</button>
                     <a href="../files/upload.php" class="btn btn-success">
                         <i class="fas fa-upload me-2"></i>Upload New File
@@ -74,6 +74,7 @@ require_once '../includes/header.php';
                                 <tbody>
                                     <?php mysqli_data_seek($files_result, 0);
                                     while ($file = mysqli_fetch_assoc($files_result)): ?>
+                                        <?php $preview = generateFilePreview($file); ?>
                                         <tr>
                                             <td>
                                                 <i
@@ -139,27 +140,23 @@ require_once '../includes/header.php';
                                             <td class="text-body"><?php echo date('M d, Y', strtotime($file['upload_date'])); ?>
                                             </td>
                                             <td class="d-flex gap-1">
-                                                <?php if (strtolower($file['file_type']) === 'pdf'): ?>
-                                                    <a href="/eduvault/pdfjs/web/viewer.php?file=<?php echo urlencode($host . '/eduvault/files/pdf_proxy.php?slug=' . $file['slug']); ?>"
-                                                        target="_blank" class="btn btn-outline-secondary action-btn"
-                                                        data-bs-toggle="tooltip" title="Full PDF Preview">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
-                                                    <a href="../files/txt_preview.php?slug=<?php echo $file['slug']; ?>"
-                                                        target="_blank" class="btn btn-outline-secondary action-btn"
-                                                        data-bs-toggle="tooltip" title="Full Text Preview">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                <?php else: ?>
-                                                    <button type="button"
-                                                        class="btn btn-outline-secondary action-btn btn-preview-file"
-                                                        data-bs-toggle="tooltip" title="Preview"
-                                                        data-file-slug="<?php echo urlencode($file['slug']); ?>"
-                                                        data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                                        data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
+                                                <?php if ($preview): ?>
+                                                    <?php if ($preview['type'] === 'pdf' || $preview['type'] === 'text'): ?>
+                                                        <a href="<?php echo $preview['url']; ?>" target="_blank"
+                                                            class="btn btn-outline-secondary action-btn" data-bs-toggle="tooltip"
+                                                            title="Full Preview">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    <?php elseif ($preview['type'] === 'image'): ?>
+                                                        <button type="button"
+                                                            class="btn btn-outline-secondary action-btn btn-preview-file"
+                                                            data-bs-toggle="tooltip" title="Preview"
+                                                            data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                                            data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                                            data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                                 <a href="../files/download.php?slug=<?php echo $file['slug']; ?>"
                                                     class="btn btn-outline-primary action-btn" data-bs-toggle="tooltip"
@@ -189,6 +186,7 @@ require_once '../includes/header.php';
                         <div id="uploadsGrid" class="row g-4">
                             <?php mysqli_data_seek($files_result, 0);
                             while ($file = mysqli_fetch_assoc($files_result)): ?>
+                                <?php $preview = generateFilePreview($file); ?>
                                 <div class="col-12 col-md-6 col-lg-4">
                                     <div class="card h-100">
                                         <div class="card-body d-flex flex-column justify-content-between">

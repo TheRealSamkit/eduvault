@@ -39,12 +39,13 @@ require_once '../includes/header.php';
             <div id="bookmarksGrid" class="row g-4">
                 <?php if (count($bookmarks) > 0): ?>
                     <?php foreach ($bookmarks as $file): ?>
+                        <?php $preview = generateFilePreview($file); ?>
                         <div class="col-12 col-md-6 col-lg-4 bookmark-card">
                             <div class="card h-100">
                                 <div class="card-body d-flex flex-column justify-content-between">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <h6 class="card-title mb-0 text-truncate">
-                                            <a href="files/view.php?slug=<?php echo urlencode($file['slug']); ?>"
+                                            <a href="/eduvault/files/view.php?slug=<?php echo urlencode($file['slug']); ?>"
                                                 class="text-decoration-none color fs-5">
                                                 <i
                                                     class="fas fa-file-<?php echo getFileIcon(strtolower($file['file_type'])); ?> file-icon text-primary"></i>
@@ -77,6 +78,21 @@ require_once '../includes/header.php';
                                     </div>
                                 </div>
                                 <div class="card-footer bg-transparent border-top-0 d-flex flex-column flex-md-row gap-2">
+                                    <?php if ($preview): ?>
+                                        <?php if ($preview['type'] === 'pdf' || $preview['type'] === 'text'): ?>
+                                            <a href="/eduvault<?php echo $preview['url']; ?>" target="_blank"
+                                                class="btn btn-outline-primary btn-sm flex-fill" title="Preview">
+                                                <i class="fas fa-eye"></i> Preview
+                                            </a>
+                                        <?php elseif ($preview['type'] === 'image'): ?>
+                                            <button type="button" class="btn btn-outline-primary btn-sm flex-fill btn-preview-file"
+                                                title="Preview" data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
+                                                <i class="fas fa-eye"></i> Preview
+                                            </button>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                     <a href="files/view.php?slug=<?php echo urlencode($file['slug']); ?>"
                                         class="btn btn-outline-primary btn-sm flex-fill" title="View Details">
                                         <i class="fas fa-eye"></i> View
@@ -112,6 +128,7 @@ require_once '../includes/header.php';
                     </thead>
                     <tbody>
                         <?php foreach ($bookmarks as $file): ?>
+                            <?php $preview = generateFilePreview($file); ?>
                             <tr class="bookmark-row">
                                 <td>
                                     <a href="files/view.php?slug=<?php echo urlencode($file['slug']); ?>"
@@ -130,6 +147,21 @@ require_once '../includes/header.php';
                                         data-file-id="<?php echo $file['id']; ?>" title="Remove Bookmark">
                                         <i class="fas fa-star"></i>
                                     </button>
+                                    <?php if ($preview): ?>
+                                        <?php if ($preview['type'] === 'pdf' || $preview['type'] === 'text'): ?>
+                                            <a href="<?php echo $preview['url']; ?>" target="_blank"
+                                                class="btn btn-outline-primary btn-sm" title="Preview">
+                                                <i class="fas fa-eye"></i> Preview
+                                            </a>
+                                        <?php elseif ($preview['type'] === 'image'): ?>
+                                            <button type="button" class="btn btn-outline-primary btn-sm btn-preview-file"
+                                                title="Preview" data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
+                                                <i class="fas fa-eye"></i> Preview
+                                            </button>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                     <a href="files/view.php?slug=<?php echo urlencode($file['slug']); ?>"
                                         class="btn btn-outline-primary btn-sm" title="View Details">
                                         <i class="fas fa-eye"></i>

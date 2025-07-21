@@ -14,12 +14,12 @@ if (isLoggedIn()) {
     $user = mysqli_fetch_assoc($user_result);
     if (!empty($user['avatar_path'])) {
         if (!str_starts_with($user['avatar_path'], 'http') && !str_starts_with($user['avatar_path'], 'https')) {
-            $_SESSION['avatar'] = '../' . $user['avatar_path'];
+            $_SESSION['avatar'] = '/eduvault' . $user['avatar_path'];
         } else {
             $_SESSION['avatar'] = $user['avatar_path'];
         }
     } else {
-        $_SESSION['avatar'] = '../uploads/avatars/default.png';
+        $_SESSION['avatar'] = '/eduvault/uploads/avatars/default.png';
     }
 }
 ?>
@@ -34,6 +34,10 @@ if (isLoggedIn()) {
         <link rel="icon" type="image/png" sizes="32x32" href="/eduvault/assets/favicon/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/eduvault/assets/favicon/favicon-16x16.png">
         <link href="/eduvault/assets/css/bootstrap.css" rel="stylesheet">
+        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"> -->
+
+
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
         <?php
         if (isset($additionalStyles)) {
@@ -88,26 +92,14 @@ if (isLoggedIn()) {
                                         href="/eduvault/files/list.php">Study Materials
                                     </a>
                                 </li>
-                                <?php if (isLoggedIn()): ?>
-                                    <li class="nav-item">
-                                        <a class="nav-link <?php echo str_contains($_SERVER['PHP_SELF'], 'dashboard') ? 'active' : ''; ?>"
-                                            href="/eduvault/dashboard/dashboard.php">Dashboard
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/auth/logout.php">Logout
-                                        </a>
-                                    </li>
-                                <?php else: ?>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/auth/login.php">Login
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="/eduvault/auth/register.php">Register
-                                        </a>
-                                    </li>
-                                <?php endif; ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/eduvault/auth/login.php">Login
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/eduvault/auth/register.php">Register
+                                    </a>
+                                </li>
                                 <li class="nav-item dropdown">
                                     <button class="btn nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                         aria-expanded="false">
@@ -182,23 +174,20 @@ if (isLoggedIn()) {
                                         href="/eduvault/pages/view.php?id=<?= $_SESSION['user_id'] ?>">Profile</a></li>
                                 <li><a class="dropdown-item" href="/eduvault/dashboard/dashboard.php">Dashboard</a></li>
                                 <li><a class="dropdown-item" href="/eduvault/dashboard/notifications.php">
-                                    Notifications
-                                    <?php if ($unread_count > 0): ?>
-                                        <span class="badge bg-danger ms-2"><?php echo $unread_count; ?></span>
-                                    <?php endif; ?>
-                                </a></li>
+                                        Notifications
+                                        <?php if ($unread_count > 0): ?>
+                                            <span class="badge bg-danger ms-2"><?php echo $unread_count; ?></span>
+                                        <?php endif; ?>
+                                    </a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li><button type="button" class="dropdown-item d-flex align-items-center"
-                                        data-theme-value="light">Light
-                                    </button></li>
+                                        data-theme-value="light"><i class="fas fa-sun me-2"></i> Light</button></li>
                                 <li><button type="button" class="dropdown-item d-flex align-items-center"
-                                        data-theme-value="dark">Dark
-                                    </button></li>
+                                        data-theme-value="dark"><i class="fas fa-moon me-2"></i> Dark</button></li>
                                 <li><button type="button" class="dropdown-item d-flex align-items-center"
-                                        data-theme-value="auto">System
-                                    </button></li>
+                                        data-theme-value="auto"><i class="fas fa-desktop me-2"></i> System</button></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -220,8 +209,8 @@ if (isLoggedIn()) {
         <?php if (!empty($_SESSION['toasts'])): ?>
             <div class="toast-container position-fixed top-0 end-0 p-3 show" style="z-index: 1055;">
                 <?php foreach ($_SESSION['toasts'] as $toast): ?>
-                    <div class="toast align-items-center text-white bg-<?= toastBgClass($toast['type']) ?> border-0 mb-2"
-                        role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
+                    <div class="toast align-items-center text-white bg-<?= toastBgClass($toast['type']) ?> mb-2" role="alert"
+                        aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
                         <div class="d-flex">
                             <div class="toast-body w-100">
                                 <?= htmlspecialchars($toast['message']) ?>

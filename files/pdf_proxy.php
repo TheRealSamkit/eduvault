@@ -1,10 +1,15 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
 
 requireLogin();
+ini_set('log_errors', 1); // turn on logging
+ini_set('error_log', __DIR__ . '/my_php_errors.log'); // custom log file in current folder
 
+error_log('User logged in: ' . (isLoggedIn() ? 'yes' : 'no'));
+error_log('Session: ' . print_r($_SESSION, true));
 if (!isset($_GET['slug']) || !is_string($_GET['slug'])) {
     flash('error', 'Invalid request.');
     http_response_code(400);
@@ -21,7 +26,8 @@ if (!empty($slug)) {
     $file = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
 
-    if ($file && isLoggedIn()) {
+    $is_range = isset($_SERVER['HTTP_RANGE']);
+    if ($file && isLoggedIn() && !$is_range) {
         $user_id = $_SESSION['user_id'];
         if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
             flash('error', 'You do not have enough tokens to preview this file. Upload files to earn more tokens!');
@@ -30,6 +36,7 @@ if (!empty($slug)) {
         }
     }
 }
+
 // Fetch file info securely
 $query = "SELECT file_path, file_type, status, visibility, verified FROM digital_files WHERE slug = ? LIMIT 1";
 $stmt = mysqli_prepare($mysqli, $query);

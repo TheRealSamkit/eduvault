@@ -1,0 +1,99 @@
+
+
+
+[15-Jul-2025 17:09:33 Europe/Berlin] DEBUG: Test error log
+[15-Jul-2025 17:09:33 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:09:33 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:09:33 Europe/Berlin] File row: Array
+(
+    [file_path] => .../uploads/files/686e6ffabe8cd.pdf
+    [file_type] => pdf
+    [status] => active
+    [visibility] => public
+    [verified] => 1
+)
+
+[15-Jul-2025 17:09:33 Europe/Berlin] C:\xampp\htdocs\eduvault\uploads\files\686e6ffabe8cd.pdf
+[15-Jul-2025 17:09:33 Europe/Berlin] Slug: test-pdf-
+[15-Jul-2025 17:25:32 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:25:32 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:25:40 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:25:40 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:27:27 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:27:27 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:28:36 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:28:36 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:29:08 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:29:08 Europe/Berlin] Session: Array
+(
+    [user_id] => 4
+    [avatar] => /eduvault/eduvault/uploads/avatars/default.png
+)
+
+[15-Jul-2025 17:29:35 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:29:35 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:29:35 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:29:35 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:29:39 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:29:39 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:29:51 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:29:51 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:30:11 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:30:11 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
+[15-Jul-2025 17:31:42 Europe/Berlin] User logged in: yes
+[15-Jul-2025 17:31:42 Europe/Berlin] Session: Array
+(
+    [user_id] => 1
+    [avatar] => https://lh3.googleusercontent.com/a/ACg8ocKvoATr3qz2h6pnYpVpdRXlTXppmuqrPniqkY21syT3gkGDRV2I=s96-c
+)
+
