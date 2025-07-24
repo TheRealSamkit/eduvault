@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_announcement']))
     exit();
     // Log the announcement
 }
-//test
+//test alll Merge
 // Get all settings
 
 $mimes = mysqli_query($mysqli, "SELECT * FROM mimes ORDER BY id DESC");
