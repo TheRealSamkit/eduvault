@@ -54,6 +54,10 @@ $stats = [
         <a href="files.php" class="nav-link <?php echo ($current_page == 'files.php') ? 'active' : ''; ?>">
             <i class="fas fa-file-alt me-2"></i>Files
         </a>
+        <a href="email_manager.php"
+            class="nav-link <?php echo ($current_page == 'email_manager.php') ? 'active' : ''; ?>">
+            <i class="fas fa-envelope me-2"></i>Email Manager
+        </a>
         <a href="reports.php" class="nav-link <?php echo ($current_page == 'reports.php') ? 'active' : ''; ?>">
             <i class="fas fa-flag me-2"></i>Reports
             <?php if ($stats['reports'] > 0): ?>

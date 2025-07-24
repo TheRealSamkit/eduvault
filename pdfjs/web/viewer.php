@@ -8,44 +8,43 @@ if (!isLoggedIn()) {
   exit();
 }
 
-$slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
-if (empty($slug)) {
-  flash('error', 'Invalid file request.');
-  redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
+// If ?file=... is present, let PDF.js handle it natively
+if (isset($_GET['file'])) {
+  $pdf_url = $_GET['file'];
+} else {
+  // If ?slug=... is present, look up the file and redirect to ?file=...
+  $slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
+  if (empty($slug)) {
+    flash('error', 'Invalid file request.');
+    redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
+    exit();
+  }
+  $query = "SELECT id FROM digital_files WHERE slug = ? LIMIT 1";
+  $stmt = mysqli_prepare($mysqli, $query);
+  mysqli_stmt_bind_param($stmt, 's', $slug);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+  $file = mysqli_fetch_assoc($result);
+  mysqli_stmt_close($stmt);
+  if (!$file) {
+    flash('error', 'File not found.');
+    redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
+    exit();
+  }
+  $user_id = $_SESSION['user_id'];
+  if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
+    flash('error', 'You do not have enough tokens to view this file.');
+    redirect('/eduvault/dashboard/dashboard.php');
+    exit();
+  }
+  // Build the proxy URL as an absolute URL and redirect
+  $host = $_SERVER['HTTP_HOST'];
+  $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+  $pdf_url = $protocol . '://' . $host . '/eduvault/files/pdf_proxy.php?slug=' . urlencode($slug);
+  $redirect_url = $_SERVER['PHP_SELF'] . '?file=' . $pdf_url;
+  header('Location: ' . $redirect_url);
   exit();
 }
-
-$query = "SELECT id FROM digital_files WHERE slug = ? LIMIT 1";
-$stmt = mysqli_prepare($mysqli, $query);
-mysqli_stmt_bind_param($stmt, 's', $slug);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-
-$file = mysqli_fetch_assoc($result);
-mysqli_stmt_close($stmt);
-
-if (!$file) {
-  flash('error', 'File not found.');
-  redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
-  exit();
-}
-
-$user_id = $_SESSION['user_id'];
-if (
-  !checkAndConsumeToken(
-    $user_id,
-    $file['id'],
-    $mysqli
-  )
-) {
-  flash('error', 'You do not have enough tokens to view this file.');
-  redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
-  exit();
-}
-
-// Use pdf_proxy.php to serve the PDF securely
-$pdf_url = '/eduvault/files/pdf_proxy.php?slug=' . urlencode($slug);
-// require_once '../../includes/header.php';
 ?>
 <!DOCTYPE html>
 <!--
@@ -85,8 +84,19 @@ See https://github.com/adobe-type-tools/cmap-resources
 
     <script src="viewer.mjs" type="module"></script>
     <script>
-      // Set the default PDF URL for PDF.js
-      var DEFAULT_URL = "<?php echo addslashes($pdf_url); ?>";
+      // Robust error handling: If the PDF fails to load, show a friendly message
+      document.addEventListener('DOMContentLoaded', function () {
+        let checkInterval = setInterval(function () {
+          if (window.PDFViewerApplication && window.PDFViewerApplication.eventBus) {
+            clearInterval(checkInterval);
+            window.PDFViewerApplication.eventBus.on('documentloadfailed', function (e) {
+              let errorMsg = 'Failed to load PDF. This file may not exist, you may not have access, or your session expired.';
+              let container = document.getElementById('outerContainer') || document.body;
+              container.innerHTML = '<div style="padding:2rem;text-align:center;color:#b00;font-size:1.2rem;">' + errorMsg + '</div>';
+            });
+          }
+        }, 100);
+      });
     </script>
   </head>
 

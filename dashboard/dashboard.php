@@ -39,7 +39,7 @@ require_once '../modals/editProfileModal.php';
             <div class="row g-3 mb-4">
                 <?php if ($books_enabled): ?>
                     <div class="col-md-3">
-                        <div class="card bg-primary text-white shadow-sm text-center p-2">
+                        <div class="card bg-primary shadow-sm text-center p-2">
                             <div class="card-body">
                                 <i class="fas fa-book fa-2x mb-2"></i>
                                 <h2><?php echo $books_count; ?></h2>
@@ -49,7 +49,7 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 <?php endif; ?>
                 <div class="col-md-3">
-                    <div class="card bg-primary text-white shadow-sm text-center">
+                    <div class="card shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-eye fa-2x mb-2"></i>
                             <h2><?php echo htmlspecialchars($user['tokens']); ?></h2>
@@ -58,7 +58,7 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-success text-white shadow-sm text-center">
+                    <div class="card shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-file-alt fa-2x mb-2"></i>
                             <h2><?php echo $files_count; ?></h2>
@@ -67,7 +67,7 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-info text-white shadow-sm text-center">
+                    <div class="card shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-download fa-2x mb-2"></i>
                             <h2><?php echo $downloads_count; ?></h2>
@@ -76,7 +76,7 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-warning text-white shadow-sm text-center">
+                    <div class="card shadow-sm text-center">
                         <div class="card-body">
                             <i class="fas fa-star fa-2x mb-2"></i>
                             <h2><?php echo $avg_feedback > 0 ? $avg_feedback : 'No Feedbacks'; ?></h2>

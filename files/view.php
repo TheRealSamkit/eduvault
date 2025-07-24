@@ -15,6 +15,17 @@ mysqli_stmt_bind_param($stmt, 's', $slug);
 mysqli_stmt_execute($stmt);
 $file = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
+// Restrict access to public files only, unless uploader or admin
+if ($file && $file['visibility'] !== 'public') {
+    $is_owner = isLoggedIn() && $_SESSION['user_id'] == $file['uploader_id'];
+    $is_admin = isLoggedIn() && isset($_SESSION['admin_id']);
+    if (!$is_owner && !$is_admin) {
+        flash('error', 'This file is private.');
+        redirect('list.php');
+        exit();
+    }
+}
+
 $feedback_query = "SELECT f.*, u.name as user_name
                   FROM file_feedback f 
                   JOIN users u ON f.user_id = u.id 
@@ -34,10 +45,13 @@ if (!$file) {
 // Token check for file access
 if (isLoggedIn()) {
     $user_id = $_SESSION['user_id'];
-    if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
-        flash('error', 'You do not have enough tokens to access this file. Upload files to earn more tokens!');
-        redirect('../dashboard/dashboard.php');
-        exit();
+    // Do not consume token if user is the uploader
+    if ($user_id != $file['uploader_id']) {
+        if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
+            flash('error', 'You do not have enough tokens to access this file. Upload files to earn more tokens!');
+            redirect('../dashboard/dashboard.php');
+            exit();
+        }
     }
 }
 
@@ -169,22 +183,22 @@ require_once '../includes/header.php';
                             </span>
                         <?php endif; ?>
                     </div>
-                    <div class="mb-2 d-flex flex-wrap gap-2">
-                        <span
-                            class="badge bg-<?php echo $file['status'] === 'active' ? 'success' : 'secondary'; ?> text-body">Status:
-                            <?php echo ucfirst($file['status'] ?? 'N/A'); ?></span>
-                        <span
-                            class="badge bg-<?php echo $file['visibility'] === 'public' ? 'info' : 'secondary'; ?> text-body">Visibility:
-                            <?php echo ucfirst($file['visibility'] ?? 'N/A'); ?></span>
-                        <span
-                            class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?> text-body">Verified:
-                            <?php echo $file['verified'] ? 'Yes' : 'No'; ?></span>
-                    </div>
+                    <?php if ($owner_type !== 'User'): ?>
+                        <div class="mb-2 d-flex flex-wrap gap-2">
+                            <span
+                                class="badge bg-<?php echo $file['status'] === 'active' ? 'success' : 'secondary'; ?> text-body">Status:
+                                <?php echo ucfirst($file['status'] ?? 'N/A'); ?></span>
+                            <span
+                                class="badge bg-<?php echo $file['visibility'] === 'public' ? 'info' : 'secondary'; ?> text-body">Visibility:
+                                <?php echo ucfirst($file['visibility'] ?? 'N/A'); ?></span>
+                            <span
+                                class="badge bg-<?php echo $file['verified'] ? 'success' : 'danger'; ?> text-body">Verified:
+                                <?php echo $file['verified'] ? 'Yes' : 'No'; ?></span>
+                        </div>
+                    <?php endif; ?>
                     <div class="mb-2 d-flex flex-wrap gap-3">
                         <span class="text-muted"><i
                                 class="fas fa-file me-1"></i><?php echo strtoupper($file['file_type']); ?></span>
-                        <span class="text-muted"><i class="fas fa-hashtag me-1"></i><span data-bs-toggle="tooltip"
-                                title="<?php echo htmlspecialchars($file['content_hash']); ?>"><?php echo htmlspecialchars(substr($file['content_hash'], 0, 8)); ?>...</span></span>
                         <span class="text-muted"><i class="fas fa-key me-1"></i><span data-bs-toggle="tooltip"
                                 title="<?php echo htmlspecialchars($file['keywords']); ?>"><?php echo htmlspecialchars(substr($file['keywords'], 0, 16)); ?>...</span></span>
                         <span class="text-muted"><i
@@ -192,10 +206,8 @@ require_once '../includes/header.php';
                     </div>
                     <div class="mb-2 text-body">
                         <i class="fas fa-user me-1"></i>
-                        <?php echo htmlspecialchars($file['uploader_name']); ?>
-                        <?php if (!empty($owner_type)): ?>
-                            <span class="badge bg-body-secondary text-body ms-1"><?php echo $owner_type; ?></span>
-                        <?php endif; ?>
+                        <a href="/eduvault/pages/view.php?id=<?php echo htmlspecialchars($file['uploader_id']) ?>"
+                            class="text-muted link-underline-opacity-0"><?php echo htmlspecialchars($file['uploader_name']); ?></a>
                         <span class="ms-2"><i
                                 class="fas fa-calendar-alt me-1"></i><?php echo date('M d, Y', strtotime($file['upload_date'])); ?></span>
                     </div>
@@ -208,33 +220,24 @@ require_once '../includes/header.php';
                                 class="fas fa-flag me-1"></i><?php echo $file['report_count']; ?></span>
                     </div>
                     <?php if (isLoggedIn()): ?>
+                        <?php $preview = generateFilePreview($file); ?>
                         <a href="download.php?slug=<?php echo urlencode($file['slug']); ?>" class="btn btn-success mt-2">
                             <i class="fas fa-download me-2"></i>Download File
                         </a>
-                        <?php if (strtolower($file['file_type']) === 'pdf'): ?>
-                            <a href="/eduvault/pdfjs/web/viewer.php?slug=<?php echo urlencode($file['slug']); ?>"
-                                target="_blank" class="btn btn-outline-secondary mt-2 ms-2" title="Full Page PDF Preview">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </a>
-                        <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
-                            <a href="txt_preview.php?slug=<?php echo urlencode($file['slug']); ?>" target="_blank"
-                                class="btn btn-outline-secondary mt-2 ms-2" title="Full Page Text Preview">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </a>
-                        <?php elseif (in_array(strtolower($file['file_type']), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
-                            <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
-                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
-                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>" data-preview-type="image">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </button>
-                        <?php else: ?>
-                            <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
-                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
-                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
-                                <i class="fas fa-eye me-1"></i>Preview
-                            </button>
+                        <?php if ($preview): ?>
+                            <?php if ($preview['type'] === 'pdf' || $preview['type'] === 'text'): ?>
+                                <a href="<?php echo $preview['url']; ?>" target="_blank" class="btn btn-outline-secondary mt-2 ms-2"
+                                    title="Full Page Preview">
+                                    <i class="fas fa-eye me-1"></i>Preview
+                                </a>
+                            <?php elseif ($preview['type'] === 'image'): ?>
+                                <button type="button" class="btn btn-outline-secondary mt-2 ms-2 btn-preview-file"
+                                    data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                    data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                    data-file-title="<?php echo htmlspecialchars($file['title']); ?>" data-preview-type="image">
+                                    <i class="fas fa-eye me-1"></i>Preview
+                                </button>
+                            <?php endif; ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>

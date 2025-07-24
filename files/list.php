@@ -35,11 +35,87 @@ $result = searchFiles($mysqli, $search, $filters, $sort_by, $items_per_page, $of
 $total_items = getSearchCount($mysqli, $search, $filters);
 $total_pages = ceil($total_items / $items_per_page);
 
-// Get filter options using functions
-$file_types = mysqli_query($mysqli, "SELECT DISTINCT file_type FROM digital_files WHERE file_type != '' AND status = 'active'");
-$subjects = getAllSubjects($mysqli);
+// --- START: New Dynamic Filter Logic ---
+
+// Always get all courses so the user can change their primary choice.
 $courses = getAllCourses($mysqli);
-$years = getAllYears($mysqli);
+
+// Get available file types
+$file_types = mysqli_query($mysqli, "SELECT DISTINCT file_type FROM digital_files WHERE file_type != '' AND status = 'active'");
+
+
+// --- Get context-aware Subjects and Years ---
+
+// Base query parts
+$subject_query = "SELECT DISTINCT s.id, s.name AS subject FROM subjects s JOIN digital_files df ON s.id = df.subject_id WHERE df.status = 'active' AND df.verified = 1";
+$year_query = "SELECT DISTINCT y.id, y.year FROM years y JOIN digital_files df ON y.id = df.year_id WHERE df.status = 'active' AND df.verified = 1";
+$params = [];
+$types = '';
+
+// Add filters to the queries if they are selected
+if (!empty($course_id)) {
+    $subject_query .= " AND df.course_id = ?";
+    $year_query .= " AND df.course_id = ?";
+    $params[] = $course_id;
+    $types .= 'i';
+}
+if (!empty($subject_id)) {
+    // A subject is selected, so the year list should depend on it too
+    $year_query .= " AND df.subject_id = ?";
+    // We need to add the subject_id to the params for the year query
+    // The course_id might be there already, so we add it to the existing params.
+    if (strpos($types, 'i') === false) {
+        // if no course_id was present
+        $params[] = $subject_id;
+        $types .= 'i';
+    } else {
+        // if course_id was present, we need to construct a new params array for year query
+        $year_params = [$course_id, $subject_id];
+        $year_types = 'ii';
+    }
+}
+
+
+// Fetch Subjects
+$current_subject_query = $subject_query;
+$current_subject_params = [];
+$current_subject_types = '';
+if (!empty($course_id)) {
+    $current_subject_params[] = $course_id;
+    $current_subject_types .= 'i';
+}
+
+if (!empty($current_subject_params)) {
+    $stmt_subjects = $mysqli->prepare($current_subject_query);
+    $stmt_subjects->bind_param($current_subject_types, ...$current_subject_params);
+    $stmt_subjects->execute();
+    $subjects = $stmt_subjects->get_result();
+} else {
+    $subjects = getAllSubjects($mysqli); // Fallback to all subjects
+}
+
+
+// Fetch Years
+$stmt_years = $mysqli->prepare($year_query);
+if (isset($year_params)) {
+    // If both course and subject are set
+    $stmt_years->bind_param($year_types, ...$year_params);
+} elseif (!empty($params)) {
+    // If only one of them is set
+    $stmt_years->bind_param($types, ...$params);
+}
+$stmt_years->execute();
+$years = $stmt_years->get_result();
+
+
+// If no years are found with filters, fallback to all years.
+if ($years->num_rows === 0 && (!empty($course_id) || !empty($subject_id))) {
+    $years = getAllYears($mysqli);
+}
+
+
+// --- END: New Dynamic Filter Logic ---
+
 
 // Log search analytics if user is logged in
 if (isLoggedIn() && (!empty($search) || !empty($filters))) {
@@ -64,7 +140,7 @@ require_once '../modals/reportmodal.php';
                     <h6 class="mb-3 text-primary"><i class="fas fa-filter me-2"></i>Filters</h6>
                     <div class="mb-3">
                         <label class="form-label small text-muted">Course</label>
-                        <select name="course" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <select name="course" class="form-select form-select-sm" onchange="handleFilterChange(this)">
                             <option value="">All Courses</option>
                             <?php mysqli_data_seek($courses, 0);
                             while ($c = mysqli_fetch_assoc($courses)): ?>
@@ -74,7 +150,7 @@ require_once '../modals/reportmodal.php';
                     </div>
                     <div class="mb-3">
                         <label class="form-label small text-muted">Subject</label>
-                        <select name="subject" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <select name="subject" class="form-select form-select-sm" onchange="handleFilterChange(this)">
                             <option value="">All Subjects</option>
                             <?php mysqli_data_seek($subjects, 0);
                             while ($s = mysqli_fetch_assoc($subjects)): ?>
@@ -84,7 +160,7 @@ require_once '../modals/reportmodal.php';
                     </div>
                     <div class="mb-3">
                         <label class="form-label small text-muted">Year</label>
-                        <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <select name="year" class="form-select form-select-sm" onchange="handleFilterChange(this)">
                             <option value="">All Years</option>
                             <?php mysqli_data_seek($years, 0);
                             while ($y = mysqli_fetch_assoc($years)): ?>
@@ -146,7 +222,8 @@ require_once '../modals/reportmodal.php';
                     <form method="GET" action="" id="mobile-filters-form">
                         <div class="mb-3">
                             <label class="form-label small text-muted">Course</label>
-                            <select name="course" class="form-select form-select-sm">
+                            <select name="course" class="form-select form-select-sm"
+                                onchange="handleFilterChange(this)">
                                 <option value="">All Courses</option>
                                 <?php mysqli_data_seek($courses, 0);
                                 while ($c = mysqli_fetch_assoc($courses)): ?>
@@ -156,7 +233,8 @@ require_once '../modals/reportmodal.php';
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">Subject</label>
-                            <select name="subject" class="form-select form-select-sm">
+                            <select name="subject" class="form-select form-select-sm"
+                                onchange="handleFilterChange(this)">
                                 <option value="">All Subjects</option>
                                 <?php mysqli_data_seek($subjects, 0);
                                 while ($s = mysqli_fetch_assoc($subjects)): ?>
@@ -166,7 +244,7 @@ require_once '../modals/reportmodal.php';
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">Year</label>
-                            <select name="year" class="form-select form-select-sm">
+                            <select name="year" class="form-select form-select-sm" onchange="handleFilterChange(this)">
                                 <option value="">All Years</option>
                                 <?php mysqli_data_seek($years, 0);
                                 while ($y = mysqli_fetch_assoc($years)): ?>
@@ -258,6 +336,7 @@ require_once '../modals/reportmodal.php';
             <div class="row">
                 <?php if (mysqli_num_rows($result) > 0): ?>
                     <?php while ($file = mysqli_fetch_assoc($result)): ?>
+                        <?php $preview = generateFilePreview($file); ?>
                         <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
                             <div class="card file-card h-100 w-100">
                                 <div class="card-body d-flex flex-column justify-content-between">
@@ -395,44 +474,27 @@ require_once '../modals/reportmodal.php';
                                             aria-label="Download <?php echo htmlspecialchars($file['title']); ?>">
                                             <i class="fas fa-download me-1" aria-hidden="true"></i>Download
                                         </a>
-                                        <?php if (strtolower($file['file_type']) === 'pdf'): ?>
-                                            <a href="/eduvault/pdfjs/web/viewer.php?slug=<?php echo urlencode($file['slug']); ?>"
-                                                target="_blank" class="btn btn-outline-secondary btn-sm flex-fill"
-                                                title="Full Page PDF Preview">
-                                                <i class="fas fa-eye me-1"></i>Full Preview
-                                            </a>
-                                        <?php elseif (in_array(strtolower($file['file_type']), ['txt', 'csv', 'md'])): ?>
-                                            <a href="txt_preview.php?slug=<?php echo urlencode($file['slug']); ?>" target="_blank"
-                                                class="btn btn-outline-secondary btn-sm flex-fill" title="Full Page Text Preview">
-                                                <i class="fas fa-eye me-1"></i>Full Preview
-                                            </a>
-                                        <?php elseif (in_array(strtolower($file['file_type']), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
-                                            <button type="button" class="btn btn-outline-secondary btn-sm flex-fill btn-preview-file"
-                                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
-                                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>"
-                                                data-preview-type="image">
-                                                <i class="fas fa-eye me-1"></i>Preview
-                                            </button>
-                                        <?php else: ?>
-                                            <button type="button" class="btn btn-outline-secondary btn-sm flex-fill btn-preview-file"
-                                                data-file-slug="<?php echo urlencode($file['slug']); ?>"
-                                                data-file-type="<?php echo strtolower($file['file_type']); ?>"
-                                                data-file-title="<?php echo htmlspecialchars($file['title']); ?>">
-                                                <i class="fas fa-eye me-1"></i>Preview
-                                            </button>
+                                        <?php if ($preview): ?>
+                                            <?php if ($preview['type'] === 'pdf' || $preview['type'] === 'text'): ?>
+                                                <a href="<?php echo $preview['url']; ?>" class="btn btn-outline-secondary btn-sm flex-fill"
+                                                    title="Full Preview">
+                                                    <i class="fas fa-eye me-1"></i>Full Preview
+                                                </a>
+                                            <?php elseif ($preview['type'] === 'image'): ?>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm flex-fill btn-preview-file"
+                                                    data-file-slug="<?php echo urlencode($file['slug']); ?>"
+                                                    data-file-type="<?php echo strtolower($file['file_type']); ?>"
+                                                    data-file-title="<?php echo htmlspecialchars($file['title']); ?>"
+                                                    data-preview-type="image">
+                                                    <i class="fas fa-eye me-1"></i>Preview
+                                                </button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         <button class="btn btn-sm btn-outline-warning btn-bookmark-file"
                                             data-file-id="<?php echo $file['id']; ?>"
                                             title="<?php echo $bookmarked ? 'Remove Bookmark' : 'Add Bookmark'; ?>">
                                             <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-bookmark"></i>
                                         </button>
-
-                                        <!-- <a href="view.php?slug=<?php echo urlencode($file['slug']); ?>"
-                                            class="btn btn-outline-primary btn-sm flex-fill"
-                                            aria-label="View details for <?php echo htmlspecialchars($file['title']); ?>">
-                                            <i class="fas fa-eye" aria-hidden="true"></i>
-                                        </a> -->
                                     <?php else: ?>
                                         <a href="../auth/login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"
                                             class="btn btn-warning btn-sm w-100"
@@ -513,6 +575,24 @@ require_once '../modals/reportmodal.php';
 </div>
 
 <?php require_once '../modals/filePreviewModal.php'; ?>
-<?php require_once '../includes/footer.php'; ?>
+
 <script>
+    function handleFilterChange(element) {
+        const form = element.form;
+        // When a course is changed, reset subject and year
+        if (element.name === 'course') {
+            const subjectEl = form.querySelector('select[name="subject"]');
+            if (subjectEl) subjectEl.value = '';
+            const yearEl = form.querySelector('select[name="year"]');
+            if (yearEl) yearEl.value = '';
+        }
+        // When a subject is changed, reset the year
+        if (element.name === 'subject') {
+            const yearEl = form.querySelector('select[name="year"]');
+            if (yearEl) yearEl.value = '';
+        }
+        form.submit();
+    }
 </script>
+
+<?php require_once '../includes/footer.php'; ?>

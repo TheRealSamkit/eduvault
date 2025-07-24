@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/db_connect.php';
+require_once '../includes/email_manager.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
@@ -35,6 +36,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings'])) {
                           VALUES ($admin_id, 'Settings updated', '$ip')");
 
     $success = true;
+}
+$email_success = '';
+$email_error = '';
+// Handle test email
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_test_email'])) {
+    $admin_email = '';
+    $admin_id = $_SESSION['admin_id'];
+    $stmt = mysqli_prepare($mysqli, "SELECT email FROM admin_users WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, 'i', $admin_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_assoc($result)) {
+        $admin_email = $row['email'];
+    }
+    mysqli_stmt_close($stmt);
+    if ($admin_email) {
+        $email_manager = new EmailManager();
+        $ok = $email_manager->sendTemplate($admin_email, 'admin_announcement', [
+            'name' => 'Admin',
+            'message' => 'This is a test email from EduVault admin settings.'
+        ]);
+        $email_success = $ok ? 'Test email sent successfully!' : 'Failed to send test email.';
+        header('Location: settings.php?success=1');
+        exit();
+    } else {
+        $email_error = 'Could not find admin email.';
+        header('Location: settings.php?error=1');
+        exit();
+    }
+}
+// Handle bulk announcement
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_announcement'])) {
+    $subject = $_POST['announcement_subject'];
+    $body = $_POST['announcement_body'];
+    $users = mysqli_query($mysqli, "SELECT name, email FROM users WHERE status = 'active'");
+    $sent = 0;
+    $email_manager = new EmailManager();
+    while ($user = mysqli_fetch_assoc($users)) {
+        $ok = $email_manager->sendCustom($user['email'], $subject, nl2br(str_replace('{{name}}', htmlspecialchars($user['name']), $body)));
+        if ($ok)
+            $sent++;
+    }
+    $email_success = "Announcement sent to $sent users.";
+    header('Location: settings.php?success=1');
+    exit();
+    // Log the announcement
 }
 
 // Get all settings
@@ -176,7 +223,7 @@ require_once '../includes/admin_header.php';
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table" id="mimesTable">
+                        <table class="table text-white" id="mimesTable">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -195,6 +242,44 @@ require_once '../includes/admin_header.php';
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-envelope me-2"></i>Email Management</h4>
+                </div>
+                <div class="card-body">
+                    <?php if ($email_success): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?php echo htmlspecialchars($email_success); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php elseif ($email_error): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <?php echo htmlspecialchars($email_error); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
+                    <form method="POST" class="mb-4">
+                        <h5>Send Test Email to Admin</h5>
+                        <button type="submit" name="send_test_email" class="btn btn-outline-primary mt-2">
+                            <i class="fas fa-paper-plane me-1"></i>Send Test Email
+                        </button>
+                    </form>
+                    <form method="POST">
+                        <h5>Send Announcement to All Users</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Subject</label>
+                            <input type="text" name="announcement_subject" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Message (use {{name}} for user name)</label>
+                            <textarea name="announcement_body" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" name="send_announcement" class="btn btn-primary">
+                            <i class="fas fa-bullhorn me-1"></i>Send Announcement
+                        </button>
+                    </form>
                 </div>
             </div>
             <?php include '../modals/mimemodal.php'; ?>

@@ -32,15 +32,15 @@ if (!$file || !file_exists($file['file_path'])) {
     redirect("list.php");
     exit();
 }
-
-if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
-    flash('error', 'You do not have enough tokens to download this file. Upload files to earn more tokens !');
-    redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
-    exit();
+if ($file['user_id'] != $user_id) {
+    if (!checkAndConsumeToken($user_id, $file['id'], $mysqli)) {
+        flash('error', 'You do not have enough tokens to download this file. Upload files to earn more tokens !');
+        redirect($_SERVER['HTTP_REFERER'] ?? '../dashboard/dashboard.php');
+        exit();
+    }
 }
 
-// Unique download count logic (24-hour interval)
-$file_id = $file['id']; // Ensure $file is fetched above
+$file_id = $file['id'];
 $interval_hours = 24;
 
 // Check if user downloaded this file within the last 24 hours
@@ -70,29 +70,24 @@ if ($should_increment) {
 
     // Log this download
     $now = date('Y-m-d H:i:s');
-    $insert = "INSERT INTO file_downloads (user_id, file_id, downloaded_at) VALUES (?, ?, ?)";
+    $insert = "INSERT INTO downloads (user_id, file_id, downloaded_at) VALUES (?, ?, ?)";
     $stmt = mysqli_prepare($mysqli, $insert);
     mysqli_stmt_bind_param($stmt, 'iis', $user_id, $file_id, $now);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
-        // Send notification to file owner if different user and owner wants notifications
     if ($file['user_id'] != $user_id) {
         if (getUserPreference($file['user_id'], 'notify_downloads', '1', $mysqli) == '1') {
-            // Get the threshold preference (default to 10 if not set)
+
             $threshold = (int) getUserPreference($file['user_id'], 'notify_downloads_threshold', '10', $mysqli);
-            
-            // Check if the new download count reaches the threshold
+
             $new_download_count = $file['download_count'] + 1;
-            
+
             if ($new_download_count % $threshold == 0) {
-                // Send milestone notification only when threshold is reached
                 $title = "Download Milestone Reached";
                 $message = "Your file \"{$file['title']}\" has reached {$new_download_count} downloads!";
                 createNotification($file['user_id'], 'download', $title, $message, $file_id, null, $mysqli);
             }
-            // Note: If threshold is 1, it will send notification for every download
-            // If threshold is higher, it will only send notifications at milestones
         }
     }
 }

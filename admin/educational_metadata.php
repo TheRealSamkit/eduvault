@@ -1,13 +1,18 @@
 <?php
 require_once '../includes/db_connect.php';
 require_once '../includes/functions.php';
+require_once '../includes/email_manager.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
     redirect('index.php');
 }
 
-// Handle adding new items
+$email_success = '';
+$email_error = '';
+$email_manager = new EmailManager();
+
+// Handle adding new items and notify users
 if (isset($_POST['add_board'])) {
     $board_name = trim($_POST['board_name']);
     if (!empty($board_name)) {
@@ -15,9 +20,19 @@ if (isset($_POST['add_board'])) {
         mysqli_stmt_bind_param($add_board_stmt, 's', $board_name);
         mysqli_stmt_execute($add_board_stmt);
         mysqli_stmt_close($add_board_stmt);
+        // Notify users
+        if (isset($_POST['notify_users'])) {
+            $users = mysqli_query($mysqli, "SELECT name, email FROM users WHERE status = 'active'");
+            $sent = 0;
+            while ($user = mysqli_fetch_assoc($users)) {
+                $ok = $email_manager->sendCustom($user['email'], 'New Board Added', '<p>Hi ' . htmlspecialchars($user['name']) . ',</p><p>A new board <b>' . htmlspecialchars($board_name) . '</b> has been added to EduVault.</p>');
+                if ($ok)
+                    $sent++;
+            }
+            $email_success = "Notification sent to $sent users.";
+        }
     }
 }
-
 if (isset($_POST['add_subject'])) {
     $subject_name = trim($_POST['subject_name']);
     if (!empty($subject_name)) {
@@ -25,9 +40,19 @@ if (isset($_POST['add_subject'])) {
         mysqli_stmt_bind_param($add_subject_stmt, 's', $subject_name);
         mysqli_stmt_execute($add_subject_stmt);
         mysqli_stmt_close($add_subject_stmt);
+        // Notify users
+        if (isset($_POST['notify_users'])) {
+            $users = mysqli_query($mysqli, "SELECT name, email FROM users WHERE status = 'active'");
+            $sent = 0;
+            while ($user = mysqli_fetch_assoc($users)) {
+                $ok = $email_manager->sendCustom($user['email'], 'New Subject Added', '<p>Hi ' . htmlspecialchars($user['name']) . ',</p><p>A new subject <b>' . htmlspecialchars($subject_name) . '</b> has been added to EduVault.</p>');
+                if ($ok)
+                    $sent++;
+            }
+            $email_success = "Notification sent to $sent users.";
+        }
     }
 }
-
 if (isset($_POST['add_course'])) {
     $course_name = trim($_POST['course_name']);
     if (!empty($course_name)) {
@@ -35,9 +60,19 @@ if (isset($_POST['add_course'])) {
         mysqli_stmt_bind_param($add_course_stmt, 's', $course_name);
         mysqli_stmt_execute($add_course_stmt);
         mysqli_stmt_close($add_course_stmt);
+        // Notify users
+        if (isset($_POST['notify_users'])) {
+            $users = mysqli_query($mysqli, "SELECT name, email FROM users WHERE status = 'active'");
+            $sent = 0;
+            while ($user = mysqli_fetch_assoc($users)) {
+                $ok = $email_manager->sendCustom($user['email'], 'New Course Added', '<p>Hi ' . htmlspecialchars($user['name']) . ',</p><p>A new course <b>' . htmlspecialchars($course_name) . '</b> has been added to EduVault.</p>');
+                if ($ok)
+                    $sent++;
+            }
+            $email_success = "Notification sent to $sent users.";
+        }
     }
 }
-
 if (isset($_POST['add_year'])) {
     $year = trim($_POST['year']);
     if (!empty($year)) {
@@ -45,6 +80,17 @@ if (isset($_POST['add_year'])) {
         mysqli_stmt_bind_param($add_year_stmt, 's', $year);
         mysqli_stmt_execute($add_year_stmt);
         mysqli_stmt_close($add_year_stmt);
+        // Notify users
+        if (isset($_POST['notify_users'])) {
+            $users = mysqli_query($mysqli, "SELECT name, email FROM users WHERE status = 'active'");
+            $sent = 0;
+            while ($user = mysqli_fetch_assoc($users)) {
+                $ok = $email_manager->sendCustom($user['email'], 'New Year Added', '<p>Hi ' . htmlspecialchars($user['name']) . ',</p><p>A new year <b>' . htmlspecialchars($year) . '</b> has been added to EduVault.</p>');
+                if ($ok)
+                    $sent++;
+            }
+            $email_success = "Notification sent to $sent users.";
+        }
     }
 }
 
@@ -296,3 +342,15 @@ require_once '../includes/admin_header.php';
 </body>
 
 </html>
+<?php if ($email_success): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($email_success); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+<?php if ($email_error): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($email_error); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
