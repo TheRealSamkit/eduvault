@@ -27,6 +27,21 @@ if (isset($_POST['delete_file'])) {
     }
 }
 
+// Handle visibility change
+if (isset($_POST['toggle_visibility'])) {
+    $file_id = mysqli_real_escape_string($mysqli, $_POST['file_id']);
+    $current_visibility = mysqli_real_escape_string($mysqli, $_POST['current_visibility']);
+    $new_visibility = $current_visibility === 'public' ? 'private' : 'public';
+    $update_query = "UPDATE digital_files SET visibility = '$new_visibility' WHERE id = $file_id AND user_id = $user_id";
+    if (mysqli_query($mysqli, $update_query)) {
+        flash('success', 'File visibility updated to ' . ucfirst($new_visibility) . '.');
+    } else {
+        flash('error', 'Failed to update file visibility.');
+    }
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 $files_query = "SELECT f.*, s.name as subject, c.name as course, y.year as year, (SELECT COUNT(*) FROM downloads WHERE file_id = f.id) as download_count, (SELECT COUNT(*) FROM reported_content WHERE content_id = f.id) as report_count FROM digital_files f LEFT JOIN subjects s ON f.subject_id = s.id LEFT JOIN courses c ON f.course_id = c.id LEFT JOIN years y ON f.year_id = y.id WHERE f.user_id = $user_id ORDER BY f.upload_date DESC";
 $files_result = mysqli_query($mysqli, $files_query);
 
@@ -168,6 +183,18 @@ require_once '../includes/header.php';
                                                     title="View Details">
                                                     <i class="fas fa-info-circle"></i>
                                                 </a>
+                                                <form method="POST" class="d-inline me-1">
+                                                    <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
+                                                    <input type="hidden" name="current_visibility"
+                                                        value="<?php echo $file['visibility']; ?>">
+                                                    <button type="submit" name="toggle_visibility"
+                                                        class="btn btn-outline-secondary action-btn" data-bs-toggle="tooltip"
+                                                        title="Toggle Visibility">
+                                                        <i
+                                                            class="fas fa-eye<?php echo $file['visibility'] === 'public' ? '' : '-slash'; ?>"></i>
+                                                        <?php echo $file['visibility'] === 'public' ? 'Make Private' : 'Make Public'; ?>
+                                                    </button>
+                                                </form>
                                                 <form method="POST" class="d-inline"
                                                     onsubmit="return confirm('Are you sure you want to delete this file?');">
                                                     <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
@@ -229,6 +256,18 @@ require_once '../includes/header.php';
                                                 <a href="../files/download.php?slug=<?php echo $file['slug']; ?>"
                                                     class="btn btn-outline-primary btn-sm flex-fill" title="Download"><i
                                                         class="fas fa-download"></i></a>
+                                                <form method="POST" class="d-inline me-1">
+                                                    <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
+                                                    <input type="hidden" name="current_visibility"
+                                                        value="<?php echo $file['visibility']; ?>">
+                                                    <button type="submit" name="toggle_visibility"
+                                                        class="btn btn-outline-secondary btn-sm flex-fill"
+                                                        title="Toggle Visibility">
+                                                        <i
+                                                            class="fas fa-eye<?php echo $file['visibility'] === 'public' ? '' : '-slash'; ?>"></i>
+                                                        <?php echo $file['visibility'] === 'public' ? 'Make Private' : 'Make Public'; ?>
+                                                    </button>
+                                                </form>
                                                 <form method="POST" class="d-inline"
                                                     onsubmit="return confirm('Are you sure you want to delete this file?');">
                                                     <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">

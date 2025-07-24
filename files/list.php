@@ -495,12 +495,6 @@ require_once '../modals/reportmodal.php';
                                             title="<?php echo $bookmarked ? 'Remove Bookmark' : 'Add Bookmark'; ?>">
                                             <i class="<?php echo $bookmarked ? 'fas' : 'far'; ?> fa-bookmark"></i>
                                         </button>
-
-                                        <!-- <a href="view.php?slug=<?php echo urlencode($file['slug']); ?>"
-                                            class="btn btn-outline-primary btn-sm flex-fill"
-                                            aria-label="View details for <?php echo htmlspecialchars($file['title']); ?>">
-                                            <i class="fas fa-eye" aria-hidden="true"></i>
-                                        </a> -->
                                     <?php else: ?>
                                         <a href="../auth/login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"
                                             class="btn btn-warning btn-sm w-100"

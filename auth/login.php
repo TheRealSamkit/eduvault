@@ -90,7 +90,7 @@ include '../includes/header.php';
                         data-login_uri="http://localhost/eduvault/auth/google-callback.php" data-auto_prompt="false">
                     </div>
                     <!-- Custom Google Sign-In Button -->
-                    <button id="google-login-btn" class="btn w-100">
+                    <button id="google-login-btn" class="btn w-100 text-dark" style="border: 2px solid #000;">
                         Continue with Google
                     </button>
 

@@ -36,21 +36,21 @@ if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_
                 <h5 class="text-primary mb-3">
                     EduVault
                 </h5>
-                <p class="text-muted mb-3">
+                <p class="color mb-3">
                     India's unified platform for students to donate, exchange physical books, and share digital study
                     resources. Building a community of learners supporting each other.
                 </p>
                 <div class="d-flex gap-3">
-                    <a href="#" class="text-muted text-decoration-none hover-primary">
+                    <a href="#" class="color text-decoration-none hover-primary">
                         <i class="fab fa-facebook fs-5"></i>
                     </a>
-                    <a href="#" class="text-muted text-decoration-none hover-primary">
+                    <a href="#" class="color text-decoration-none hover-primary">
                         <i class="fab fa-twitter fs-5"></i>
                     </a>
-                    <a href="#" class="text-muted text-decoration-none hover-primary">
+                    <a href="#" class="color text-decoration-none hover-primary">
                         <i class="fab fa-instagram fs-5"></i>
                     </a>
-                    <a href="#" class="text-muted text-decoration-none hover-primary">
+                    <a href="#" class="color text-decoration-none hover-primary">
                         <i class="fab fa-linkedin fs-5"></i>
                     </a>
                 </div>
@@ -60,23 +60,23 @@ if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_
                 <ul class="list-unstyled">
                     <?php if ($books_enabled): ?>
                         <li class="mb-2">
-                            <a href="/eduvault/books/list.php" class="text-muted text-decoration-none hover-primary">
+                            <a href="/eduvault/books/list.php" class="color text-decoration-none hover-primary">
                                 Browse Books
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="/eduvault/books/add.php" class="text-muted text-decoration-none hover-primary">
+                            <a href="/eduvault/books/add.php" class="color text-decoration-none hover-primary">
                                 Donate Books
                             </a>
                         </li>
                     <?php endif; ?>
                     <li class="mb-2">
-                        <a href="/eduvault/files/list.php" class="text-muted text-decoration-none hover-primary">
+                        <a href="/eduvault/files/list.php" class="color text-decoration-none hover-primary">
                             Digital Notes
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/eduvault/files/upload.php" class="text-muted text-decoration-none hover-primary">
+                        <a href="/eduvault/files/upload.php" class="color text-decoration-none hover-primary">
                             Upload Notes
                         </a>
                     </li>
@@ -87,23 +87,23 @@ if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_
                 <h6 class="text-primary mb-3">Resources</h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
-                        <a href="#" class="text-muted text-decoration-none hover-primary">
+                        <a href="#" class="color text-decoration-none hover-primary">
                             CBSE Materials
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="http://localhost/eduvault/books/list.php?board=5"
-                            class="text-muted text-decoration-none hover-primary">
+                            class="color text-decoration-none hover-primary">
                             State Board
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="#" class="text-muted text-decoration-none hover-primary">
+                        <a href="#" class="color text-decoration-none hover-primary">
                             Engineering Notes
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="#" class="text-muted text-decoration-none hover-primary">
+                        <a href="#" class="color text-decoration-none hover-primary">
                             UPSC Materials
                         </a>
                     </li>
@@ -114,23 +114,23 @@ if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_
                 <h6 class="text-primary mb-3">Support</h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
-                        <a href="#" class="text-muted text-decoration-none hover-primary">
+                        <a href="#" class="color text-decoration-none hover-primary">
                             Help Center
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/eduvault/index.php#how_it_works" class=" text-muted text-decoration-none
+                        <a href="/eduvault/index.php#how_it_works" class=" color text-decoration-none
                                 hover-primary">
                             How to Use
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="#" class="text-muted text-decoration-none hover-primary">
+                        <a href="#" class="color text-decoration-none hover-primary">
                             Community Rules
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="#" class="text-muted text-decoration-none hover-primary">
+                        <a href="#" class="color text-decoration-none hover-primary">
                             Contact Us
                         </a>
                     </li>
@@ -139,7 +139,7 @@ if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_
 
             <div class="col-lg-2 col-md-6">
                 <h6 class="text-primary mb-3">Connect</h6>
-                <div class="text-muted">
+                <div class="color">
                     <div class="mb-2">
                         <i class="fas fa-envelope me-2"></i>
                         <small>support@eduvault.in</small>
@@ -159,13 +159,13 @@ if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_
         <hr class="border-secondary my-4">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <p class="mb-0 text-muted">
+                <p class="mb-0 color">
                     <small>&copy; <?php echo date('Y'); ?> EduVault. Made with <i class="fas fa-heart text-danger"></i>
                         for Indian Students</small>
                 </p>
             </div>
             <div class="col-md-6 text-md-end">
-                <small class="text-muted">
+                <small class="color">
                     <a href="/eduvault/pages/privacy.php" class="text-decoration-none hover-primary me-3">Privacy
                         Policy</a>
                     <a href="/eduvault/pages/terms.php" class="text-decoration-none hover-primary me-3">Terms of

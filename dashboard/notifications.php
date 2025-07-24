@@ -52,7 +52,6 @@ $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $per_page = 20;
 $offset = ($page - 1) * $per_page;
 
-// Get total count
 $count_query = "SELECT COUNT(*) as total FROM notifications WHERE user_id = ?";
 $stmt = mysqli_prepare($mysqli, $count_query);
 mysqli_stmt_bind_param($stmt, "i", $user_id);
@@ -91,7 +90,7 @@ require_once '../includes/header.php';
     <?php include '../includes/sidebar.php'; ?>
     <div class="flex-grow-1 main-content">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0 page-title">
                     <i class="fas fa-bell me-2"></i>Notifications
                     <?php if ($unread_count > 0): ?>
@@ -116,7 +115,7 @@ require_once '../includes/header.php';
             </div>
 
             <?php if (mysqli_num_rows($notifications_result) > 0): ?>
-                <div class="card shadow-sm mb-4 border-0 p-2">
+                <div class="card shadow-sm border-0 p-1 mb-4">
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
                             <?php while ($notification = mysqli_fetch_assoc($notifications_result)): ?>
@@ -211,8 +210,6 @@ require_once '../includes/header.php';
                         </div>
                     </div>
                 </div>
-
-                <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
                     <nav aria-label="Notifications pagination" class="mt-4">
                         <ul class="pagination justify-content-center">

@@ -2,6 +2,7 @@
 require_once '../includes/db_connect.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
+require_once __DIR__ . '/../vendor/autoload.php'; // Composer autoload for FPDF
 
 $sidebar = true;
 requireLogin();
@@ -10,6 +11,8 @@ $max_file_size = 10 * 1024 * 1024;
 $allowed_mimes = getAllMimes($mysqli);
 $allowed_ext = array_keys($allowed_mimes);
 $allowed_mime_types = $allowed_mimes;
+
+$allowed_image_ext = ['jpg', 'jpeg', 'png'];
 
 $error = '';
 
@@ -26,62 +29,122 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $year_id = (int) $_POST['year_id'];
     $tags = isset($_POST['tags']) ? mysqli_real_escape_string($mysqli, $_POST['tags']) : '';
 
-    if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-
-        if (!in_array($ext, $allowed_ext)) {
-            $error = "Invalid file format. Allowed: " . strtoupper(implode(', ', $allowed_ext));
-        } elseif ($_FILES['file']['size'] > $max_file_size) {
-            $error = "File size exceeds 10MB limit";
-        } else {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $detected_mime = finfo_file($finfo, $_FILES['file']['tmp_name']);
-            finfo_close($finfo);
-
-            if ($detected_mime !== $allowed_mime_types[$ext]) {
-                $error = "File MIME type does not match the file extension.";
+    // Multi-image upload logic
+    if (isset($_FILES['file'])) {
+        $files = $_FILES['file'];
+        $file_count = is_array($files['name']) ? count($files['name']) : 1;
+        $is_multi_image = $file_count > 1;
+        $image_files = [];
+        $valid_images = true;
+        if ($is_multi_image) {
+            if ($file_count > 15) {
+                $error = "You can upload a maximum of 15 images.";
             } else {
-                $file_size = $_FILES['file']['size']; // in bytes
-                $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
-
-                if (move_uploaded_file($_FILES['file']['tmp_name'], $file_path)) {
-                    $content_hash = generateContentHash($file_path);
-                    $slug = generateSlug($title, $mysqli);
-
-                    $query = "INSERT INTO digital_files (user_id, slug, title, description, subject_id, course_id, year_id, file_path, file_type, file_size, tags, content_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-                    $stmt = mysqli_prepare($mysqli, $query);
-                    mysqli_stmt_bind_param($stmt, "isssiiisssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash);
-
-                    if (mysqli_stmt_execute($stmt)) {
-                        // Award tokens for successful upload (e.g., 5 tokens per upload)
-                        $tokens_to_award = 5;
-                        mysqli_query($mysqli, "UPDATE users SET tokens = tokens + $tokens_to_award WHERE id = $user_id");
-
-                        // Send token notification if user wants token notifications
-                        if (getUserPreference($user_id, 'notify_tokens', '1', $mysqli) == '1') {
-                            $title = "Tokens Earned";
-                            $message = "You earned {$tokens_to_award} tokens for uploading!";
-                            createNotification($user_id, 'token', $title, $message, null, null, $mysqli);
-                        }
-
-                        flash('success', 'File uploaded successfully! You earned ' . $tokens_to_award . ' tokens.');
-                        redirect("" . $_SERVER['PHP_SELF']);
-                        exit();
-                    } else {
-                        $error = "Upload failed: " . mysqli_error($mysqli);
-                        if (file_exists($file_path))
-                            unlink($file_path);
+                for ($i = 0; $i < $file_count; $i++) {
+                    $ext = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
+                    if (!in_array($ext, $allowed_image_ext)) {
+                        $valid_images = false;
+                        $error = "Only JPEG and PNG images are allowed for multi-image upload.";
+                        break;
                     }
+                    $image_files[] = [
+                        'tmp_name' => $files['tmp_name'][$i],
+                        'ext' => $ext
+                    ];
+                }
+            }
+        }
+        if ($is_multi_image && $valid_images && empty($error)) {
+            // Merge images into PDF
+            $pdf = new \FPDF();
+            foreach ($image_files as $img) {
+                $img_info = getimagesize($img['tmp_name']);
+                if ($img_info === false)
+                    continue;
+                $w = $img_info[0];
+                $h = $img_info[1];
+                // Convert px to mm (A4 max size)
+                $w_mm = $w * 0.264583;
+                $h_mm = $h * 0.264583;
+                // Copy to temp file with correct extension
+                $tmpPath = sys_get_temp_dir() . '/' . uniqid('img_', true) . '.' . $img['ext'];
+                copy($img['tmp_name'], $tmpPath);
+                $pdf->AddPage('P', [$w_mm, $h_mm]);
+                $pdf->Image($tmpPath, 0, 0, $w_mm, $h_mm);
+                @unlink($tmpPath);
+            }
+            $file_path = '../uploads/files/' . uniqid() . '.pdf';
+            $pdf->Output('F', $file_path);
+            $ext = 'pdf';
+            $file_size = filesize($file_path);
+            $content_hash = generateContentHash($file_path);
+            $slug = generateSlug($title, $mysqli);
+            $query = "INSERT INTO digital_files (user_id, slug, title, description, subject_id, course_id, year_id, file_path, file_type, file_size, tags, content_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = mysqli_prepare($mysqli, $query);
+            mysqli_stmt_bind_param($stmt, "isssiiisssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash);
+            if (mysqli_stmt_execute($stmt)) {
+                // Consume 5 tokens for this operation
+                mysqli_query($mysqli, "UPDATE users SET tokens = GREATEST(tokens - 5, 0) WHERE id = $user_id");
+                if (getUserPreference($user_id, 'notify_tokens', '1', $mysqli) == '1') {
+                    $title = "Tokens Used";
+                    $message = "You used 5 tokens to merge images into a PDF.";
+                    createNotification($user_id, 'token', $title, $message, null, null, $mysqli);
+                }
+                flash('success', 'Images merged and uploaded as PDF! 5 tokens consumed.');
+                redirect("" . $_SERVER['PHP_SELF']);
+                exit();
+            } else {
+                $error = "Upload failed: " . mysqli_error($mysqli);
+                if (file_exists($file_path))
+                    unlink($file_path);
+            }
+        } else if (!$is_multi_image) {
+            // Single file upload (existing logic, but only allow image or allowed ext)
+            $ext = strtolower(pathinfo($files['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowed_ext)) {
+                $error = "Invalid file format. Allowed: " . strtoupper(implode(', ', $allowed_ext));
+            } elseif ($files['size'] > $max_file_size) {
+                $error = "File size exceeds 10MB limit";
+            } else {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $detected_mime = finfo_file($finfo, $files['tmp_name']);
+                finfo_close($finfo);
+                if ($detected_mime !== $allowed_mime_types[$ext]) {
+                    $error = "File MIME type does not match the file extension.";
                 } else {
-                    $error = "Failed to move uploaded file.";
+                    $file_size = $files['size'];
+                    $file_path = '../uploads/files/' . uniqid() . '.' . $ext;
+                    if (move_uploaded_file($files['tmp_name'], $file_path)) {
+                        $content_hash = generateContentHash($file_path);
+                        $slug = generateSlug($title, $mysqli);
+                        $query = "INSERT INTO digital_files (user_id, slug, title, description, subject_id, course_id, year_id, file_path, file_type, file_size, tags, content_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        $stmt = mysqli_prepare($mysqli, $query);
+                        mysqli_stmt_bind_param($stmt, "isssiiisssss", $user_id, $slug, $title, $description, $subject_id, $course_id, $year_id, $file_path, $ext, $file_size, $tags, $content_hash);
+                        if (mysqli_stmt_execute($stmt)) {
+                            // Consume 5 tokens for this operation
+                            mysqli_query($mysqli, "UPDATE users SET tokens = GREATEST(tokens - 5, 0) WHERE id = $user_id");
+                            if (getUserPreference($user_id, 'notify_tokens', '1', $mysqli) == '1') {
+                                $title = "Tokens Used";
+                                $message = "You used 5 tokens to upload a file.";
+                                createNotification($user_id, 'token', $title, $message, null, null, $mysqli);
+                            }
+                            flash('success', 'File uploaded successfully! 5 tokens consumed.');
+                            redirect("" . $_SERVER['PHP_SELF']);
+                            exit();
+                        } else {
+                            $error = "Upload failed: " . mysqli_error($mysqli);
+                            if (file_exists($file_path))
+                                unlink($file_path);
+                        }
+                    } else {
+                        $error = "Failed to move uploaded file.";
+                    }
                 }
             }
         }
     } else {
         $error = "Please select a file to upload.";
     }
-
     if (!empty($error)) {
         flash('error', $error);
         redirect("" . $_SERVER['PHP_SELF']);
@@ -122,8 +185,9 @@ require_once '../includes/header.php';
                                             <?php echo strtoupper(implode(", ", $allowed_ext)) ?></small>
                                     </div>
                                 </div>
-                                <input type="file" name="file" id="fileInput" class="d-none" required
-                                    accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>">
+                                <input type="file" name="file[]" id="fileInput" class="d-none" required
+                                    accept="<?php echo implode(',', array_map(fn($e) => '.' . $e, $allowed_ext)); ?>"
+                                    multiple>
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="form-floating mb-3">
@@ -213,11 +277,12 @@ require_once '../includes/header.php';
     // Dropzone config
     Dropzone.autoDiscover = false;
     const allowedExt = <?php echo json_encode($allowed_ext); ?>;
+    const imageExt = ['jpg', 'jpeg', 'png'];
     const maxFileSizeMB = 10;
-    const dz = new Dropzone("body", {
+    let dz = new Dropzone("body", {
         url: "#", // Prevent auto-upload
         autoProcessQueue: false,
-        maxFiles: 1,
+        maxFiles: 15,
         maxFilesize: maxFileSizeMB,
         acceptedFiles: allowedExt.map(e => "." + e).join(","),
         clickable: "#fileDropzone", // Make only the designated area clickable
@@ -226,52 +291,58 @@ require_once '../includes/header.php';
             const dzMessage = document.querySelector("#fileDropzone .dz-message");
             const originalMessageHTML = dzMessage.innerHTML;
             const dzElem = document.getElementById('fileDropzone');
-
             this.on("addedfile", function (file) {
-                // Set file to hidden input for form submit
                 const fileInput = document.getElementById('fileInput');
                 if (fileInput) {
                     const dt = new DataTransfer();
-                    dt.items.add(file);
+                    for (let i = 0; i < this.files.length; i++) {
+                        dt.items.add(this.files[i]);
+                    }
                     fileInput.files = dt.files;
                 }
-                // Update UI to show filename and a remove link
-                dzMessage.innerHTML = `<i class="fas fa-file-check fa-2x mb-2 text-success"></i><br><span>${file.name}</span><br><small class="text-muted">Click here or drop another file to replace.</small>`;
+                // If all files are images, allow up to 15, else only 1
+                const allImages = Array.from(this.files).every(f => imageExt.includes(f.name.split('.').pop().toLowerCase()));
+                if (allImages) {
+                    this.options.maxFiles = 15;
+                } else {
+                    this.options.maxFiles = 1;
+                    if (this.files.length > 1) {
+                        // Remove extra files
+                        while (this.files.length > 1) {
+                            this.removeFile(this.files[this.files.length - 1]);
+                        }
+                    }
+                }
+                dzMessage.innerHTML = `<i class=\"fas fa-file-check fa-2x mb-2 text-success\"></i><br><span>${this.files.length} file(s) selected</span><br><small class=\"text-muted\">${allImages ? 'You can upload up to 15 images.' : 'Only one non-image file allowed.'}</small>`;
                 dzMessage.querySelector('span').style.cssText = "word-break: break-all; font-weight: bold;";
-
                 const removeLink = document.createElement('a');
                 removeLink.href = "#";
-                removeLink.innerHTML = "Remove file";
+                removeLink.innerHTML = "Remove all files";
                 removeLink.className = "text-danger mt-2 d-block";
                 removeLink.onclick = (e) => {
                     e.preventDefault();
-                    e.stopPropagation(); // prevent file dialog from opening
-                    this.removeFile(file);
+                    e.stopPropagation();
+                    this.removeAllFiles();
                 };
                 dzMessage.appendChild(removeLink);
                 dzElem.classList.remove('border-danger');
             });
-
             this.on("removedfile", function () {
                 const fileInput = document.getElementById('fileInput');
                 if (fileInput) fileInput.value = '';
                 dzMessage.innerHTML = originalMessageHTML;
                 dzElem.classList.remove('border-danger');
             });
-
             this.on("maxfilesexceeded", function (file) {
                 this.removeAllFiles();
                 this.addFile(file);
             });
-
             this.on("dragenter", function () {
                 document.body.classList.add('dz-drag-hover');
             });
-
             this.on("dragleave", function () {
                 document.body.classList.remove('dz-drag-hover');
             });
-
             this.on("drop", function () {
                 document.body.classList.remove('dz-drag-hover');
             });

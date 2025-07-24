@@ -428,13 +428,13 @@ function toastBgClass($type)
 {
     switch ($type) {
         case 'success':
-            return 'success-subtle border-success';
+            return 'success';
         case 'error':
-            return 'danger-subtle border-danger';
+            return 'danger';
         case 'warning':
-            return 'warning-subtle border-warning';
+            return 'warning';
         case 'info':
-            return 'info-subtle border-info';
+            return 'info';
         default:
             return 'secondary';
     }

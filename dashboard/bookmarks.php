@@ -9,14 +9,18 @@ if (!isLoggedIn()) {
 }
 
 $user_id = $_SESSION['user_id'];
-$query = "SELECT f.* FROM file_bookmarks b JOIN digital_files f ON b.file_id = f.id WHERE b.user_id = ? ORDER BY b.bookmarked_at DESC";
+$is_admin = isset($_SESSION['admin_id']);
+$query = "SELECT f.*, u.id as uploader_id FROM file_bookmarks b JOIN digital_files f ON b.file_id = f.id JOIN users u ON f.user_id = u.id WHERE b.user_id = ? ORDER BY b.bookmarked_at DESC";
 $stmt = mysqli_prepare($mysqli, $query);
 mysqli_stmt_bind_param($stmt, 'i', $user_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $bookmarks = [];
 while ($row = mysqli_fetch_assoc($result)) {
-    $bookmarks[] = $row;
+    // Only show if public, or user is uploader, or admin
+    if ($row['visibility'] === 'public' || $row['uploader_id'] == $user_id || $is_admin) {
+        $bookmarks[] = $row;
+    }
 }
 mysqli_stmt_close($stmt);
 
