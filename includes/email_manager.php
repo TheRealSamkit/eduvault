@@ -17,7 +17,7 @@ class EmailManager
         $this->mailer->Host = 'smtp.gmail.com';
         $this->mailer->SMTPAuth = true;
         $this->mailer->Username = 'samkitjain2809@gmail.com';
-        $this->mailer->Password = 'uuiw apyf kvmd pmne'; // use App Password if 2FA is on
+        $this->mailer->Password = getenv('secret');// use App Password if 2FA is on
         $this->mailer->SMTPSecure = 'tls'; // or 'ssl' for port 465
         $this->mailer->Port = 587; // or 465 for SSL
         $this->mailer->isHTML(true);
