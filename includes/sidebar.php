@@ -1,6 +1,5 @@
-<div class="dashboard-sidebar d-lg-block position-lg-sticky top-0" id="dashboardSidebar"
+<div class="dashboard-sidebar d-lg-block position-lg-sticky top-0 bg-body-tertiary" id="dashboardSidebar"
     style="background: var(--bg-body-tertiary); border-right: 1px solid var(--bs-border-color); min-height: 100vh;">
-    <!-- Sidebar header (if any) can go here -->
     <div class="sidebar-scroll flex-grow-1" style="overflow-y: auto; max-height: 100vh;">
         <nav class="nav flex-column mt-2">
             <a href="/eduvault/dashboard/dashboard.php"

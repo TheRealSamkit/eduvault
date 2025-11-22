@@ -176,7 +176,7 @@ require_once '../includes/header.php';
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label fw-bold">File <span class="text-danger">*</span></label>
-                                <div class="dropzone dz-clickable rounded-3 border border-2 border-primary bg-e-secondary p-4 mb-3 form-control"
+                                <div class="dropzone dz-clickable rounded-3 border border-2 border-primary bg-body-tertiary p-4 mb-3 form-control"
                                     id="fileDropzone">
                                     <div class="dz-message text-center text-muted">
                                         <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i><br>

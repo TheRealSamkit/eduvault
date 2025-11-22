@@ -85,7 +85,6 @@ require_once '../modals/editProfileModal.php';
                     </div>
                 </div>
             </div>
-
             <div class="row-md-6 g-3 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
