@@ -34,8 +34,6 @@ if (isLoggedIn()) {
         <link rel="icon" type="image/png" sizes="32x32" href="/eduvault/assets/favicon/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/eduvault/assets/favicon/favicon-16x16.png">
         <link href="/eduvault/assets/css/bootstrap.css" rel="stylesheet">
-        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous"> -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
         <?php
         if (isset($additionalStyles)) {
@@ -44,11 +42,11 @@ if (isLoggedIn()) {
             }
         }
         ?>
-        <link rel='stylesheet' href='/eduvault/assets/css/theme.css'>
+        <!-- <link rel='stylesheet' href='/eduvault/assets/css/theme.css'> -->
         <link rel='stylesheet' href='/eduvault/assets/css/custom.css'>
     </head>
 
-    <body class="bg-dark-body text-body">
+    <body class="bg-body text-body">
         <div class="bg-dark-body d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 "
             style="z-index: 9999;" id="pageLoader">
             <div class="text-center">
@@ -69,7 +67,7 @@ if (isLoggedIn()) {
         <?php if (!str_contains($_SERVER['PHP_SELF'], 'login') && !str_contains($_SERVER['PHP_SELF'], 'register')):
             if (!isLoggedIn()):
                 ?>
-                <nav class="navbar navbar-expand-lg mb-4 bg-dark-body">
+                <nav class="navbar navbar-expand-lg mb-4">
                     <div class="container">
                         <a class="navbar-brand" href="/eduvault/index.php">EduVault
                         </a>
@@ -127,7 +125,7 @@ if (isLoggedIn()) {
         endif;
         if (isLoggedIn()):
             ?>
-            <nav class="navbar navbar-expand-lg mb-2 bg-dark-body">
+            <nav class="navbar navbar-expand-lg mb-2 bg-body-tertiary">
                 <div class="container-fluid px-2">
                     <?php if (!empty($sidebar)): ?>
                         <button class="btn fs-2 d-lg-none me-2 fa-color" id="sidebarToggle" type="button">
